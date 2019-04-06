@@ -1,0 +1,3 @@
+#index:
+#    path: /
+#    controller: CascadePublicMedia\PbsApiExplorer\Controller\DefaultController::index
