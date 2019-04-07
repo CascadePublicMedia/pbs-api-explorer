@@ -36,8 +36,8 @@ class MediaManagerController extends AbstractController
      */
     public function genres(EntityManagerInterface $entityManager) {
         $entities = $entityManager->getRepository(Genre::class)->findAll();
-        return $this->render('media_manager/table.html.twig', [
-            'headers' => [
+        return $this->render('datatable.html.twig', [
+            'properties' => [
                 'id' => 'ID',
                 'slug' => 'Slug',
                 'title' => 'Title',

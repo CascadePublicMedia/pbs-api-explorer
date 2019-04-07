@@ -50,14 +50,14 @@ class MenuBuilderSubscriber implements EventSubscriberInterface
         );
 
         /** @var MenuItemInterface $media_manager */
-        $media_manager = new MenuItemModel('media_manager', 'Media Manager', 'media_manager', [], 'fas fa-code');
+        $media_manager = new MenuItemModel('media_manager', 'Media Manager', 'media_manager', [], 'fas fa-video');
         $media_manager->addChild(
-            new MenuItemModel('media_manager_genres', 'Genres', 'media_manager_genres', [], 'fas fa-code')
+            new MenuItemModel('media_manager_genres', 'Genres', 'media_manager_genres')
         );
         $event->addItem($media_manager);
 
         $event->addItem(
-            new MenuItemModel('station_manager', 'Station Manager', 'station_manager', [], 'fas fa-code')
+            new MenuItemModel('station_manager', 'Station Manager', 'station_manager', [], 'fas fa-broadcast-tower')
         );
 
         $this->activateByRoute(
