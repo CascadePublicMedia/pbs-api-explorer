@@ -41,6 +41,8 @@ class MediaManagerController extends AbstractController
                 'id' => 'ID',
                 'title' => 'Title',
                 'slug' => 'Slug',
+                'created' => 'Created',
+                'updated' => 'Updated',
             ],
             'entities' => $entities,
         ]);
@@ -59,6 +61,7 @@ class MediaManagerController extends AbstractController
                 'title' => 'Title',
                 'slug' => 'Slug',
                 'genre' => 'Genre',
+                'updated' => 'Updated',
             ],
             'entities' => $entities,
         ]);
@@ -78,6 +81,7 @@ class MediaManagerController extends AbstractController
                 'slug' => 'Slug',
                 'franchise' => 'Franchise',
                 'genre' => 'Genre',
+                'updated' => 'Updated',
             ],
             'entities' => $entities,
         ]);

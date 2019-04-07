@@ -15,7 +15,12 @@
             {% for entity in entities %}
                 <tr>
                     {% for property, name in properties %}
-                        <td>{{ attribute(entity, property) }}</td>
+                        {% set field = attribute(entity, property) %}
+                        {% if field is instanceof('DateTime') or field is instanceof('DateTimeImmutable') %}
+                            <td>{{ field|date('Y-m-d H:i') }}</td>
+                        {% else %}
+                            <td>{{ field }}</td>
+                        {% endif %}
                     {% endfor %}
                 </tr>
             {% endfor %}

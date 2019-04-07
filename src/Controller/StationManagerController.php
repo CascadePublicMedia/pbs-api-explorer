@@ -41,6 +41,7 @@ class StationManagerController extends AbstractController
                 'callSign' => 'Call sign',
                 'pdp' => 'PDP',
                 'passportEnabled' => 'Passport',
+                'updated' => 'Updated',
             ],
             'entities' => $entities,
         ]);
@@ -58,6 +59,7 @@ class StationManagerController extends AbstractController
                 'fullCommonName' => 'Name',
                 'shortCommonName' => 'Name (short)',
                 'callSign' => 'Call sign',
+                'updated' => 'Updated',
             ],
             'entities' => $entities,
         ]);
