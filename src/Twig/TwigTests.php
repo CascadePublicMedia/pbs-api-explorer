@@ -19,6 +19,7 @@ class TwigTests extends AbstractExtension
     {
         return [
             new TwigTest('instanceof', [$this, 'isInstanceof']),
+            new TwigTest('boolean', [$this, 'isBool']),
         ];
     }
 
@@ -32,5 +33,13 @@ class TwigTests extends AbstractExtension
     public function isInstanceof($var, $instance)
     {
         return $var instanceof $instance;
+    }
+
+    /**
+     * @param $var
+     * @return bool
+     */
+    public function isBool($var) {
+        return is_bool($var);
     }
 }

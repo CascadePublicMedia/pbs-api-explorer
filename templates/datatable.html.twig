@@ -18,6 +18,8 @@
                         {% set field = attribute(entity, property) %}
                         {% if field is instanceof('DateTime') or field is instanceof('DateTimeImmutable') %}
                             <td>{{ field|date('Y-m-d H:i') }}</td>
+                        {% elseif field is boolean %}
+                            <td>{{ field|bool_icon }}</td>
                         {% else %}
                             <td>{{ field }}</td>
                         {% endif %}
