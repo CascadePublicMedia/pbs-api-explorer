@@ -114,12 +114,12 @@ class PbsApiClientBase
                 // Update an existing entity or create a new one.
                 if (isset($entities[$item->id])) {
                     $entity = $entities[$item->id];
-                    $op = 'add';
+                    $op = 'update';
                 }
                 else {
                     $entity = new $entityClass;
                     $this->propertyAccessor->setValue($entity, 'id', $item->id);
-                    $op = 'update';
+                    $op = 'add';
                 }
 
                 // Compare date in "updated_at" field for entities that support it.
