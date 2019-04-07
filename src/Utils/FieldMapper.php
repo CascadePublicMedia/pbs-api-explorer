@@ -25,6 +25,7 @@ class FieldMapper
         'tracking_ga_page' => 'gaTrackingPage',
         'tracking_ga_event' => 'gaTrackingEvent',
         'secondary_timezone' => 'timezoneSecondary',
+        'station_kids_url' => 'kidsStationUrl',
         'updated_at' => 'updated',
         'zip_code' => 'addressZipCode',
     ];
