@@ -35,6 +35,7 @@ class StationManagerController extends ControllerBase
     public function stations(EntityManagerInterface $entityManager) {
         $entities = $entityManager->getRepository(Station::class)->findAll();
         return $this->render('datatable.html.twig', [
+            'title' => 'Stations',
             'properties' => [
                 'fullCommonName' => 'Name',
                 'shortCommonName' => 'Name (short)',
@@ -44,6 +45,7 @@ class StationManagerController extends ControllerBase
                 'updated' => 'Updated',
             ],
             'entities' => $entities,
+            'update_route' => 'station_manager_stations_update',
         ]);
     }
 

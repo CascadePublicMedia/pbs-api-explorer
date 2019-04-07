@@ -1,8 +1,26 @@
 {% extends 'base.html.twig' %}
+{% import '@AdminLTE/Macros/buttons.html.twig' as btn %}
 
-{% block page_title %}Table view{% endblock %}
+{% block page_title %}
+    {% if title is defined %}
+        {{ title }}
+    {% else %}
+        Data table
+    {% endif %}
+{% endblock %}
+
+{% block page_subtitle %}
+    {% if subtitle is defined %}
+        {{ subtitle }}
+    {% endif %}
+{% endblock %}
 
 {% block page_content %}
+    {% if update_route is defined %}
+        <div class="well well-sm">
+            {{ btn.link_button('Sync from API', path(update_route), 'fas fa-sync', 'success', 'xs') }}
+        </div>
+    {% endif %}
     <table class="table table-bordered table-striped table-condensed datatable">
         <thead>
             <tr>
