@@ -3,7 +3,6 @@
 namespace CascadePublicMedia\PbsApiExplorer\Repository;
 
 use CascadePublicMedia\PbsApiExplorer\Entity\Platform;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -12,7 +11,7 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  * @method Platform[]    findAll()
  * @method Platform[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class PlatformRepository extends ServiceEntityRepository
+class PlatformRepository extends RepositoryBase
 {
     public function __construct(RegistryInterface $registry)
     {

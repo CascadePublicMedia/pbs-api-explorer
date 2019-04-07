@@ -3,7 +3,6 @@
 namespace CascadePublicMedia\PbsApiExplorer\Repository;
 
 use CascadePublicMedia\PbsApiExplorer\Entity\Genre;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -12,7 +11,7 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  * @method Genre[]    findAll()
  * @method Genre[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class GenreRepository extends ServiceEntityRepository
+class GenreRepository extends RepositoryBase
 {
     public function __construct(RegistryInterface $registry)
     {

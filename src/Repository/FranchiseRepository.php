@@ -3,7 +3,6 @@
 namespace CascadePublicMedia\PbsApiExplorer\Repository;
 
 use CascadePublicMedia\PbsApiExplorer\Entity\Franchise;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -12,7 +11,7 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  * @method Franchise[]    findAll()
  * @method Franchise[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class FranchiseRepository extends ServiceEntityRepository
+class FranchiseRepository extends RepositoryBase
 {
     public function __construct(RegistryInterface $registry)
     {

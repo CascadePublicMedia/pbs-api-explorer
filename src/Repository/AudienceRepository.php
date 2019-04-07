@@ -3,7 +3,6 @@
 namespace CascadePublicMedia\PbsApiExplorer\Repository;
 
 use CascadePublicMedia\PbsApiExplorer\Entity\Audience;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -12,7 +11,7 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  * @method Audience[]    findAll()
  * @method Audience[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class AudienceRepository extends ServiceEntityRepository
+class AudienceRepository extends RepositoryBase
 {
     public function __construct(RegistryInterface $registry)
     {
