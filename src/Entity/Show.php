@@ -158,6 +158,11 @@ class Show
         $this->platform = new ArrayCollection();
     }
 
+    public function __toString()
+    {
+        return $this->title;
+    }
+
     public function getId(): ?string
     {
         return $this->id;

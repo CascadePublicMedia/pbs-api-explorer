@@ -197,6 +197,11 @@ class Station
         $this->audiences = new ArrayCollection();
     }
 
+    public function __toString()
+    {
+        return $this->fullCommonName;
+    }
+
     public function getId(): ?int
     {
         return $this->id;

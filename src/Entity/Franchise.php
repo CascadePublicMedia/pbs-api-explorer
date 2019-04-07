@@ -119,6 +119,11 @@ class Franchise
         $this->shows = new ArrayCollection();
     }
 
+    public function __toString()
+    {
+        return $this->title;
+    }
+
     public function getId(): ?string
     {
         return $this->id;

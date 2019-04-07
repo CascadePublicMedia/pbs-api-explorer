@@ -38,6 +38,15 @@ class Audience
         $this->shows = new ArrayCollection();
     }
 
+    public function __toString()
+    {
+        $string = $this->scope;
+        if ($this->station) {
+            $string .= " ({$this->station})";
+        }
+        return $string;
+    }
+
     public function getId(): ?string
     {
         return $this->id;
