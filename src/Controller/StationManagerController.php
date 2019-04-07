@@ -58,7 +58,7 @@ class StationManagerController extends ControllerBase
     }
 
     /**
-     * @Route("/station-manager/stations/update", name="station_manager_stations_public_update")
+     * @Route("/station-manager/stations/public/update", name="station_manager_stations_public_update")
      * @param StationManagerPublicApiClient $apiClient
      * @return RedirectResponse
      */
