@@ -1,3 +1,52 @@
 {% extends 'base.html.twig' %}
 
-{% block page_title %}Home{% endblock %}
+{% block page_title %}PBS API Explorer{% endblock %}
+
+{% block page_subtitle %}Discover the many APIs...{% endblock %}
+
+{% block page_content %}
+    <h4>@TODO</h4>
+    <ul>
+        <li>
+            <a href="https://docs.pbs.org/display/SMA"><s><strong>Station Manager</strong></s></a>
+            <ul>
+                <li><a href="https://docs.pbs.org/display/SM/Station+Manager+Internal+API"><s>Stations (internal)</s></a></li>
+                <li><a href="https://docs.pbs.org/display/SM/Station+Manager+Public+API"><s>Stations (public)</s></a></li>
+            </ul>
+        </li>
+        <li>
+            <a href="https://docs.pbs.org/display/CDA"><strong>Media Manager</strong></a>
+            <ol>
+                <li><s>Genres</s></li>
+                <li><a href="https://docs.pbs.org/display/CDA/Franchises"><s>Franchises</s></a></li>
+                <li><a href="https://docs.pbs.org/display/CDA/Shows"><s>Shows</s></a></li>
+                <li><a href="https://docs.pbs.org/display/CDA/Seasons">Seasons</a></li>
+                <li><a href="https://docs.pbs.org/display/CDA/Episodes">Episodes</a></li>
+                <li><a href="https://docs.pbs.org/display/CDA/Specials">Specials</a></li>
+                <li><a href="https://docs.pbs.org/display/CDA/Assets">Assets</a></li>
+                <li><a href="https://docs.pbs.org/display/CDA/Topics">Topics</a> (???)</li>
+            </ol>
+        </li>
+        <li>
+            <a href="https://docs.pbs.org/display/tvsapi"><strong>TV Schedules Service</strong></a>
+            <ul>
+                <li>Listings</li>
+                <li>KIDS listings (???)</li>
+                <li>Channels/feeds</li>
+                <li>Programs list</li>
+            </ul>
+        </li>
+        <li>
+            <a href="https://docs.pbs.org/display/MV/Membership+Vault+API"><strong>Membership Vault</strong></a>
+            <ul>
+                <li>Memberships</li>
+            </ul>
+        </li>
+        <li>
+            <a href="https://docs.pbs.org/display/TVA/Transaction+Vault+API"><strong>Transaction Vault</strong></a>
+            <ul>
+                <li>Transactions</li>
+            </ul>
+        </li>
+    </ul>
+{% endblock %}
