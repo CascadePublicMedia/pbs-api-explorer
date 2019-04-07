@@ -39,47 +39,47 @@ class MediaManagerController extends AbstractController
         return $this->render('datatable.html.twig', [
             'properties' => [
                 'id' => 'ID',
-                'slug' => 'Slug',
                 'title' => 'Title',
+                'slug' => 'Slug',
             ],
             'entities' => $entities,
         ]);
     }
 
     /**
-     * @Route("/media-manager/genres/update", name="media_manager_genres_update")
-     * @param MediaManagerApiClient $apiClient
-     * @return Response
-     */
-    public function genres_update(MediaManagerApiClient $apiClient) {
-        return $this->render('entity_dumper.html.twig', [
-            'entity_class' => 'Genre',
-            'entities' => $apiClient->updateAndGetByEntityClass(Genre::class),
-        ]);
-    }
-
-
-    /**
      * @Route("/media-manager/franchises", name="media_manager_franchises")
-     * @param MediaManagerApiClient $apiClient
+     * @param EntityManagerInterface $entityManager
      * @return Response
      */
-    public function franchises(MediaManagerApiClient $apiClient) {
-        return $this->render('entity_dumper.html.twig', [
-            'entity_class' => 'Franchise',
-            'entities' => $apiClient->updateAndGetByEntityClass(Franchise::class),
+    public function franchises(EntityManagerInterface $entityManager) {
+        $entities = $entityManager->getRepository(Franchise::class)->findAll();
+        return $this->render('datatable.html.twig', [
+            'properties' => [
+                'id' => 'ID',
+                'title' => 'Title',
+                'slug' => 'Slug',
+                'genre' => 'Genre',
+            ],
+            'entities' => $entities,
         ]);
     }
 
     /**
      * @Route("/media-manager/shows", name="media_manager_shows")
-     * @param MediaManagerApiClient $apiClient
+     * @param EntityManagerInterface $entityManager
      * @return Response
      */
-    public function shows(MediaManagerApiClient $apiClient) {
-        return $this->render('entity_dumper.html.twig', [
-            'entity_class' => 'Show',
-            'entities' => $apiClient->updateAndGetByEntityClass(Show::class),
+    public function shows(EntityManagerInterface $entityManager) {
+        $entities = $entityManager->getRepository(Show::class)->findAll();
+        return $this->render('datatable.html.twig', [
+            'properties' => [
+                'id' => 'ID',
+                'title' => 'Title',
+                'slug' => 'Slug',
+                'franchise' => 'Franchise',
+                'genre' => 'Genre',
+            ],
+            'entities' => $entities,
         ]);
     }
 }

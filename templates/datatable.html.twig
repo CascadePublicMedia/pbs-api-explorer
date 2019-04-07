@@ -27,7 +27,9 @@
     {{ parent() }}
     <script type="application/javascript">
         $(document).ready( function () {
-            $('.datatable').DataTable();
+            $('.datatable').DataTable({
+                "pageLength": 25
+            });
         });
     </script>
 {% endblock %}

@@ -5,6 +5,7 @@ namespace CascadePublicMedia\PbsApiExplorer\Controller;
 use CascadePublicMedia\PbsApiExplorer\Entity\Station;
 use CascadePublicMedia\PbsApiExplorer\Service\StationManagerApiClient;
 use CascadePublicMedia\PbsApiExplorer\Service\StationManagerPublicApiClient;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -28,25 +29,37 @@ class StationManagerController extends AbstractController
 
     /**
      * @Route("/station-manager/stations", name="station_manager_stations")
-     * @param StationManagerApiClient $apiClient
+     * @param EntityManagerInterface $entityManager
      * @return Response
      */
-    public function stations(StationManagerApiClient $apiClient) {
-        return $this->render('entity_dumper.html.twig', [
-            'entity_class' => 'Station',
-            'entities' => $apiClient->updateAndGetByEntityClass(Station::class),
+    public function stations(EntityManagerInterface $entityManager) {
+        $entities = $entityManager->getRepository(Station::class)->findAll();
+        return $this->render('datatable.html.twig', [
+            'properties' => [
+                'fullCommonName' => 'Name',
+                'shortCommonName' => 'Name (short)',
+                'callSign' => 'Call sign',
+                'pdp' => 'PDP',
+                'passportEnabled' => 'Passport',
+            ],
+            'entities' => $entities,
         ]);
     }
 
     /**
-     * @Route("/station-manager/public/stations", name="station_manager_stations_public")
-     * @param StationManagerPublicApiClient $apiClient
+     * @Route("/station-manager/stations/public", name="station_manager_stations_public")
+     * @param EntityManagerInterface $entityManager
      * @return Response
      */
-    public function stationsPublic(StationManagerPublicApiClient $apiClient) {
-        return $this->render('entity_dumper.html.twig', [
-            'entity_class' => 'Station',
-            'entities' => $apiClient->updateAndGetByEntityClass(Station::class),
+    public function stations_public(EntityManagerInterface $entityManager) {
+        $entities = $entityManager->getRepository(Station::class)->findAll();
+        return $this->render('datatable.html.twig', [
+            'properties' => [
+                'fullCommonName' => 'Name',
+                'shortCommonName' => 'Name (short)',
+                'callSign' => 'Call sign',
+            ],
+            'entities' => $entities,
         ]);
     }
 }

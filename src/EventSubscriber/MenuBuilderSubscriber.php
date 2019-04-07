@@ -49,16 +49,16 @@ class MenuBuilderSubscriber implements EventSubscriberInterface
             new MenuItemModel('home', 'Home', 'home', [], 'fas fa-tachometer-alt')
         );
 
-        /** @var MenuItemInterface $media_manager */
         $media_manager = new MenuItemModel('media_manager', 'Media Manager', 'media_manager', [], 'fas fa-video');
-        $media_manager->addChild(
-            new MenuItemModel('media_manager_genres', 'Genres', 'media_manager_genres')
-        );
+        $media_manager->addChild(new MenuItemModel('media_manager_genres', 'Genres', 'media_manager_genres', [], 'fas fa-list'));
+        $media_manager->addChild(new MenuItemModel('media_manager_franchises', 'Franchises', 'media_manager_franchises', [], 'fas fa-list'));
+        $media_manager->addChild(new MenuItemModel('media_manager_shows', 'Shows', 'media_manager_shows', [], 'fas fa-list'));
         $event->addItem($media_manager);
 
-        $event->addItem(
-            new MenuItemModel('station_manager', 'Station Manager', 'station_manager', [], 'fas fa-broadcast-tower')
-        );
+        $station_manager = new MenuItemModel('station_manager', 'Station Manager', 'station_manager', [], 'fas fa-broadcast-tower');
+        $station_manager->addChild(new MenuItemModel('station_manager_stations', 'Stations', 'station_manager_stations', [], 'fas fa-list'));
+        $station_manager->addChild(new MenuItemModel('station_manager_stations_public', 'Stations (public)', 'station_manager_stations_public', [], 'fas fa-list'));
+        $event->addItem($station_manager);
 
         $this->activateByRoute(
             $event->getRequest()->get('_route'),
