@@ -7,6 +7,7 @@ use CascadePublicMedia\PbsApiExplorer\Service\StationManagerApiClient;
 use CascadePublicMedia\PbsApiExplorer\Service\StationManagerPublicApiClient;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -48,20 +49,22 @@ class StationManagerController extends AbstractController
     }
 
     /**
-     * @Route("/station-manager/stations/public", name="station_manager_stations_public")
-     * @param EntityManagerInterface $entityManager
-     * @return Response
+     * @Route("/station-manager/stations/update", name="station_manager_stations_update")
+     * @param StationManagerApiClient $apiClient
+     * @return RedirectResponse
      */
-    public function stations_public(EntityManagerInterface $entityManager) {
-        $entities = $entityManager->getRepository(Station::class)->findAll();
-        return $this->render('datatable.html.twig', [
-            'properties' => [
-                'fullCommonName' => 'Name',
-                'shortCommonName' => 'Name (short)',
-                'callSign' => 'Call sign',
-                'updated' => 'Updated',
-            ],
-            'entities' => $entities,
-        ]);
+    public function stations_update(StationManagerApiClient $apiClient) {
+        $apiClient->updateAll(Station::class);
+        return $this->redirectToRoute('station_manager_stations');
+    }
+
+    /**
+     * @Route("/station-manager/stations/update", name="station_manager_stations_public_update")
+     * @param StationManagerPublicApiClient $apiClient
+     * @return RedirectResponse
+     */
+    public function stations_public_update(StationManagerPublicApiClient $apiClient) {
+        $apiClient->updateAll(Station::class);
+        return $this->redirectToRoute('station_manager_stations');
     }
 }

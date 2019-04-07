@@ -55,9 +55,7 @@ class MenuBuilderSubscriber implements EventSubscriberInterface
         $media_manager->addChild(new MenuItemModel('media_manager_shows', 'Shows', 'media_manager_shows', [], 'fas fa-list'));
         $event->addItem($media_manager);
 
-        $station_manager = new MenuItemModel('station_manager', 'Station Manager', 'station_manager', [], 'fas fa-broadcast-tower');
-        $station_manager->addChild(new MenuItemModel('station_manager_stations', 'Stations', 'station_manager_stations', [], 'fas fa-list'));
-        $station_manager->addChild(new MenuItemModel('station_manager_stations_public', 'Stations (public)', 'station_manager_stations_public', [], 'fas fa-list'));
+        $station_manager = new MenuItemModel('station_manager_stations', 'Stations', 'station_manager_stations', [], 'fas fa-broadcast-tower');
         $event->addItem($station_manager);
 
         $this->activateByRoute(
