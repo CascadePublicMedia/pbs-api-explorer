@@ -7,7 +7,6 @@ use CascadePublicMedia\PbsApiExplorer\Entity\Genre;
 use CascadePublicMedia\PbsApiExplorer\Entity\Show;
 use CascadePublicMedia\PbsApiExplorer\Service\MediaManagerApiClient;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -16,7 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  * @package CascadePublicMedia\PbsApiExplorer\Controller
  */
-class MediaManagerController extends AbstractController
+class MediaManagerController extends ControllerBase
 {
     /**
      * @Route("/media-manager", name="media_manager")
@@ -38,7 +37,6 @@ class MediaManagerController extends AbstractController
         $entities = $entityManager->getRepository(Genre::class)->findAll();
         return $this->render('datatable.html.twig', [
             'properties' => [
-                'id' => 'ID',
                 'title' => 'Title',
                 'slug' => 'Slug',
                 'created' => 'Created',
@@ -57,7 +55,6 @@ class MediaManagerController extends AbstractController
         $entities = $entityManager->getRepository(Franchise::class)->findAll();
         return $this->render('datatable.html.twig', [
             'properties' => [
-                'id' => 'ID',
                 'title' => 'Title',
                 'slug' => 'Slug',
                 'genre' => 'Genre',
@@ -76,7 +73,6 @@ class MediaManagerController extends AbstractController
         $entities = $entityManager->getRepository(Show::class)->findAll();
         return $this->render('datatable.html.twig', [
             'properties' => [
-                'id' => 'ID',
                 'title' => 'Title',
                 'slug' => 'Slug',
                 'franchise' => 'Franchise',

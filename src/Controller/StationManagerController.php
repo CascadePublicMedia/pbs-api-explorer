@@ -6,7 +6,6 @@ use CascadePublicMedia\PbsApiExplorer\Entity\Station;
 use CascadePublicMedia\PbsApiExplorer\Service\StationManagerApiClient;
 use CascadePublicMedia\PbsApiExplorer\Service\StationManagerPublicApiClient;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -16,7 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  * @package CascadePublicMedia\PbsApiExplorer\Controller
  */
-class StationManagerController extends AbstractController
+class StationManagerController extends ControllerBase
 {
     /**
      * @Route("/station-manager", name="station_manager")
@@ -54,7 +53,7 @@ class StationManagerController extends AbstractController
      * @return RedirectResponse
      */
     public function stations_update(StationManagerApiClient $apiClient) {
-        $apiClient->updateAll(Station::class);
+        $this->updateAll($apiClient, Station::class);
         return $this->redirectToRoute('station_manager_stations');
     }
 
@@ -64,7 +63,7 @@ class StationManagerController extends AbstractController
      * @return RedirectResponse
      */
     public function stations_public_update(StationManagerPublicApiClient $apiClient) {
-        $apiClient->updateAll(Station::class);
+        $this->updateAll($apiClient, Station::class);
         return $this->redirectToRoute('station_manager_stations');
     }
 }

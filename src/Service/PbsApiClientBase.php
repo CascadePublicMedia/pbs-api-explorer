@@ -70,8 +70,18 @@ class PbsApiClientBase
      * Update/add all records from the API for a specific Entity class.
      *
      * @param $entityClass
+     *   The Entity class to be updated.
+     *
+     * @return array
+     *   Stats about the updates keyed by:
+     *    - 'add': Number of locally added records.
+     *    - 'updated': Number of locally updated records.
+     *    - 'noop': Number of unaffected records.
+     *
+     * @todo Delete local records for items no longer in API?
      */
     public function updateAll($entityClass) {
+        $stats = ['add' => 0, 'update' => 0, 'noop' => 0];
         // Retrieve all existing entities to compare update dates.
         $entities = $this->entityManager
             ->getRepository($entityClass)
@@ -104,10 +114,12 @@ class PbsApiClientBase
                 // Update an existing entity or create a new one.
                 if (isset($entities[$item->id])) {
                     $entity = $entities[$item->id];
+                    $op = 'add';
                 }
                 else {
                     $entity = new $entityClass;
                     $this->propertyAccessor->setValue($entity, 'id', $item->id);
+                    $op = 'update';
                 }
 
                 // Compare date in "updated_at" field for entities that support it.
@@ -121,6 +133,7 @@ class PbsApiClientBase
                     // updated date, do not continue with the update process.
                     if ($record_updated && $entity_updated
                         && $record_updated->format('Y-m-d H:i:s') <= $entity_updated->format('Y-m-d H:i:s')) {
+                        $stats['noop']++;
                         continue;
                     }
                 }
@@ -142,6 +155,7 @@ class PbsApiClientBase
 
                 // Merge changes to the entity.
                 $this->entityManager->merge($entity);
+                $stats[$op]++;
             }
 
             // If another page is available, continue to it. Otherwise, end
@@ -162,5 +176,7 @@ class PbsApiClientBase
 
         // Flush any changes.
         $this->entityManager->flush();
+
+        return $stats;
     }
 }

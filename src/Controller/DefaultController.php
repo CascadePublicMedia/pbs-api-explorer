@@ -2,10 +2,14 @@
 
 namespace CascadePublicMedia\PbsApiExplorer\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 
-class DefaultController extends AbstractController
+/**
+ * Class DefaultController
+ *
+ * @package CascadePublicMedia\PbsApiExplorer\Controller
+ */
+class DefaultController extends ControllerBase
 {
     /**
      * @Route("/", name="home")
