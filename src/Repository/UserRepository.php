@@ -4,6 +4,7 @@ namespace CascadePublicMedia\PbsApiExplorer\Repository;
 
 use CascadePublicMedia\PbsApiExplorer\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -17,6 +18,24 @@ class UserRepository extends ServiceEntityRepository
     public function __construct(RegistryInterface $registry)
     {
         parent::__construct($registry, User::class);
+    }
+
+    /**
+     * Find one by email address (primary user identifier).
+     *
+     * @param $value
+     * @return User|null
+     *
+     * @throws NonUniqueResultException
+     */
+    public function findOneByEmail($value): ?User
+    {
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.email = :val')
+            ->setParameter('val', $value)
+            ->getQuery()
+            ->getOneOrNullResult()
+            ;
     }
 
     // /**
