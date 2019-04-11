@@ -3,6 +3,7 @@
 namespace CascadePublicMedia\PbsApiExplorer\Repository;
 
 use CascadePublicMedia\PbsApiExplorer\Entity\Setting;
+use Doctrine\ORM\Query\QueryException;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -18,32 +19,18 @@ class SettingRepository extends RepositoryBase
         parent::__construct($registry, Setting::class);
     }
 
-    // /**
-    //  * @return Setting[] Returns an array of Setting objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
+    /**
+     * @param $value
+     * @return mixed
+     *
+     * @throws QueryException
+     */
+    public function findByIdPrefix($value) {
         return $this->createQueryBuilder('s')
-            ->andWhere('s.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('s.id', 'ASC')
-            ->setMaxResults(10)
+            ->andWhere('s.id LIKE :val')
+            ->setParameter('val', $value . '%')
+            ->indexBy('s', 's.id')
             ->getQuery()
-            ->getResult()
-        ;
+            ->getResult();
     }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?Setting
-    {
-        return $this->createQueryBuilder('s')
-            ->andWhere('s.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }
