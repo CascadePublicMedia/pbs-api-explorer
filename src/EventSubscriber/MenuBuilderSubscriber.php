@@ -93,6 +93,35 @@ class MenuBuilderSubscriber implements EventSubscriberInterface
 
         }
 
+        if ($this->security->isGranted('ROLE_ADMIN')) {
+            $event->addItem(new MenuItemModel(
+               'settings',
+               'Settings',
+               'settings',
+               [],
+               'fas fa-cogs'
+            ));
+        }
+
+        if ($this->security->isGranted('ROLE_USER')) {
+            $event->addItem(new MenuItemModel(
+               'user_logout',
+               'Logout',
+               'logout',
+               [],
+               'fas fa-sign-out-alt'
+            ));
+        }
+        else {
+            $event->addItem(new MenuItemModel(
+               'user_login',
+               'Log in',
+               'login',
+               [],
+               'fas fa-sign-in-alt'
+            ));
+        }
+
         $this->activateByRoute(
             $event->getRequest()->get('_route'),
             $event->getItems()
