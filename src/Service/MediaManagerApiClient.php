@@ -15,37 +15,38 @@ use Doctrine\ORM\EntityManagerInterface;
 class MediaManagerApiClient extends PbsApiClientBase
 {
     /**
+     * @var array
+     */
+    protected $requiredFields = [
+        'media_manager_base_uri' => 'Endpoint',
+        'media_manager_client_id' => 'Client ID',
+        'media_manager_client_secret' => 'Client secret',
+    ];
+
+    /**
      * MediaManagerApiClient constructor.
+     *
      * @param EntityManagerInterface $entityManager
      * @param FieldMapper $fieldMapper
      * @param ApiValueProcessor $apiValueProcessor
-     * @throws \Exception
      */
     public function __construct(EntityManagerInterface $entityManager, FieldMapper $fieldMapper, ApiValueProcessor $apiValueProcessor)
     {
-        $settings = $entityManager
-            ->getRepository(Setting::class)
-            ->findByIdPrefix('media_manager');
+        parent::__construct($entityManager, $fieldMapper, $apiValueProcessor);
 
-        $required_fields = [
-            'media_manager_base_uri' => 'Endpoint',
-            'media_manager_client_id' => 'Client ID',
-            'media_manager_client_secret' => 'Client secret',
-        ];
+        if ($this->isConfigured()) {
+            /** @var Setting[] $settings */
+            $settings = $entityManager
+                ->getRepository(Setting::class)
+                ->findByIdPrefix('media_manager');
 
-        foreach ($required_fields as $id => $value) {
-            if (!isset($settings[$id])) {
-                throw new \Exception("Required setting {$value} missing.");
-            }
+            $this->createClient([
+                'base_uri' => $settings['media_manager_base_uri']->getValue(),
+                'auth' => [
+                    $settings['media_manager_client_id']->getValue(),
+                    $settings['media_manager_client_secret']->getValue()
+                ],
+            ]);
         }
-
-        $clientConfig = [
-            'base_uri' => $settings['media_manager_base_uri']->getValue(),
-            'auth' => [
-                $settings['media_manager_client_id']->getValue(),
-                $settings['media_manager_client_secret']->getValue()
-            ],
-        ];
-        parent::__construct($entityManager, $fieldMapper, $apiValueProcessor, $clientConfig);
     }
 }

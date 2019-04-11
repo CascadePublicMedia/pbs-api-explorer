@@ -13,11 +13,14 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 class StationManagerPublicApiClient extends PbsApiClientBase
 {
-    const ENDPOINT = 'https://station.services.pbs.org/api/public/v1/';
+    /**
+     * @var string
+     */
+    protected static $endpoint = 'https://station.services.pbs.org/api/public/v1/';
 
     public function __construct(EntityManagerInterface $entityManager, FieldMapper $fieldMapper, ApiValueProcessor $apiValueProcessor)
     {
-        $clientConfig = ['base_uri' => $this::ENDPOINT];
-        parent::__construct($entityManager, $fieldMapper, $apiValueProcessor, $clientConfig);
+        parent::__construct($entityManager, $fieldMapper, $apiValueProcessor);
+        $this->createClient(['base_uri' => self::$endpoint]);
     }
 }

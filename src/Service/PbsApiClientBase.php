@@ -4,6 +4,7 @@ namespace CascadePublicMedia\PbsApiExplorer\Service;
 
 use CascadePublicMedia\PbsApiExplorer\Entity\Franchise;
 use CascadePublicMedia\PbsApiExplorer\Entity\Genre;
+use CascadePublicMedia\PbsApiExplorer\Entity\Setting;
 use CascadePublicMedia\PbsApiExplorer\Entity\Show;
 use CascadePublicMedia\PbsApiExplorer\Utils\ApiValueProcessor;
 use CascadePublicMedia\PbsApiExplorer\Utils\FieldMapper;
@@ -20,7 +21,6 @@ use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
  */
 class PbsApiClientBase
 {
-
     /**
     * @var Client
     */
@@ -47,23 +47,46 @@ class PbsApiClientBase
     private $propertyAccessor;
 
     /**
+     * @var array
+     */
+    protected $requiredFields = [];
+
+    /**
      * MediaManagerApiClient constructor.
      *
      * @param EntityManagerInterface $entityManager
      * @param FieldMapper $fieldMapper
      * @param ApiValueProcessor $apiValueProcessor
-     * @param array $clientConfig
      */
     public function __construct(EntityManagerInterface $entityManager,
                                 FieldMapper $fieldMapper,
-                                ApiValueProcessor $apiValueProcessor,
-                                array $clientConfig)
+                                ApiValueProcessor $apiValueProcessor)
     {
-        $this->client = new Client($clientConfig);
         $this->apiValueProcessor = $apiValueProcessor;
         $this->entityManager = $entityManager;
         $this->fieldMapper = $fieldMapper;
         $this->propertyAccessor = PropertyAccess::createPropertyAccessor();
+    }
+
+    public function createClient($config) {
+        $this->client = new Client($config);
+    }
+
+    /**
+     * Check if all required Setting values exist.
+     *
+     * @return bool
+     */
+    public function isConfigured() {
+        $settings = $this->entityManager
+            ->getRepository(Setting::class)
+            ->findAllIndexedById();
+        foreach ($this->requiredFields as $id => $name) {
+            if (!isset($settings[$id]) || empty($settings[$id])) {
+                return FALSE;
+            }
+        }
+        return TRUE;
     }
 
     /**
