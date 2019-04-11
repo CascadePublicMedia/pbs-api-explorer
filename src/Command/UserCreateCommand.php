@@ -10,6 +10,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Validator\Constraints\Email;
@@ -56,6 +57,11 @@ class UserCreateCommand extends Command
     private $password;
 
     /**
+     * @var array
+     */
+    private $roles;
+
+    /**
      * {@inheritdoc}
      */
     public function __construct(EntityManagerInterface $entityManager,
@@ -96,6 +102,10 @@ class UserCreateCommand extends Command
         $question->setHidden(true);
         $question->setHiddenFallback(false);
         $this->password = $io->askQuestion($question);
+
+        $question = new ChoiceQuestion('Roles', ['ROLE_ADMIN']);
+        $question->setMultiselect(true);
+        $this->roles = $io->askQuestion($question);
     }
 
     /**
@@ -109,6 +119,7 @@ class UserCreateCommand extends Command
             $user,
             $this->password
         ));
+        $user->setRoles($this->roles);
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
