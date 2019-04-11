@@ -103,6 +103,12 @@ class UserCreateCommand extends Command
         $question->setHiddenFallback(false);
         $this->password = $io->askQuestion($question);
 
+        $question = new Question('Confirm password', $arg1);
+        $question->setValidator([$this, 'validateConfirmPassword']);
+        $question->setHidden(true);
+        $question->setHiddenFallback(false);
+        $io->askQuestion($question);
+
         $question = new ChoiceQuestion('Roles', ['ROLE_ADMIN']);
         $question->setMultiselect(true);
         $this->roles = $io->askQuestion($question);
@@ -131,7 +137,7 @@ class UserCreateCommand extends Command
      * Validate email format and that a user with the email doesn't already
      * exist.
      *
-     * @param $email
+     * @param string $email
      *
      * @return string
      *
@@ -159,7 +165,7 @@ class UserCreateCommand extends Command
     /**
      * Validate simple three character minimum.
      *
-     * @param $password
+     * @param string $password
      *
      * @return string
      *
@@ -174,5 +180,16 @@ class UserCreateCommand extends Command
             throw new RuntimeCommandException($violations[0]->getMessage());
         }
         return $password;
+    }
+
+    /**
+     * Confirm a password with the stored password.
+     *
+     * @param string $password
+     */
+    public function validateConfirmPassword($password) {
+        if ($password != $this->password) {
+            throw new RuntimeCommandException("Passwords did not match.");
+        }
     }
 }
