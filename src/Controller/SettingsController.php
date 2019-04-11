@@ -51,7 +51,7 @@ class SettingsController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
 
-            // Update/add Setting values as needed.
+            // Update/add/remove Setting values as needed.
             foreach ($data as $id => $value) {
                 if (!isset($settings[$id])) {
                     $setting = new Setting();
@@ -61,14 +61,21 @@ class SettingsController extends AbstractController
                     $setting = $settings[$id];
                 }
 
-                $setting->setValue($value);
-                $setting->setOwner($this->getUser());
-                $setting->setUpdated(new \DateTime());
+                if (is_null($value)) {
+                    $entityManager->remove($setting);
+                }
+                else {
+                    $setting->setValue($value);
+                    $setting->setOwner($this->getUser());
+                    $setting->setUpdated(new \DateTime());
+                    $entityManager->persist($setting);
+                }
 
-                $entityManager->persist($setting);
             }
 
             $entityManager->flush();
+
+            $this->addFlash('success', 'Settings updated!');
         }
 
         return $this->render('settings/form.html.twig', [
