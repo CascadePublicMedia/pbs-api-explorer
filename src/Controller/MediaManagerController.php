@@ -7,6 +7,7 @@ use CascadePublicMedia\PbsApiExplorer\Entity\Genre;
 use CascadePublicMedia\PbsApiExplorer\Entity\Show;
 use CascadePublicMedia\PbsApiExplorer\Service\MediaManagerApiClient;
 use Doctrine\ORM\EntityManagerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -20,6 +21,8 @@ class MediaManagerController extends ControllerBase
 {
     /**
      * @Route("/media-manager", name="media_manager")
+     * @Security("is_granted('ROLE_USER')")
+     *
      * @return Response
      */
     public function index()
@@ -31,7 +34,10 @@ class MediaManagerController extends ControllerBase
 
     /**
      * @Route("/media-manager/genres", name="media_manager_genres")
+     * @Security("is_granted('ROLE_USER')")
+     *
      * @param EntityManagerInterface $entityManager
+     *
      * @return Response
      */
     public function genres(EntityManagerInterface $entityManager) {
@@ -51,7 +57,10 @@ class MediaManagerController extends ControllerBase
 
     /**
      * @Route("/media-manager/genres/update", name="media_manager_genres_update")
+     * @Security("is_granted('ROLE_ADMIN')")
+     *
      * @param MediaManagerApiClient $apiClient
+     *
      * @return RedirectResponse
      */
     public function genres_update(MediaManagerApiClient $apiClient) {
@@ -61,7 +70,10 @@ class MediaManagerController extends ControllerBase
 
     /**
      * @Route("/media-manager/franchises", name="media_manager_franchises")
+     * @Security("is_granted('ROLE_USER')")
+     *
      * @param EntityManagerInterface $entityManager
+     *
      * @return Response
      */
     public function franchises(EntityManagerInterface $entityManager) {
@@ -81,7 +93,10 @@ class MediaManagerController extends ControllerBase
 
     /**
      * @Route("/media-manager/franchises/update", name="media_manager_franchises_update")
+     * @Security("is_granted('ROLE_ADMIN')")
+     *
      * @param MediaManagerApiClient $apiClient
+     *
      * @return RedirectResponse
      */
     public function franchises_update(MediaManagerApiClient $apiClient) {
@@ -91,7 +106,10 @@ class MediaManagerController extends ControllerBase
 
     /**
      * @Route("/media-manager/shows", name="media_manager_shows")
+     * @Security("is_granted('ROLE_USER')")
+     *
      * @param EntityManagerInterface $entityManager
+     *
      * @return Response
      */
     public function shows(EntityManagerInterface $entityManager) {
@@ -112,7 +130,10 @@ class MediaManagerController extends ControllerBase
 
     /**
      * @Route("/media-manager/shows/update", name="media_manager_shows_update")
+     * @Security("is_granted('ROLE_ADMIN')")
+     *
      * @param MediaManagerApiClient $apiClient
+     *
      * @return RedirectResponse
      */
     public function shows_update(MediaManagerApiClient $apiClient) {

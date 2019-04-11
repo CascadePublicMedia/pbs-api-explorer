@@ -49,14 +49,49 @@ class MenuBuilderSubscriber implements EventSubscriberInterface
             new MenuItemModel('home', 'Home', 'home', [], 'fas fa-tachometer-alt')
         );
 
-        $media_manager = new MenuItemModel('media_manager', 'Media Manager', 'media_manager', [], 'fas fa-video');
-        $media_manager->addChild(new MenuItemModel('media_manager_genres', 'Genres', 'media_manager_genres', [], 'fas fa-list'));
-        $media_manager->addChild(new MenuItemModel('media_manager_franchises', 'Franchises', 'media_manager_franchises', [], 'fas fa-list'));
-        $media_manager->addChild(new MenuItemModel('media_manager_shows', 'Shows', 'media_manager_shows', [], 'fas fa-list'));
-        $event->addItem($media_manager);
+        if ($this->security->isGranted('ROLE_USER')) {
+            // Media Manager menu items.
+            $media_manager = new MenuItemModel(
+                'media_manager',
+                'Media Manager',
+                'media_manager',
+                [],
+                'fas fa-video'
+            );
+            $media_manager->addChild(new MenuItemModel(
+                'media_manager_genres',
+                'Genres',
+                'media_manager_genres',
+                [],
+                'fas fa-list'
+            ));
+            $media_manager->addChild(new MenuItemModel(
+                'media_manager_franchises',
+                'Franchises',
+                'media_manager_franchises',
+                [],
+                'fas fa-list'
+            ));
+            $media_manager->addChild(new MenuItemModel(
+                'media_manager_shows',
+                'Shows',
+                'media_manager_shows',
+                [],
+                'fas fa-list'
+            ));
+            $event->addItem($media_manager);
 
-        $station_manager = new MenuItemModel('station_manager_stations', 'Stations', 'station_manager_stations', [], 'fas fa-broadcast-tower');
-        $event->addItem($station_manager);
+            // Station Manager menu items.
+            $station_manager = new MenuItemModel(
+                'station_manager_stations',
+                'Stations',
+                'station_manager_stations',
+                [],
+                'fas fa-broadcast-tower'
+            );
+            $event->addItem($station_manager);
+
+        }
 
         $this->activateByRoute(
             $event->getRequest()->get('_route'),

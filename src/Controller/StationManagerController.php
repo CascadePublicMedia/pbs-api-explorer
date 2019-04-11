@@ -6,6 +6,7 @@ use CascadePublicMedia\PbsApiExplorer\Entity\Station;
 use CascadePublicMedia\PbsApiExplorer\Service\StationManagerApiClient;
 use CascadePublicMedia\PbsApiExplorer\Service\StationManagerPublicApiClient;
 use Doctrine\ORM\EntityManagerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -19,6 +20,7 @@ class StationManagerController extends ControllerBase
 {
     /**
      * @Route("/station-manager", name="station_manager")
+     * @Security("is_granted('ROLE_USER')")
      */
     public function index()
     {
@@ -29,7 +31,10 @@ class StationManagerController extends ControllerBase
 
     /**
      * @Route("/station-manager/stations", name="station_manager_stations")
+     * @Security("is_granted('ROLE_USER')")
+     *
      * @param EntityManagerInterface $entityManager
+     *
      * @return Response
      */
     public function stations(EntityManagerInterface $entityManager) {
@@ -51,7 +56,10 @@ class StationManagerController extends ControllerBase
 
     /**
      * @Route("/station-manager/stations/update", name="station_manager_stations_update")
+     * @Security("is_granted('ROLE_ADMIN')")
+     *
      * @param StationManagerApiClient $apiClient
+     *
      * @return RedirectResponse
      */
     public function stations_update(StationManagerApiClient $apiClient) {
@@ -61,7 +69,10 @@ class StationManagerController extends ControllerBase
 
     /**
      * @Route("/station-manager/stations/public/update", name="station_manager_stations_public_update")
+     * @Security("is_granted('ROLE_ADMIN')")
+     *
      * @param StationManagerPublicApiClient $apiClient
+     *
      * @return RedirectResponse
      */
     public function stations_public_update(StationManagerPublicApiClient $apiClient) {
