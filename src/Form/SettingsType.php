@@ -4,7 +4,6 @@ namespace CascadePublicMedia\PbsApiExplorer\Form;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
-use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -46,7 +45,7 @@ class SettingsType extends AbstractType
                 ])
             ->add(
                 'media_manager_client_secret',
-                PasswordType::class,
+                TextType::class,
                 [
                     'label' => 'Client secret',
                     'required' => FALSE,
@@ -80,7 +79,7 @@ class SettingsType extends AbstractType
                 ])
             ->add(
                 'station_manager_client_secret',
-                PasswordType::class,
+                TextType::class,
                 [
                     'label' => 'Client secret',
                     'required' => FALSE,
