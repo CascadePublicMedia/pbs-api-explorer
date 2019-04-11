@@ -9,6 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -18,6 +19,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class StationManagerController extends ControllerBase
 {
+    private static $notConfigured = 'The Station Manager API has not been configured. Visit Settings to configure it.';
+
     /**
      * @Route("/station-manager", name="station_manager")
      * @Security("is_granted('ROLE_USER')")
@@ -63,6 +66,9 @@ class StationManagerController extends ControllerBase
      * @return RedirectResponse
      */
     public function stations_update(StationManagerApiClient $apiClient) {
+        if (!$apiClient->isConfigured()) {
+            throw new NotFoundHttpException(self::$notConfigured);
+        }
         $this->updateAll($apiClient, Station::class);
         return $this->redirectToRoute('station_manager_stations');
     }

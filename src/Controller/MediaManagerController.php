@@ -10,6 +10,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -19,6 +20,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class MediaManagerController extends ControllerBase
 {
+    private static $notConfigured = 'The Media Manager API has not been configured. Visit Settings to configure it.';
+
     /**
      * @Route("/media-manager", name="media_manager")
      * @Security("is_granted('ROLE_USER')")
@@ -64,6 +67,9 @@ class MediaManagerController extends ControllerBase
      * @return RedirectResponse
      */
     public function genres_update(MediaManagerApiClient $apiClient) {
+        if (!$apiClient->isConfigured()) {
+            throw new NotFoundHttpException(self::$notConfigured);
+        }
         $this->updateAll($apiClient, Genre::class);
         return $this->redirectToRoute('media_manager_genres');
     }
@@ -100,6 +106,9 @@ class MediaManagerController extends ControllerBase
      * @return RedirectResponse
      */
     public function franchises_update(MediaManagerApiClient $apiClient) {
+        if (!$apiClient->isConfigured()) {
+            throw new NotFoundHttpException(self::$notConfigured);
+        }
         $this->updateAll($apiClient, Franchise::class);
         return $this->redirectToRoute('media_manager_franchises');
     }
@@ -137,6 +146,9 @@ class MediaManagerController extends ControllerBase
      * @return RedirectResponse
      */
     public function shows_update(MediaManagerApiClient $apiClient) {
+        if (!$apiClient->isConfigured()) {
+            throw new NotFoundHttpException(self::$notConfigured);
+        }
         $this->updateAll($apiClient, Show::class);
         return $this->redirectToRoute('media_manager_shows');
     }
