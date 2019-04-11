@@ -19,6 +19,9 @@ security:
             guard:
                 authenticators:
                     - CascadePublicMedia\PbsApiExplorer\Security\LoginFormAuthenticator
+            logout:
+                path: logout
+                target: home
 
             # activate different ways to authenticate
 

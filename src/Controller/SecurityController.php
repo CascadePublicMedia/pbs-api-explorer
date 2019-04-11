@@ -12,6 +12,8 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 class SecurityController extends AbstractController
 {
     /**
+     * Login handler.
+     *
      * @Route("/login", name="login")
      * @IsGranted("IS_AUTHENTICATED_ANONYMOUSLY")
      */
@@ -27,5 +29,19 @@ class SecurityController extends AbstractController
             'error' => $error,
             'last_username' => $lastUsername,
         ]);
+    }
+
+    /**
+     * Logout handler.
+     *
+     * This method can't be blank.
+     *
+     * @see https://symfony.com/doc/current/security.html#logging-out
+     *
+     * @Route("/logout", name="logout", methods={"GET"})
+     */
+    public function logout()
+    {
+        return;
     }
 }
