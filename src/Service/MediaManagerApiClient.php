@@ -28,14 +28,14 @@ class MediaManagerApiClient extends PbsApiClientBase
             ->findByIdPrefix('media_manager');
 
         $required_fields = [
-            'media_manager_base_uri',
-            'media_manager_client_id',
-            'media_manager_client_secret',
+            'media_manager_base_uri' => 'Endpoint',
+            'media_manager_client_id' => 'Client ID',
+            'media_manager_client_secret' => 'Client secret',
         ];
 
-        foreach ($required_fields as $field) {
-            if (!isset($settings[$field])) {
-                throw new \Exception("Required setting {$field} missing.");
+        foreach ($required_fields as $id => $value) {
+            if (!isset($settings[$id])) {
+                throw new \Exception("Required setting {$value} missing.");
             }
         }
 
