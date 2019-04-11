@@ -21,7 +21,7 @@ class Setting
     private $value;
 
     /**
-     * @ORM\ManyToOne(targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\User", inversedBy="settings")
+     * @ORM\ManyToOne(targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\User")
      * @ORM\JoinColumn(nullable=false)
      */
     private $owner;
