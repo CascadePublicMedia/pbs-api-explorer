@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20190406002744 extends AbstractMigration
+final class Version20190412035922 extends AbstractMigration
 {
     public function getDescription() : string
     {
@@ -42,6 +42,9 @@ final class Version20190406002744 extends AbstractMigration
         , PRIMARY KEY(show_id, platform_id))');
         $this->addSql('CREATE INDEX IDX_363124D0C1FC64 ON show_platform (show_id)');
         $this->addSql('CREATE INDEX IDX_363124FFE6496F ON show_platform (platform_id)');
+        $this->addSql('CREATE TABLE user (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, email VARCHAR(180) NOT NULL, roles CLOB NOT NULL --(DC2Type:json)
+        , password VARCHAR(255) NOT NULL)');
+        $this->addSql('CREATE UNIQUE INDEX UNIQ_8D93D649E7927C74 ON user (email)');
         $this->addSql('CREATE TABLE platform (id CHAR(36) NOT NULL --(DC2Type:guid)
         , slug VARCHAR(255) NOT NULL, title VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE TABLE genre (id CHAR(36) NOT NULL --(DC2Type:guid)
@@ -58,6 +61,8 @@ final class Version20190406002744 extends AbstractMigration
         , PRIMARY KEY(franchise_id, platform_id))');
         $this->addSql('CREATE INDEX IDX_B6622B37523CAB89 ON franchise_platform (franchise_id)');
         $this->addSql('CREATE INDEX IDX_B6622B37FFE6496F ON franchise_platform (platform_id)');
+        $this->addSql('CREATE TABLE setting (id VARCHAR(255) NOT NULL, owner_id INTEGER NOT NULL, value VARCHAR(255) NOT NULL, updated DATETIME NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE INDEX IDX_9F74B8987E3C61F9 ON setting (owner_id)');
         $this->addSql('CREATE TABLE station (id CHAR(36) NOT NULL --(DC2Type:guid)
         , call_sign VARCHAR(255) NOT NULL, full_common_name VARCHAR(255) NOT NULL, short_common_name VARCHAR(128) NOT NULL, tvss_url VARCHAR(255) NOT NULL, donate_url VARCHAR(255) NOT NULL, timezone VARCHAR(255) NOT NULL, timezone_secondary VARCHAR(255) DEFAULT NULL, video_portal_url VARCHAR(255) DEFAULT NULL, video_portal_banner_url VARCHAR(255) DEFAULT NULL, website_url VARCHAR(255) DEFAULT NULL, facebook_url VARCHAR(255) DEFAULT NULL, twitter_url VARCHAR(255) DEFAULT NULL, kids_station_url VARCHAR(255) DEFAULT NULL, passport_url VARCHAR(255) DEFAULT NULL, telephone VARCHAR(255) DEFAULT NULL, fax VARCHAR(255) DEFAULT NULL, address_city VARCHAR(255) DEFAULT NULL, address_state VARCHAR(255) DEFAULT NULL, address_line1 VARCHAR(255) DEFAULT NULL, address_line2 VARCHAR(255) DEFAULT NULL, address_zip_code VARCHAR(255) DEFAULT NULL, address_country_code VARCHAR(255) DEFAULT NULL, email VARCHAR(255) DEFAULT NULL, tag_line VARCHAR(255) DEFAULT NULL, tracking_code_page VARCHAR(255) DEFAULT NULL, tracking_code_event VARCHAR(255) DEFAULT NULL, primary_channel VARCHAR(255) DEFAULT NULL, primetime_start VARCHAR(255) DEFAULT NULL, images CLOB DEFAULT NULL --(DC2Type:array)
         , updated DATETIME DEFAULT NULL, pdp BOOLEAN DEFAULT NULL, passport_enabled BOOLEAN DEFAULT NULL, annual_passport_qualifying_amount INTEGER DEFAULT NULL, PRIMARY KEY(id))');
@@ -72,10 +77,12 @@ final class Version20190406002744 extends AbstractMigration
         $this->addSql('DROP TABLE show');
         $this->addSql('DROP TABLE show_audience');
         $this->addSql('DROP TABLE show_platform');
+        $this->addSql('DROP TABLE user');
         $this->addSql('DROP TABLE platform');
         $this->addSql('DROP TABLE genre');
         $this->addSql('DROP TABLE franchise');
         $this->addSql('DROP TABLE franchise_platform');
+        $this->addSql('DROP TABLE setting');
         $this->addSql('DROP TABLE station');
     }
 }
