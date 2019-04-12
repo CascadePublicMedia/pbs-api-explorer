@@ -1,0 +1,23 @@
+{% extends 'datatable.html.twig' %}
+{% import '@AdminLTE/Macros/buttons.html.twig' as btn %}
+
+{% block datatable_actions %}
+    {% if update_route_internal is defined %}
+        {{ btn.link_button(
+            'Sync from internal API',
+            path(update_route_internal),
+            'fas fa-sync',
+            'success',
+            'xs'
+        ) }}
+    {% endif %}
+    {% if update_route_public is defined %}
+        {{ btn.link_button(
+            'Sync from public API',
+            path(update_route_public),
+            'fas fa-sync',
+            'success',
+            'xs'
+        ) }}
+    {% endif %}
+{% endblock %}

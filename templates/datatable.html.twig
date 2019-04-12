@@ -16,11 +16,17 @@
 {% endblock %}
 
 {% block page_content %}
-    {% if update_route is defined and is_granted('ROLE_ADMIN') %}
+
+    {% if is_granted('ROLE_ADMIN') %}
         <div class="well well-sm">
-            {{ btn.link_button('Sync from API', path(update_route), 'fas fa-sync', 'success', 'xs') }}
+        {% block datatable_actions %}
+            {% if update_route is defined %}
+                {{ btn.link_button('Sync from API', path(update_route), 'fas fa-sync', 'success', 'xs') }}
+            {% endif %}
+        {% endblock %}
         </div>
     {% endif %}
+
     <table class="table table-bordered table-striped table-condensed datatable">
         <thead>
             <tr>
