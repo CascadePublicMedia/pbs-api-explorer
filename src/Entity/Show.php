@@ -143,19 +143,49 @@ class Show
     private $images = [];
 
     /**
-     * @ORM\ManyToMany(targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\Audience", inversedBy="shows", cascade={"persist", "merge"})
+     * @ORM\ManyToMany(
+     *     targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\Audience",
+     *     inversedBy="shows",
+     *     cascade={"persist", "merge"}
+     *)
      */
     private $audience;
 
     /**
-     * @ORM\ManyToMany(targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\Platform", inversedBy="shows", cascade={"persist", "merge"})
+     * @ORM\ManyToMany(
+     *     targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\Platform",
+     *     inversedBy="shows",
+     *     cascade={"persist", "merge"}
+     *)
      */
     private $platform;
+
+    /**
+     * @ORM\OneToMany(
+     *     targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\Season",
+     *     mappedBy="show",
+     *     orphanRemoval=true,
+     *     cascade={"persist", "merge"}
+     *)
+     */
+    private $seasons;
+
+    /**
+     * @ORM\OneToMany(
+     *     targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\Episode",
+     *     mappedBy="show",
+     *     orphanRemoval=true,
+     *     cascade={"persist", "merge"}
+     * )
+     */
+    private $episodes;
 
     public function __construct()
     {
         $this->audience = new ArrayCollection();
         $this->platform = new ArrayCollection();
+        $this->seasons = new ArrayCollection();
+        $this->episodes = new ArrayCollection();
     }
 
     public function __toString()
@@ -510,6 +540,68 @@ class Show
     {
         if ($this->platform->contains($platform)) {
             $this->platform->removeElement($platform);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Season[]
+     */
+    public function getSeasons(): Collection
+    {
+        return $this->seasons;
+    }
+
+    public function addSeason(Season $season): self
+    {
+        if (!$this->seasons->contains($season)) {
+            $this->seasons[] = $season;
+            $season->setShow($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSeason(Season $season): self
+    {
+        if ($this->seasons->contains($season)) {
+            $this->seasons->removeElement($season);
+            // set the owning side to null (unless already changed)
+            if ($season->getShow() === $this) {
+                $season->setShow(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Episode[]
+     */
+    public function getEpisodes(): Collection
+    {
+        return $this->episodes;
+    }
+
+    public function addEpisode(Episode $episode): self
+    {
+        if (!$this->episodes->contains($episode)) {
+            $this->episodes[] = $episode;
+            $episode->setShow($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEpisode(Episode $episode): self
+    {
+        if ($this->episodes->contains($episode)) {
+            $this->episodes->removeElement($episode);
+            // set the owning side to null (unless already changed)
+            if ($episode->getShow() === $this) {
+                $episode->setShow(null);
+            }
         }
 
         return $this;
