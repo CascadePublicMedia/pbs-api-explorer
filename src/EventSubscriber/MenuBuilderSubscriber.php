@@ -79,6 +79,13 @@ class MenuBuilderSubscriber implements EventSubscriberInterface
                 [],
                 'fas fa-list'
             ));
+            $media_manager->addChild(new MenuItemModel(
+                'media_manager_seasons',
+                'Seasons',
+                'media_manager_seasons',
+                [],
+                'fas fa-list'
+            ));
             $event->addItem($media_manager);
 
             // Station Manager menu items.

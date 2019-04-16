@@ -49,4 +49,14 @@ class MediaManagerApiClient extends PbsApiClientBase
             ]);
         }
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function updateAll($entityClass, array $parameters = [])
+    {
+        return parent::updateAll($entityClass, [
+            'fetch-related' => TRUE,
+        ]);
+    }
 }

@@ -36,7 +36,7 @@ user created during setup.
     * ~~Genres~~
     * [~~Franchises~~](https://docs.pbs.org/display/CDA/Franchises)
     * [~~Shows~~](https://docs.pbs.org/display/CDA/Shows)
-    * [Seasons](https://docs.pbs.org/display/CDA/Seasons)
+    * [~~Seasons~~](https://docs.pbs.org/display/CDA/Seasons)
     * [Episodes](https://docs.pbs.org/display/CDA/Episodes)
     * [Specials](https://docs.pbs.org/display/CDA/Specials)
     * [Assets](https://docs.pbs.org/display/CDA/Assets)

@@ -4,6 +4,7 @@ namespace CascadePublicMedia\PbsApiExplorer\Controller;
 
 use CascadePublicMedia\PbsApiExplorer\Entity\Franchise;
 use CascadePublicMedia\PbsApiExplorer\Entity\Genre;
+use CascadePublicMedia\PbsApiExplorer\Entity\Season;
 use CascadePublicMedia\PbsApiExplorer\Entity\Show;
 use CascadePublicMedia\PbsApiExplorer\Service\MediaManagerApiClient;
 use Doctrine\ORM\EntityManagerInterface;
@@ -174,6 +175,28 @@ class MediaManagerController extends ControllerBase
 
         return $this->render('media_manager/show.html.twig', [
             'show' => $show,
+        ]);
+    }
+
+    /**
+     * @Route("/media-manager/seasons", name="media_manager_seasons")
+     * @Security("is_granted('ROLE_USER')")
+     *
+     * @param EntityManagerInterface $entityManager
+     *
+     * @return Response
+     */
+    public function seasons(EntityManagerInterface $entityManager) {
+        $entities = $entityManager->getRepository(Season::class)->findAll();
+        return $this->render('datatable.html.twig', [
+            'title' => 'Seasons',
+            'properties' => [
+                'show' => 'Show',
+                'ordinal' => 'Ordinal',
+                'title' => 'Title',
+                'updated' => 'Updated',
+            ],
+            'entities' => $entities,
         ]);
     }
 }

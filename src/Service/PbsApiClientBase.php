@@ -94,6 +94,8 @@ class PbsApiClientBase
      *
      * @param $entityClass
      *   The Entity class to be updated.
+     * @param array $parameters
+     *   (optional) Query parameters to add to the request.
      *
      * @return array
      *   Stats about the updates keyed by:
@@ -103,7 +105,7 @@ class PbsApiClientBase
      *
      * @todo Delete local records for items no longer in API?
      */
-    public function updateAll($entityClass) {
+    public function updateAll($entityClass, array $parameters = []) {
         $stats = ['add' => 0, 'update' => 0, 'noop' => 0];
         // Retrieve all existing entities to compare update dates.
         $entities = $this->entityManager
@@ -121,10 +123,9 @@ class PbsApiClientBase
          */
         $page = 1;
         while(true) {
-            $response = $this->client->get($entityClass::ENDPOINT, ['query' => [
-                'page-size' => 50,
-                'page' => $page,
-            ]]);
+            $response = $this->client->get($entityClass::ENDPOINT, [
+                'query' => $parameters + ['page' => $page],
+            ]);
 
             if ($response->getStatusCode() != 200) {
                 throw new HttpException($response->getStatusCode());

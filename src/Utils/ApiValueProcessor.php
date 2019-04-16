@@ -6,6 +6,7 @@ use CascadePublicMedia\PbsApiExplorer\Entity\Audience;
 use CascadePublicMedia\PbsApiExplorer\Entity\Franchise;
 use CascadePublicMedia\PbsApiExplorer\Entity\Genre;
 use CascadePublicMedia\PbsApiExplorer\Entity\Platform;
+use CascadePublicMedia\PbsApiExplorer\Entity\Season;
 use CascadePublicMedia\PbsApiExplorer\Entity\Station;
 use DateTime;
 use DateTimeImmutable;
@@ -88,6 +89,9 @@ class ApiValueProcessor
      */
     public function processArray(&$entity, $apiFieldName, $apiFieldValue) {
         switch ($apiFieldName) {
+            case 'assets':
+                // TODO
+                break;
             case 'audience':
                 foreach ($apiFieldValue as $key => $value) {
                     $station = NULL;
@@ -96,7 +100,6 @@ class ApiValueProcessor
                         $station = $this->entityManager
                             ->getRepository(Station::class)
                             ->find($value->station->id);
-                        $criteria['station'] = $station;
                     }
 
                     $audience = $this->entityManager
@@ -117,6 +120,9 @@ class ApiValueProcessor
                     $entity->addAudience($audience);
                 }
                 break;
+            case 'collections':
+                // TODO
+                break;
             case 'images':
                 $entity->setImages($apiFieldValue);
                 break;
@@ -132,6 +138,35 @@ class ApiValueProcessor
                         $entity->addPlatform($platform);
                     }
                 }
+                break;
+            case 'seasons':
+                foreach ($apiFieldValue as $key => $value) {
+                    $season = NULL;
+
+                    /** @var Season $station */
+                    $season = $this->entityManager
+                        ->getRepository(Season::class)
+                        ->find($value->id);
+
+                    if (!$season) {
+                        $season = new Season();
+                        $season->setId($value->id);
+                    }
+
+                    $season->setOrdinal($value->attributes->ordinal);
+                    $season->setTitle($value->attributes->title);
+                    $season->setTitleSortable($value->attributes->title_sortable);
+                    $season->setUpdated($this->processValue(
+                        'updated_at',
+                        $value->attributes->updated_at
+                    ));
+                    $this->entityManager->persist($season);
+
+                    $entity->addSeason($season);
+                }
+                break;
+            case 'specials':
+                // TODO
                 break;
         }
     }
