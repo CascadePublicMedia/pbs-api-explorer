@@ -180,12 +180,23 @@ class Show
      */
     private $episodes;
 
+    /**
+     * @ORM\OneToMany(
+     *     targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\Special",
+     *     mappedBy="show",
+     *     orphanRemoval=true,
+     *     cascade={"persist", "merge"}
+     * )
+     */
+    private $specials;
+
     public function __construct()
     {
         $this->audience = new ArrayCollection();
         $this->platform = new ArrayCollection();
         $this->seasons = new ArrayCollection();
         $this->episodes = new ArrayCollection();
+        $this->specials = new ArrayCollection();
     }
 
     public function __toString()
@@ -601,6 +612,37 @@ class Show
             // set the owning side to null (unless already changed)
             if ($episode->getShow() === $this) {
                 $episode->setShow(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Special[]
+     */
+    public function getSpecials(): Collection
+    {
+        return $this->specials;
+    }
+
+    public function addSpecial(Special $special): self
+    {
+        if (!$this->specials->contains($special)) {
+            $this->specials[] = $special;
+            $special->setShow($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSpecial(Special $special): self
+    {
+        if ($this->specials->contains($special)) {
+            $this->specials->removeElement($special);
+            // set the owning side to null (unless already changed)
+            if ($special->getShow() === $this) {
+                $special->setShow(null);
             }
         }
 
