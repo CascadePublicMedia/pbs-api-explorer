@@ -1,3 +1,17 @@
+{#
+General datatable view for Entity instances.
+
+Availavble variables:
+ - properties: An array of keys for entity properties to add to the table.
+ - entities: An array of entity objects for the table.
+ - title: Title for the page. (optional)
+ - subtitle: Subtitle for the page. (optional)
+ - entity_route: A Symfony route to use as a link for the first field. The
+                 entity ID will be used an argument. (optional)
+ - update_route: A Symfony route to update *all* instances of the provided
+                 Entity. (optional)
+#}
+
 {% extends 'base.html.twig' %}
 {% import '@AdminLTE/Macros/buttons.html.twig' as btn %}
 
@@ -44,6 +58,8 @@
                             <td>{{ field|date('Y-m-d H:i') }}</td>
                         {% elseif field is boolean %}
                             <td>{{ field|bool_icon }}</td>
+                        {% elseif loop.first and entity_route is defined %}
+                            <td><a href="{{ path(entity_route, {'id': entity.id}) }}">{{ field }}</a></td>
                         {% else %}
                             <td>{{ field }}</td>
                         {% endif %}

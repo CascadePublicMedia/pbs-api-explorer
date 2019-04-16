@@ -133,6 +133,7 @@ class MediaManagerController extends ControllerBase
                 'updated' => 'Updated',
             ],
             'entities' => $entities,
+            'entity_route' => 'media_manager_shows_show',
             'update_route' => 'media_manager_shows_update',
         ]);
     }
@@ -151,5 +152,28 @@ class MediaManagerController extends ControllerBase
         }
         $this->updateAll($apiClient, Show::class);
         return $this->redirectToRoute('media_manager_shows');
+    }
+
+    /**
+     * @Route("/media-manager/shows/{id}", name="media_manager_shows_show")
+     * @Security("is_granted('ROLE_USER')")
+     *
+     * @param string $id
+     * @param EntityManagerInterface $entityManager
+     *
+     * @return Response
+     */
+    public function show($id, EntityManagerInterface $entityManager) {
+        $show = $entityManager
+            ->getRepository(Show::class)
+            ->find($id);
+
+        if (!$show) {
+            throw new NotFoundHttpException();
+        }
+
+        return $this->render('media_manager/show.html.twig', [
+            'show' => $show,
+        ]);
     }
 }
