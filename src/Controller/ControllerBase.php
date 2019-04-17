@@ -25,7 +25,7 @@ class ControllerBase extends AbstractController
      */
     public function updateAll($apiClient, $entityClass) {
         try {
-            $stats = $apiClient->updateAll($entityClass);
+            $stats = $apiClient->updateAllByEntityClass($entityClass);
             $this->addFlash('success', sprintf(
                 'Update complete! Local changes: %d added, %d updated, %d unchanged.',
                 $stats['add'],

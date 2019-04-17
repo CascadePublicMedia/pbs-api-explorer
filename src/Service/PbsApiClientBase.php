@@ -89,11 +89,53 @@ class PbsApiClientBase
         return TRUE;
     }
 
+
     /**
-     * Update/add all records from the API for a specific Entity class.
+     * Update all entities of a specific class from Entity ENDPOINT constant.
+     *
+     * This method is meant for simple queries where all instances can be
+     * retrieved from the API and updated locally from a single base endpoint.
      *
      * @param $entityClass
      *   The Entity class to be updated.
+     * @param array $parameters
+     *   (optional) Query parameters to add to the request.
+     *
+     * @return array
+     *
+     * @see self::update()
+     */
+    public function updateAllByEntityClass($entityClass, array $parameters = []) {
+        // Retrieve all existing entities to compare update dates.
+        $entities = $this->entityManager
+            ->getRepository($entityClass)
+            ->findAllIndexedById();
+
+        return $this->update(
+            $entityClass,
+            $entities,
+            $entityClass::ENDPOINT,
+            $parameters
+        );
+    }
+
+    /**
+     * Update/add all records from the API for a URL.
+     *
+     * The API returns page data in the "meta" key of the return response.
+     * This loop will continue to run for all pages until the API no longer
+     * returns a value in the $data['meta']['links']['next'] field.
+     *
+     * @see https://docs.pbs.org/display/CDA/Pagination
+     *
+     * @param $entityClass
+     *   The Entity class to be updated.
+     * @param array $entities
+     *   Existing entities in the system to compare against. This array must be
+     *   indexed by the same ID that will be returned from the PBS API being
+     *   queried.
+     * @param string $url
+     *   The API URL to query.
      * @param array $parameters
      *   (optional) Query parameters to add to the request.
      *
@@ -105,25 +147,12 @@ class PbsApiClientBase
      *
      * @todo Delete local records for items no longer in API?
      */
-    public function updateAll($entityClass, array $parameters = []) {
+    public function update($entityClass, $entities, $url, array $parameters = []) {
         $stats = ['add' => 0, 'update' => 0, 'noop' => 0];
-        // Retrieve all existing entities to compare update dates.
-        $entities = $this->entityManager
-            ->getRepository($entityClass)
-            ->findAllIndexedById();
-
-        /**
-         * Process the array page by page.
-         *
-         * The API returns page data in the "meta" key of the return response.
-         * This loop will continue to run for all pages until the API no longer
-         * returns a value in the $data['meta']['links']['next'] field.
-         *
-         * @see https://docs.pbs.org/display/CDA/Pagination
-         */
         $page = 1;
+
         while(true) {
-            $response = $this->client->get($entityClass::ENDPOINT, [
+            $response = $this->client->get($url, [
                 'query' => $parameters + ['page' => $page],
             ]);
 

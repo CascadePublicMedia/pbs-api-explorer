@@ -56,7 +56,7 @@ class MediaManagerApiClient extends PbsApiClientBase
      */
     public function updateAll($entityClass, array $parameters = [])
     {
-        return parent::updateAll($entityClass, [
+        return parent::updateAllByEntityClass($entityClass, [
             'fetch-related' => TRUE,
         ]);
     }
