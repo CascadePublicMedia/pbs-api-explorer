@@ -83,6 +83,16 @@ class Season
         $this->episodes = new ArrayCollection();
     }
 
+    public function __toString()
+    {
+        $title = $this->title;
+        if (!$title) {
+            $title = "Season {$this->ordinal}";
+        }
+
+        return $title;
+    }
+
     public function getId(): ?string
     {
         return $this->id;
