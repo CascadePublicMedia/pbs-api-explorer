@@ -2,6 +2,8 @@
 
 namespace CascadePublicMedia\PbsApiExplorer\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -96,6 +98,16 @@ class Episode
      * @ORM\JoinColumn(nullable=false)
      */
     private $show;
+
+    /**
+     * @ORM\OneToMany(targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\Asset", mappedBy="episode")
+     */
+    private $assets;
+
+    public function __construct()
+    {
+        $this->assets = new ArrayCollection();
+    }
 
     public function getId(): ?string
     {
@@ -285,6 +297,37 @@ class Episode
     public function setShow(?Show $show): self
     {
         $this->show = $show;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Asset[]
+     */
+    public function getAssets(): Collection
+    {
+        return $this->assets;
+    }
+
+    public function addAsset(Asset $asset): self
+    {
+        if (!$this->assets->contains($asset)) {
+            $this->assets[] = $asset;
+            $asset->setEpisode($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAsset(Asset $asset): self
+    {
+        if ($this->assets->contains($asset)) {
+            $this->assets->removeElement($asset);
+            // set the owning side to null (unless already changed)
+            if ($asset->getEpisode() === $this) {
+                $asset->setEpisode(null);
+            }
+        }
 
         return $this;
     }

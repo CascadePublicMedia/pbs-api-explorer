@@ -78,9 +78,15 @@ class Season
      */
     private $episodes;
 
+    /**
+     * @ORM\OneToMany(targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\Asset", mappedBy="season")
+     */
+    private $assets;
+
     public function __construct()
     {
         $this->episodes = new ArrayCollection();
+        $this->assets = new ArrayCollection();
     }
 
     public function __toString()
@@ -250,6 +256,37 @@ class Season
             // set the owning side to null (unless already changed)
             if ($episode->getSeason() === $this) {
                 $episode->setSeason(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Asset[]
+     */
+    public function getAssets(): Collection
+    {
+        return $this->assets;
+    }
+
+    public function addAsset(Asset $asset): self
+    {
+        if (!$this->assets->contains($asset)) {
+            $this->assets[] = $asset;
+            $asset->setSeason($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAsset(Asset $asset): self
+    {
+        if ($this->assets->contains($asset)) {
+            $this->assets->removeElement($asset);
+            // set the owning side to null (unless already changed)
+            if ($asset->getSeason() === $this) {
+                $asset->setSeason(null);
             }
         }
 

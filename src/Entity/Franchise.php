@@ -113,10 +113,16 @@ class Franchise
      */
     private $images = [];
 
+    /**
+     * @ORM\OneToMany(targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\Asset", mappedBy="franchise")
+     */
+    private $assets;
+
     public function __construct()
     {
         $this->platforms = new ArrayCollection();
         $this->shows = new ArrayCollection();
+        $this->assets = new ArrayCollection();
     }
 
     public function __toString()
@@ -381,6 +387,37 @@ class Franchise
     public function setImages(?array $images): self
     {
         $this->images = $images;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Asset[]
+     */
+    public function getAssets(): Collection
+    {
+        return $this->assets;
+    }
+
+    public function addAsset(Asset $asset): self
+    {
+        if (!$this->assets->contains($asset)) {
+            $this->assets[] = $asset;
+            $asset->setFranchise($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAsset(Asset $asset): self
+    {
+        if ($this->assets->contains($asset)) {
+            $this->assets->removeElement($asset);
+            // set the owning side to null (unless already changed)
+            if ($asset->getFranchise() === $this) {
+                $asset->setFranchise(null);
+            }
+        }
 
         return $this;
     }

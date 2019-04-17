@@ -190,6 +190,11 @@ class Show
      */
     private $specials;
 
+    /**
+     * @ORM\OneToMany(targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\Asset", mappedBy="show")
+     */
+    private $assets;
+
     public function __construct()
     {
         $this->audience = new ArrayCollection();
@@ -197,6 +202,7 @@ class Show
         $this->seasons = new ArrayCollection();
         $this->episodes = new ArrayCollection();
         $this->specials = new ArrayCollection();
+        $this->assets = new ArrayCollection();
     }
 
     public function __toString()
@@ -643,6 +649,37 @@ class Show
             // set the owning side to null (unless already changed)
             if ($special->getShow() === $this) {
                 $special->setShow(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Asset[]
+     */
+    public function getAssets(): Collection
+    {
+        return $this->assets;
+    }
+
+    public function addAsset(Asset $asset): self
+    {
+        if (!$this->assets->contains($asset)) {
+            $this->assets[] = $asset;
+            $asset->setShow($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAsset(Asset $asset): self
+    {
+        if ($this->assets->contains($asset)) {
+            $this->assets->removeElement($asset);
+            // set the owning side to null (unless already changed)
+            if ($asset->getShow() === $this) {
+                $asset->setShow(null);
             }
         }
 
