@@ -2,6 +2,7 @@
 
 namespace CascadePublicMedia\PbsApiExplorer\Service;
 
+use CascadePublicMedia\PbsApiExplorer\Entity\Episode;
 use CascadePublicMedia\PbsApiExplorer\Entity\Setting;
 use CascadePublicMedia\PbsApiExplorer\Entity\Show;
 use CascadePublicMedia\PbsApiExplorer\Utils\ApiValueProcessor;
@@ -62,15 +63,26 @@ class MediaManagerApiClient extends PbsApiClientBase
     }
 
     /**
-     * @param $showId
+     * Update all Episode instances for a Show.
+     *
+     * @param string $showId
+     *
+     * TODO: Add fetch-related and process assets.
      */
-    public function updateEpisodes($showId) {
+    public function updateEpisodesByShowId($showId) {
         /** @var Show $show */
         $show = $this->entityManager
             ->getRepository(Show::class)
             ->find($showId);
 
-//        foreach ($show->getSeasons() as $season) {
-//        }
+        foreach ($show->getSeasons() as $season) {
+            parent::update(
+                Episode::class,
+                $season->getEpisodes(),
+                "seasons/{$season->getId()}/episodes/",
+                [],
+                ['show' => $show, 'season' => $season]
+            );
+        }
     }
 }

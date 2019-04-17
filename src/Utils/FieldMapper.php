@@ -14,6 +14,7 @@ class FieldMapper
         'country_code' => 'addressCountryCode',
         'created_at' => 'created',
         'episodes_count' => 'episodeCount',
+        'encored_on' => 'encored',
         'event_tracking' => 'trackingCodeEvent',
         'is_excluded_from_dfp' => 'dfpExclude',
         'kids_live_stream_url' => 'kidsStationUrl',

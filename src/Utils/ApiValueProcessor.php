@@ -63,6 +63,7 @@ class ApiValueProcessor
                    ->getRepository(Genre::class)
                    ->find($apiFieldValue->id);
                break;
+           case 'encored_on':
            case 'premiered_on':
                $apiFieldValue = DateTime::createFromFormat('Y-m-d', $apiFieldValue);
                break;
@@ -114,6 +115,7 @@ class ApiValueProcessor
                         $audience->setScope($value->scope);
                         $audience->setStation($station);
                         $this->entityManager->persist($audience);
+                        // TODO: Remove this flush?
                         $this->entityManager->flush();
                     }
 
