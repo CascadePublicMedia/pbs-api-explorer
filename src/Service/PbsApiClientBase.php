@@ -98,14 +98,14 @@ class PbsApiClientBase
      *
      * @param $entityClass
      *   The Entity class to be updated.
-     * @param array $parameters
+     * @param array $queryParameters
      *   (optional) Query parameters to add to the request.
      *
      * @return array
      *
      * @see self::update()
      */
-    public function updateAllByEntityClass($entityClass, array $parameters = []) {
+    public function updateAllByEntityClass($entityClass, array $queryParameters = []) {
         // Retrieve all existing entities to compare update dates.
         $entities = $this->entityManager
             ->getRepository($entityClass)
@@ -115,7 +115,7 @@ class PbsApiClientBase
             $entityClass,
             $entities,
             $entityClass::ENDPOINT,
-            $parameters
+            $queryParameters
         );
     }
 
@@ -136,24 +136,40 @@ class PbsApiClientBase
      *   queried.
      * @param string $url
      *   The API URL to query.
-     * @param array $parameters
+     * @param array $queryParameters
      *   (optional) Query parameters to add to the request.
+     * @param array $extraProps
+     *   (optional) Additional properties to be applied to all *new* entities.
+     *   This is meant to help with endpoints that do not provide fields for
+     *   locally required relationships (e.g. the `seasons/{id}/episodes`
+     *   endpoint does not provide `show` or `season` data). The array should
+     *   contain key => value entries for a valid property name for the Entity
+     *   and the value that will be set. E.g. --
+     *     $additionalProps = [
+     *       'show' => Show object
+     *       'season' => Season object
+     *     ];
      *
      * @return array
      *   Stats about the updates keyed by:
      *    - 'add': Number of locally added records.
-     *    - 'updated': Number of locally updated records.
+     *    - 'update': Number of locally updated records.
      *    - 'noop': Number of unaffected records.
      *
      * @todo Delete local records for items no longer in API?
      */
-    public function update($entityClass, $entities, $url, array $parameters = []) {
+    public function update($entityClass,
+                           $entities,
+                           $url,
+                           array $queryParameters = [],
+                           array $extraProps = [])
+    {
         $stats = ['add' => 0, 'update' => 0, 'noop' => 0];
         $page = 1;
 
         while(true) {
             $response = $this->client->get($url, [
-                'query' => $parameters + ['page' => $page],
+                'query' => $queryParameters + ['page' => $page],
             ]);
 
             if ($response->getStatusCode() != 200) {
@@ -172,6 +188,16 @@ class PbsApiClientBase
                 else {
                     $entity = new $entityClass;
                     $this->propertyAccessor->setValue($entity, 'id', $item->id);
+
+                    // Add any supplied extra properties.
+                    foreach ($extraProps as $property => $value) {
+                        $this->propertyAccessor->setValue(
+                            $entity,
+                            $property,
+                            $value
+                        );
+                    }
+
                     $op = 'add';
                 }
 
