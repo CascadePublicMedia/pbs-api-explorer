@@ -2,6 +2,7 @@
 
 namespace CascadePublicMedia\PbsApiExplorer\Controller;
 
+use CascadePublicMedia\PbsApiExplorer\Entity\Episode;
 use CascadePublicMedia\PbsApiExplorer\Entity\Franchise;
 use CascadePublicMedia\PbsApiExplorer\Entity\Genre;
 use CascadePublicMedia\PbsApiExplorer\Entity\Season;
@@ -201,7 +202,29 @@ class MediaManagerController extends ControllerBase
     }
 
     /**
-     * @Route("/media-manager/episodes/{showId}/update", name="media_manager_episodes")
+     * @Route("/media-manager/episodes", name="media_manager_episodes")
+     * @Security("is_granted('ROLE_USER')")
+     *
+     * @param EntityManagerInterface $entityManager
+     *
+     * @return Response
+     */
+    public function episode_list(EntityManagerInterface $entityManager) {
+        $entities = $entityManager->getRepository(Episode::class)->findAll();
+        return $this->render('datatable.html.twig', [
+            'title' => 'Episodes',
+            'properties' => [
+                'title' => 'Title',
+                'show' => 'Show',
+                'season' => 'Season',
+                'updated' => 'Updated',
+            ],
+            'entities' => $entities,
+        ]);
+    }
+
+    /**
+     * @Route("/media-manager/episodes/{showId}/update", name="media_manager_episodes_update")
      * @Security("is_granted('ROLE_ADMIN')")
      *
      * @param string $showId
