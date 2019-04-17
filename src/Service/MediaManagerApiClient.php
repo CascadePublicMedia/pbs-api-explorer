@@ -3,6 +3,7 @@
 namespace CascadePublicMedia\PbsApiExplorer\Service;
 
 use CascadePublicMedia\PbsApiExplorer\Entity\Setting;
+use CascadePublicMedia\PbsApiExplorer\Entity\Show;
 use CascadePublicMedia\PbsApiExplorer\Utils\ApiValueProcessor;
 use CascadePublicMedia\PbsApiExplorer\Utils\FieldMapper;
 use Doctrine\ORM\EntityManagerInterface;
@@ -58,5 +59,18 @@ class MediaManagerApiClient extends PbsApiClientBase
         return parent::updateAll($entityClass, [
             'fetch-related' => TRUE,
         ]);
+    }
+
+    /**
+     * @param $showId
+     */
+    public function updateEpisodes($showId) {
+        /** @var Show $show */
+        $show = $this->entityManager
+            ->getRepository(Show::class)
+            ->find($showId);
+
+//        foreach ($show->getSeasons() as $season) {
+//        }
     }
 }

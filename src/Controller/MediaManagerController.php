@@ -199,4 +199,23 @@ class MediaManagerController extends ControllerBase
             'entities' => $entities,
         ]);
     }
+
+    /**
+     * @Route("/media-manager/episodes/{showId}/update", name="media_manager_episodes")
+     * @Security("is_granted('ROLE_ADMIN')")
+     *
+     * @param string $showId
+     * @param MediaManagerApiClient $apiClient
+     *
+     * @return RedirectResponse
+     */
+    public function episodes_update($showId, MediaManagerApiClient $apiClient) {
+        if (!$apiClient->isConfigured()) {
+            throw new NotFoundHttpException(self::$notConfigured);
+        }
+        $apiClient->updateEpisodes($showId);
+        return $this->redirectToRoute('media_manager_shows_show', [
+            'id' => $showId
+        ]);
+    }
 }
