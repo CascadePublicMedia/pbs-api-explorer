@@ -113,7 +113,11 @@ class MediaManagerController extends ControllerBase
         if (!$apiClient->isConfigured()) {
             throw new NotFoundHttpException(self::$notConfigured);
         }
-        $this->updateAll($apiClient, Franchise::class);
+        $this->updateAll(
+            $apiClient,
+            Franchise::class,
+            ['fetch-related' => TRUE]
+        );
         return $this->redirectToRoute('media_manager_franchises');
     }
 
@@ -154,7 +158,7 @@ class MediaManagerController extends ControllerBase
         if (!$apiClient->isConfigured()) {
             throw new NotFoundHttpException(self::$notConfigured);
         }
-        $this->updateAll($apiClient, Show::class);
+        $this->updateAll($apiClient, Show::class, ['fetch-related' => TRUE]);
         return $this->redirectToRoute('media_manager_shows');
     }
 

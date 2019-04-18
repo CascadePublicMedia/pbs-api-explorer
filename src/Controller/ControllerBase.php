@@ -19,11 +19,13 @@ class ControllerBase extends AbstractController
      *   API client to use, should extend PbsApiClientBase.
      * @param $entityClass
      *   The Entity class to update.
+     * @param array $queryParameters
+     *   Query parameters to pass on to the API request.
      *
      * @todo Handle/report specific exceptions.
      */
-    public function updateAll($apiClient, $entityClass) {
-        $stats = $apiClient->updateAllByEntityClass($entityClass);
+    public function updateAll($apiClient, $entityClass, array $queryParameters = []) {
+        $stats = $apiClient->updateAllByEntityClass($entityClass, $queryParameters);
         $this->addFlash('success', sprintf(
             'Update complete! Local changes: %d added, %d updated, %d unchanged.',
             $stats['add'],
