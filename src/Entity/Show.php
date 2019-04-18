@@ -144,11 +144,6 @@ class Show
     private $links = [];
 
     /**
-     * @ORM\Column(type="array", nullable=true)
-     */
-    private $images = [];
-
-    /**
      * @ORM\ManyToMany(
      *     targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\Audience",
      *     inversedBy="shows",
@@ -206,6 +201,11 @@ class Show
      */
     private $assets;
 
+    /**
+     * @ORM\OneToMany(targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\Image", mappedBy="show")
+     */
+    private $images;
+
     public function __construct()
     {
         $this->audience = new ArrayCollection();
@@ -214,6 +214,7 @@ class Show
         $this->episodes = new ArrayCollection();
         $this->specials = new ArrayCollection();
         $this->assets = new ArrayCollection();
+        $this->images = new ArrayCollection();
     }
 
     public function __toString()
@@ -509,18 +510,6 @@ class Show
         return $this;
     }
 
-    public function getImages(): ?array
-    {
-        return $this->images;
-    }
-
-    public function setImages(?array $images): self
-    {
-        $this->images = $images;
-
-        return $this;
-    }
-
     /**
      * @return Collection|Audience[]
      */
@@ -691,6 +680,37 @@ class Show
             // set the owning side to null (unless already changed)
             if ($asset->getShow() === $this) {
                 $asset->setShow(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Image[]
+     */
+    public function getImages(): Collection
+    {
+        return $this->images;
+    }
+
+    public function addImage(Image $image): self
+    {
+        if (!$this->images->contains($image)) {
+            $this->images[] = $image;
+            $image->setShow($this);
+        }
+
+        return $this;
+    }
+
+    public function removeImage(Image $image): self
+    {
+        if ($this->images->contains($image)) {
+            $this->images->removeElement($image);
+            // set the owning side to null (unless already changed)
+            if ($image->getShow() === $this) {
+                $image->setShow(null);
             }
         }
 

@@ -109,20 +109,21 @@ class Franchise
     private $links = [];
 
     /**
-     * @ORM\Column(type="array", nullable=true)
-     */
-    private $images = [];
-
-    /**
      * @ORM\OneToMany(targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\Asset", mappedBy="franchise")
      */
     private $assets;
+
+    /**
+     * @ORM\OneToMany(targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\Image", mappedBy="franchise")
+     */
+    private $images;
 
     public function __construct()
     {
         $this->platforms = new ArrayCollection();
         $this->shows = new ArrayCollection();
         $this->assets = new ArrayCollection();
+        $this->images = new ArrayCollection();
     }
 
     public function __toString()
@@ -379,18 +380,6 @@ class Franchise
         return $this;
     }
 
-    public function getImages(): ?array
-    {
-        return $this->images;
-    }
-
-    public function setImages(?array $images): self
-    {
-        $this->images = $images;
-
-        return $this;
-    }
-
     /**
      * @return Collection|Asset[]
      */
@@ -416,6 +405,37 @@ class Franchise
             // set the owning side to null (unless already changed)
             if ($asset->getFranchise() === $this) {
                 $asset->setFranchise(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Image[]
+     */
+    public function getImages(): Collection
+    {
+        return $this->images;
+    }
+
+    public function addImage(Image $image): self
+    {
+        if (!$this->images->contains($image)) {
+            $this->images[] = $image;
+            $image->setFranchise($this);
+        }
+
+        return $this;
+    }
+
+    public function removeImage(Image $image): self
+    {
+        if ($this->images->contains($image)) {
+            $this->images->removeElement($image);
+            // set the owning side to null (unless already changed)
+            if ($image->getFranchise() === $this) {
+                $image->setFranchise(null);
             }
         }
 

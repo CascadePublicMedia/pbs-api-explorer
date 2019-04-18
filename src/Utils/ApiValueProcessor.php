@@ -7,10 +7,14 @@ use CascadePublicMedia\PbsApiExplorer\Entity\AssetAvailability;
 use CascadePublicMedia\PbsApiExplorer\Entity\Audience;
 use CascadePublicMedia\PbsApiExplorer\Entity\Franchise;
 use CascadePublicMedia\PbsApiExplorer\Entity\Genre;
+use CascadePublicMedia\PbsApiExplorer\Entity\Image;
 use CascadePublicMedia\PbsApiExplorer\Entity\Platform;
 use CascadePublicMedia\PbsApiExplorer\Entity\Season;
 use CascadePublicMedia\PbsApiExplorer\Entity\Station;
 use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Criteria;
+use Doctrine\Common\Collections\Expr\Comparison;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 
@@ -115,7 +119,7 @@ class ApiValueProcessor
         switch ($apiFieldName) {
             case 'assets':
 
-                // Determine the entity type this asset is associated with.
+                // Determine the entity type these assets are associated with.
                 try {
                     $reflect = new \ReflectionClass($entity);
                     $entity_type = strtolower($reflect->getShortName());
@@ -203,7 +207,66 @@ class ApiValueProcessor
                 // TODO
                 break;
             case 'images':
-                $entity->setImages($apiFieldValue);
+                // Determine the entity type these images are associated with.
+                try {
+                    $reflect = new \ReflectionClass($entity);
+                    $entity_type = strtolower($reflect->getShortName());
+                }
+                catch (\ReflectionException $e) {
+                    throw new \RuntimeException('Unknown entity type.');
+                }
+
+                /** @var ArrayCollection $images */
+                $images = $entity->getImages();
+
+                foreach ($apiFieldValue as $item) {
+                    $updated = NULL;
+                    if (isset($item->updated_at)) {
+                        $updated = $this->processValue(
+                            'updated_at',
+                            $item->updated_at
+                        );
+                    }
+
+                    $criteria = new Criteria(new Comparison(
+                        'profile',
+                        '=',
+                        $item->profile
+                    ));
+
+                    /** @var Image $image */
+                    $image = $images->matching($criteria)->first();
+
+                    if (!$image) {
+                        $image = new Image();
+                        $this->propertyAccessor->setValue(
+                            $image,
+                            $entity_type,
+                            $entity
+                        );
+                    }
+                    elseif ($updated && $image->getUpdated() >= $updated) {
+                        continue;
+                    }
+
+                    $image->setProfile($item->profile);
+
+                    // Image keys of "url" and "image" as used interchangeably.
+                    if (isset($item->image)) {
+                        $image->setImage($item->image);
+                    }
+                    elseif (isset($item->url)) {
+                        $image->setImage($item->url);
+                    }
+
+                    if ($updated) {
+                        $image->setUpdated($updated);
+                    }
+
+                    $this->entityManager->merge($image);
+                }
+
+                //$entity->setImages($apiFieldValue);
                 break;
             case 'links':
                 $entity->setLinks($apiFieldValue);
