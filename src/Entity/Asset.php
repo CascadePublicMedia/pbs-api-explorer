@@ -3,6 +3,7 @@
 namespace CascadePublicMedia\PbsApiExplorer\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -131,7 +132,8 @@ class Asset
     /**
      * @ORM\ManyToOne(
      *     targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\Episode",
-     *     inversedBy="assets"
+     *     inversedBy="assets",
+     *     cascade={"persist", "merge"}
      * )
      */
     private $episode;
@@ -139,7 +141,8 @@ class Asset
     /**
      * @ORM\ManyToOne(
      *     targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\Season",
-     *     inversedBy="assets"
+     *     inversedBy="assets",
+     *     cascade={"persist", "merge"}
      * )
      */
     private $season;
@@ -147,7 +150,8 @@ class Asset
     /**
      * @ORM\ManyToOne(
      *     targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\Show",
-     *     inversedBy="assets"
+     *     inversedBy="assets",
+     *     cascade={"persist", "merge"}
      * )
      */
     private $show;
@@ -155,7 +159,8 @@ class Asset
     /**
      * @ORM\ManyToOne(
      *     targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\Franchise",
-     *     inversedBy="assets"
+     *     inversedBy="assets",
+     *     cascade={"persist", "merge"}
      * )
      */
     private $franchise;
@@ -165,9 +170,35 @@ class Asset
      */
     private $chapters = [];
 
+    /**
+     * @ORM\ManyToMany(targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\Platform")
+     */
+    private $platforms;
+
+    /**
+     * @ORM\OneToMany(
+     *     targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\AssetAvailability",
+     *     mappedBy="asset",
+     *     orphanRemoval=true,
+     *     cascade={"persist", "merge"}
+     * )
+     */
+    private $availabilities;
+
+    /**
+     * @var object
+     */
+    private $parent;
+
     public function __construct()
     {
-        $this->topics = new ArrayCollection();
+        $this->platforms = new ArrayCollection();
+        $this->availabilities = new ArrayCollection();
+    }
+
+    public function __toString()
+    {
+        return "{$this->title} ({$this->type})";
     }
 
     public function getId(): ?string
@@ -482,6 +513,17 @@ class Asset
         return $this;
     }
 
+    public function getParent()
+    {
+        foreach (['franchise', 'show', 'season', 'episode'] as $type) {
+            if ($this->{$type}) {
+                return $this->{$type};
+            }
+        }
+
+        return NULL;
+    }
+
     public function getChapters(): ?array
     {
         return $this->chapters;
@@ -490,6 +532,63 @@ class Asset
     public function setChapters(?array $chapters): self
     {
         $this->chapters = $chapters;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Platform[]
+     */
+    public function getPlatforms(): Collection
+    {
+        return $this->platforms;
+    }
+
+    public function addPlatform(Platform $platform): self
+    {
+        if (!$this->platforms->contains($platform)) {
+            $this->platforms[] = $platform;
+        }
+
+        return $this;
+    }
+
+    public function removePlatform(Platform $platform): self
+    {
+        if ($this->platforms->contains($platform)) {
+            $this->platforms->removeElement($platform);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|AssetAvailability[]
+     */
+    public function getAvailabilities(): Collection
+    {
+        return $this->availabilities;
+    }
+
+    public function addAvailability(AssetAvailability $availability): self
+    {
+        if (!$this->availabilities->contains($availability)) {
+            $this->availabilities[] = $availability;
+            $availability->setAsset($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAvailability(AssetAvailability $availability): self
+    {
+        if ($this->availabilities->contains($availability)) {
+            $this->availabilities->removeElement($availability);
+            // set the owning side to null (unless already changed)
+            if ($availability->getAsset() === $this) {
+                $availability->setAsset(null);
+            }
+        }
 
         return $this;
     }

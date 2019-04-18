@@ -2,6 +2,7 @@
 
 namespace CascadePublicMedia\PbsApiExplorer\Controller;
 
+use CascadePublicMedia\PbsApiExplorer\Entity\Asset;
 use CascadePublicMedia\PbsApiExplorer\Entity\Episode;
 use CascadePublicMedia\PbsApiExplorer\Entity\Franchise;
 use CascadePublicMedia\PbsApiExplorer\Entity\Genre;
@@ -209,7 +210,7 @@ class MediaManagerController extends ControllerBase
      *
      * @return Response
      */
-    public function episode_list(EntityManagerInterface $entityManager) {
+    public function episodes(EntityManagerInterface $entityManager) {
         $entities = $entityManager->getRepository(Episode::class)->findAll();
         return $this->render('datatable.html.twig', [
             'title' => 'Episodes',
@@ -239,6 +240,28 @@ class MediaManagerController extends ControllerBase
         $apiClient->updateEpisodesByShowId($showId);
         return $this->redirectToRoute('media_manager_shows_show', [
             'id' => $showId
+        ]);
+    }
+
+    /**
+     * @Route("/media-manager/assets", name="media_manager_assets")
+     * @Security("is_granted('ROLE_USER')")
+     *
+     * @param EntityManagerInterface $entityManager
+     *
+     * @return Response
+     */
+    public function assets(EntityManagerInterface $entityManager) {
+        $entities = $entityManager->getRepository(Asset::class)->findAll();
+        return $this->render('datatable.html.twig', [
+            'title' => 'Assets',
+            'properties' => [
+                'title' => 'Title',
+                'parent' => 'Parent',
+                'type' => 'Type',
+                'updated' => 'Updated',
+            ],
+            'entities' => $entities,
         ]);
     }
 }

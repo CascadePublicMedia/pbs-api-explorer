@@ -80,7 +80,7 @@ class MediaManagerApiClient extends PbsApiClientBase
                 Episode::class,
                 $season->getEpisodes(),
                 "seasons/{$season->getId()}/episodes/",
-                [],
+                ['fetch-related' => TRUE],
                 ['show' => $show, 'season' => $season]
             );
         }

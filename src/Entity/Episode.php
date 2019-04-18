@@ -100,13 +100,35 @@ class Episode
     private $show;
 
     /**
-     * @ORM\OneToMany(targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\Asset", mappedBy="episode")
+     * @ORM\OneToMany(
+     *     targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\Asset",
+     *     mappedBy="episode",
+     *     cascade={"persist", "merge"}
+     * )
      */
     private $assets;
+
+    /**
+     * @ORM\ManyToOne(
+     *     targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\Asset",
+     *     cascade={"persist", "merge"}
+     * )
+     */
+    private $fullLengthAsset;
 
     public function __construct()
     {
         $this->assets = new ArrayCollection();
+    }
+
+    public function __toString()
+    {
+        $title = $this->title;
+        if (!$title) {
+            $title = "Episode {$this->ordinal}";
+        }
+
+        return $title;
     }
 
     public function getId(): ?string
@@ -328,6 +350,18 @@ class Episode
                 $asset->setEpisode(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getFullLengthAsset(): ?Asset
+    {
+        return $this->fullLengthAsset;
+    }
+
+    public function setFullLengthAsset(?Asset $fullLengthAsset): self
+    {
+        $this->fullLengthAsset = $fullLengthAsset;
 
         return $this;
     }

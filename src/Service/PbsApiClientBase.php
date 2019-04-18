@@ -229,6 +229,9 @@ class PbsApiClientBase
                     if (is_array($value)) {
                         $this->apiValueProcessor->processArray($entity, $field_name, $value);
                     }
+                    elseif (is_object($value)) {
+                        $this->apiValueProcessor->processObject($entity, $field_name, $value);
+                    }
                     else {
                         $this->propertyAccessor->setValue(
                             $entity,

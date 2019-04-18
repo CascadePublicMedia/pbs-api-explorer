@@ -2,6 +2,8 @@
 
 namespace CascadePublicMedia\PbsApiExplorer\Utils;
 
+use CascadePublicMedia\PbsApiExplorer\Entity\Asset;
+use CascadePublicMedia\PbsApiExplorer\Entity\AssetAvailability;
 use CascadePublicMedia\PbsApiExplorer\Entity\Audience;
 use CascadePublicMedia\PbsApiExplorer\Entity\Franchise;
 use CascadePublicMedia\PbsApiExplorer\Entity\Genre;
@@ -9,15 +11,16 @@ use CascadePublicMedia\PbsApiExplorer\Entity\Platform;
 use CascadePublicMedia\PbsApiExplorer\Entity\Season;
 use CascadePublicMedia\PbsApiExplorer\Entity\Station;
 use DateTime;
-use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 
 class ApiValueProcessor
 {
     /**
-     * Standard date format for Media Manager API values.
+     * Media Manager uses two different date formats seemingly interchangeably.
      */
     private const MEDIA_MANAGER_API_DATE_FORMAT = 'Y-m-d\TH:i:s.u\Z';
+    private const MEDIA_MANAGER_API_DATE_FORMAT_ALT = 'Y-m-d\TH:i:s\Z';
 
     /**
      * @var EntityManagerInterface
@@ -25,13 +28,29 @@ class ApiValueProcessor
     private $entityManager;
 
     /**
+     * @var FieldMapper
+     */
+    private $fieldMapper;
+
+    /**
+     * @var PropertyAccessorInterface
+     */
+    private $propertyAccessor;
+
+    /**
      * ApiValueProcessor constructor.
      *
      * @param EntityManagerInterface $entityManager
+     * @param FieldMapper $fieldMapper
+     * @param PropertyAccessorInterface $propertyAccessor
      */
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(EntityManagerInterface $entityManager,
+                                FieldMapper $fieldMapper,
+                                PropertyAccessorInterface $propertyAccessor)
     {
         $this->entityManager = $entityManager;
+        $this->fieldMapper = $fieldMapper;
+        $this->propertyAccessor = $propertyAccessor;
     }
 
     /**
@@ -48,10 +67,24 @@ class ApiValueProcessor
 
        switch ($apiFieldName) {
            case 'created_at':
-               $apiFieldValue = DateTimeImmutable::createFromFormat(
+           case 'end':
+           case 'start':
+           case 'updated_at':
+               $datetime = DateTime::createFromFormat(
                    self::MEDIA_MANAGER_API_DATE_FORMAT,
                    $apiFieldValue
                );
+               if ($datetime === FALSE) {
+                   $datetime = DateTime::createFromFormat(
+                       self::MEDIA_MANAGER_API_DATE_FORMAT_ALT,
+                       $apiFieldValue
+                   );
+               }
+               $apiFieldValue = $datetime;
+               break;
+           case 'encored_on':
+           case 'premiered_on':
+               $apiFieldValue = DateTime::createFromFormat('Y-m-d', $apiFieldValue);
                break;
            case 'franchise':
                $apiFieldValue = $this->entityManager
@@ -63,20 +96,10 @@ class ApiValueProcessor
                    ->getRepository(Genre::class)
                    ->find($apiFieldValue->id);
                break;
-           case 'encored_on':
-           case 'premiered_on':
-               $apiFieldValue = DateTime::createFromFormat('Y-m-d', $apiFieldValue);
-               break;
            case 'station':
                $apiFieldValue = $this->entityManager
                    ->getRepository(Station::class)
                    ->find($apiFieldValue->id);
-               break;
-           case 'updated_at':
-               $apiFieldValue = DateTime::createFromFormat(
-                   self::MEDIA_MANAGER_API_DATE_FORMAT,
-                   $apiFieldValue
-               );
                break;
        }
 
@@ -91,10 +114,64 @@ class ApiValueProcessor
     public function processArray(&$entity, $apiFieldName, $apiFieldValue) {
         switch ($apiFieldName) {
             case 'assets':
-                // TODO
+
+                // Determine the entity type this asset is associated with.
+                try {
+                    $reflect = new \ReflectionClass($entity);
+                    $entity_type = strtolower($reflect->getShortName());
+                }
+                catch (\ReflectionException $e) {
+                    throw new \RuntimeException('Unknown entity type.');
+                }
+
+                foreach ($apiFieldValue as $item) {
+                    /** @var Asset $asset */
+                    $asset = $this->entityManager
+                        ->getRepository(Asset::class)
+                        ->find($item->id);
+
+                    if (!$asset) {
+                        $asset = new Asset();
+                        $asset->setId($item->id);
+                    }
+                    else {
+                        $updated = $this->processValue(
+                            'updated_at',
+                            $item->attributes->updated_at
+                        );
+                        if ($asset->getUpdated() >= $updated) {
+                            continue;
+                        }
+                    }
+
+                    // Associate asset with the entity.
+                    $this->propertyAccessor->setValue(
+                        $asset,
+                        $entity_type,
+                        $entity
+                    );
+
+                    foreach ($item->attributes as $field_name => $value) {
+                        if (is_array($value)) {
+                            $this->processArray($asset, $field_name, $value);
+                        }
+                        elseif (is_object($value)) {
+                            $this->processObject($asset, $field_name, $value);
+                        }
+                        else {
+                            $this->propertyAccessor->setValue(
+                                $asset,
+                                $this->fieldMapper->map($field_name),
+                                $this->processValue($field_name, $value)
+                            );
+                        }
+                    }
+
+                    $this->entityManager->merge($asset);
+                }
                 break;
             case 'audience':
-                foreach ($apiFieldValue as $key => $value) {
+                foreach ($apiFieldValue as $value) {
                     $station = NULL;
                     if (!is_null($value->station)) {
                         /** @var Station $station */
@@ -132,7 +209,7 @@ class ApiValueProcessor
                 $entity->setLinks($apiFieldValue);
                 break;
             case 'platforms':
-                foreach ($apiFieldValue as $key => $value) {
+                foreach ($apiFieldValue as $value) {
                     $platform = $this->entityManager
                         ->getRepository(Platform::class)
                         ->find($value->id);
@@ -142,7 +219,7 @@ class ApiValueProcessor
                 }
                 break;
             case 'seasons':
-                foreach ($apiFieldValue as $key => $value) {
+                foreach ($apiFieldValue as $value) {
                     $season = NULL;
 
                     /** @var Season $station */
@@ -169,6 +246,50 @@ class ApiValueProcessor
                 break;
             case 'specials':
                 // TODO
+                break;
+        }
+    }
+
+    public function processObject(&$entity, $apiFieldName, $apiFieldValue) {
+        switch ($apiFieldName) {
+            case 'availabilities':
+                /** @var AssetAvailability[] $availabilities */
+                $availabilities = $this->entityManager
+                    ->getRepository(AssetAvailability::class)
+                    ->findAllByAssetIndexedByType($entity);
+                foreach ($apiFieldValue as $type => $constraints) {
+                    $updated = $this->processValue(
+                        'updated_at',
+                        $constraints->updated_at
+                    );
+
+                    if (isset($availabilities[$type])) {
+                        $availability = $availabilities[$type];
+                        if ($availability->getUpdated() >= $updated) {
+                            continue;
+                        }
+                    }
+                    else {
+                        $availability = new AssetAvailability();
+                        $availability->setType($type);
+                    }
+
+                    $availability->setStartDateTime($this->processValue(
+                        'start',
+                        $constraints->start
+                    ));
+                    $availability->setEndDateTime($this->processValue(
+                        'end',
+                        $constraints->end
+                    ));
+                    $availability->setUpdated($updated);
+                    $availability->setAsset($entity);
+                    $this->entityManager->merge($availability);
+                }
+                break;
+            case 'full_length_asset':
+                // TODO
+                $apiFieldValue = NULL;
                 break;
         }
     }

@@ -118,12 +118,18 @@ class Show
     private $episodeSortDesc;
 
     /**
-     * @ORM\ManyToOne(targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\Genre", inversedBy="shows")
+     * @ORM\ManyToOne(
+     *     targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\Genre",
+     *     inversedBy="shows"
+     * )
      */
     private $genre;
 
     /**
-     * @ORM\ManyToOne(targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\Franchise", inversedBy="shows")
+     * @ORM\ManyToOne(
+     *     targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\Franchise",
+     *     inversedBy="shows"
+     * )
      */
     private $franchise;
 
@@ -191,7 +197,12 @@ class Show
     private $specials;
 
     /**
-     * @ORM\OneToMany(targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\Asset", mappedBy="show")
+     * @ORM\OneToMany(
+     *     targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\Asset",
+     *     mappedBy="show",
+     *     orphanRemoval=true,
+     *     cascade={"persist", "merge"}
+     * )
      */
     private $assets;
 
