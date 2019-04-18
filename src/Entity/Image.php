@@ -67,6 +67,11 @@ class Image
      */
     private $station;
 
+    /**
+     * @var object
+     */
+    private $parent;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -154,5 +159,16 @@ class Image
         $this->station = $station;
 
         return $this;
+    }
+
+    public function getParent()
+    {
+        foreach (['asset', 'franchise', 'show', 'station'] as $type) {
+            if ($this->{$type}) {
+                return $this->{$type};
+            }
+        }
+
+        return NULL;
     }
 }

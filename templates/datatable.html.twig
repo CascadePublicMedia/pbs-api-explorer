@@ -60,6 +60,8 @@ Availavble variables:
                             <td>{{ field|bool_icon }}</td>
                         {% elseif loop.first and entity_route is defined %}
                             <td><a href="{{ path(entity_route, {'id': entity.id}) }}">{{ field }}</a></td>
+                        {% elseif property == 'image' %}
+                            <td><a href="{{ field }}" target="_blank">{{ field|split('/')|last }}</a></td>
                         {% else %}
                             <td>{{ field }}</td>
                         {% endif %}

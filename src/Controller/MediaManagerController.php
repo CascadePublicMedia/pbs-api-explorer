@@ -6,6 +6,7 @@ use CascadePublicMedia\PbsApiExplorer\Entity\Asset;
 use CascadePublicMedia\PbsApiExplorer\Entity\Episode;
 use CascadePublicMedia\PbsApiExplorer\Entity\Franchise;
 use CascadePublicMedia\PbsApiExplorer\Entity\Genre;
+use CascadePublicMedia\PbsApiExplorer\Entity\Image;
 use CascadePublicMedia\PbsApiExplorer\Entity\Season;
 use CascadePublicMedia\PbsApiExplorer\Entity\Show;
 use CascadePublicMedia\PbsApiExplorer\Service\MediaManagerApiClient;
@@ -257,8 +258,28 @@ class MediaManagerController extends ControllerBase
             'title' => 'Assets',
             'properties' => [
                 'title' => 'Title',
-                'parent' => 'Parent',
                 'type' => 'Type',
+                'updated' => 'Updated',
+            ],
+            'entities' => $entities,
+        ]);
+    }
+
+    /**
+     * @Route("/media-manager/images", name="media_manager_images")
+     * @Security("is_granted('ROLE_USER')")
+     *
+     * @param EntityManagerInterface $entityManager
+     *
+     * @return Response
+     */
+    public function images(EntityManagerInterface $entityManager) {
+        $entities = $entityManager->getRepository(Image::class)->findAll();
+        return $this->render('datatable.html.twig', [
+            'title' => 'Images',
+            'properties' => [
+                'image' => 'Image',
+                'profile' => 'Profile',
                 'updated' => 'Updated',
             ],
             'entities' => $entities,
