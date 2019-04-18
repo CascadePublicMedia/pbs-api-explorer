@@ -3,7 +3,6 @@
 namespace CascadePublicMedia\PbsApiExplorer\Controller;
 
 use CascadePublicMedia\PbsApiExplorer\Service\PbsApiClientBase;
-use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 /**
@@ -24,17 +23,12 @@ class ControllerBase extends AbstractController
      * @todo Handle/report specific exceptions.
      */
     public function updateAll($apiClient, $entityClass) {
-        try {
-            $stats = $apiClient->updateAllByEntityClass($entityClass);
-            $this->addFlash('success', sprintf(
-                'Update complete! Local changes: %d added, %d updated, %d unchanged.',
-                $stats['add'],
-                $stats['update'],
-                $stats['noop']
-            ));
-        }
-        catch (Exception $e) {
-            $this->addFlash('error', 'Runtime exception encountered!');
-        }
+        $stats = $apiClient->updateAllByEntityClass($entityClass);
+        $this->addFlash('success', sprintf(
+            'Update complete! Local changes: %d added, %d updated, %d unchanged.',
+            $stats['add'],
+            $stats['update'],
+            $stats['noop']
+        ));
     }
 }
