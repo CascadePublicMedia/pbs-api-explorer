@@ -12,6 +12,7 @@ use CascadePublicMedia\PbsApiExplorer\Entity\Platform;
 use CascadePublicMedia\PbsApiExplorer\Entity\Season;
 use CascadePublicMedia\PbsApiExplorer\Entity\Station;
 use DateTime;
+use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Collections\Expr\Comparison;
@@ -71,6 +72,18 @@ class ApiValueProcessor
 
        switch ($apiFieldName) {
            case 'created_at':
+               $datetime = DateTimeImmutable::createFromFormat(
+                   self::MEDIA_MANAGER_API_DATE_FORMAT,
+                   $apiFieldValue
+               );
+               if ($datetime === FALSE) {
+                   $datetime = DateTimeImmutable::createFromFormat(
+                       self::MEDIA_MANAGER_API_DATE_FORMAT_ALT,
+                       $apiFieldValue
+                   );
+               }
+               $apiFieldValue = $datetime;
+               break;
            case 'end':
            case 'start':
            case 'updated_at':
