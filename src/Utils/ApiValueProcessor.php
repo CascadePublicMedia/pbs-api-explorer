@@ -103,21 +103,6 @@ class ApiValueProcessor
            case 'premiered_on':
                $apiFieldValue = DateTime::createFromFormat('Y-m-d', $apiFieldValue);
                break;
-           case 'franchise':
-               $apiFieldValue = $this->entityManager
-                   ->getRepository(Franchise::class)
-                   ->find($apiFieldValue->id);
-               break;
-           case 'genre':
-               $apiFieldValue = $this->entityManager
-                   ->getRepository(Genre::class)
-                   ->find($apiFieldValue->id);
-               break;
-           case 'station':
-               $apiFieldValue = $this->entityManager
-                   ->getRepository(Station::class)
-                   ->find($apiFieldValue->id);
-               break;
        }
 
        return $apiFieldValue;
@@ -327,6 +312,8 @@ class ApiValueProcessor
     }
 
     public function processObject(&$entity, $apiFieldName, $apiFieldValue) {
+        $updatedFieldValue = NULL;
+
         switch ($apiFieldName) {
             case 'availabilities':
                 /** @var AssetAvailability[] $availabilities */
@@ -365,8 +352,32 @@ class ApiValueProcessor
                 break;
             case 'full_length_asset':
                 // TODO
-                $apiFieldValue = NULL;
+                $updatedFieldValue = NULL;
                 break;
+            case 'franchise':
+                $updatedFieldValue = $this->entityManager
+                    ->getRepository(Franchise::class)
+                    ->find($apiFieldValue->id);
+                break;
+            case 'genre':
+                $updatedFieldValue = $this->entityManager
+                    ->getRepository(Genre::class)
+                    ->find($apiFieldValue->id);
+                break;
+            case 'station':
+                $updatedFieldValue = $this->entityManager
+                    ->getRepository(Station::class)
+                    ->find($apiFieldValue->id);
+                break;
+        }
+
+        // Handle objects that need specific value updates.
+        if ($updatedFieldValue) {
+            $this->propertyAccessor->setValue(
+                $entity,
+                $this->fieldMapper->map($apiFieldName),
+                $this->processValue($apiFieldName, $updatedFieldValue)
+            );
         }
     }
 }
