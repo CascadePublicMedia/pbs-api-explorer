@@ -2,13 +2,15 @@
 
 namespace CascadePublicMedia\PbsApiExplorer\Service;
 
-use CascadePublicMedia\PbsApiExplorer\Entity\Franchise;
-use CascadePublicMedia\PbsApiExplorer\Entity\Genre;
 use CascadePublicMedia\PbsApiExplorer\Entity\Setting;
-use CascadePublicMedia\PbsApiExplorer\Entity\Show;
 use CascadePublicMedia\PbsApiExplorer\Utils\ApiValueProcessor;
 use CascadePublicMedia\PbsApiExplorer\Utils\FieldMapper;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Criteria;
+use Doctrine\Common\Collections\Expr\Comparison;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\PersistentCollection;
 use GuzzleHttp\Client;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\PropertyAccess\PropertyAccess;
@@ -109,7 +111,8 @@ class PbsApiClientBase
         // Retrieve all existing entities to compare update dates.
         $entities = $this->entityManager
             ->getRepository($entityClass)
-            ->findAllIndexedById();
+            ->findAll();
+        $entities = new ArrayCollection($entities);
 
         return $this->update(
             $entityClass,
@@ -130,10 +133,10 @@ class PbsApiClientBase
      *
      * @param $entityClass
      *   The Entity class to be updated.
-     * @param array $entities
-     *   Existing entities in the system to compare against. This array must be
-     *   indexed by the same ID that will be returned from the PBS API being
-     *   queried.
+     * @param Collection|ArrayCollection|PersistentCollection $entities
+     *   Existing entities in the system to compare against. While Collection is
+     *   enforced, this is assumed to be either an ArrayCollection or
+     *   PersistentCollection supporting the `matching` method.
      * @param string $url
      *   The API URL to query.
      * @param array $queryParameters
@@ -159,7 +162,7 @@ class PbsApiClientBase
      * @todo Delete local records for items no longer in API?
      */
     public function update($entityClass,
-                           $entities,
+                           Collection $entities,
                            $url,
                            array $queryParameters = [],
                            array $extraProps = [])
@@ -180,9 +183,12 @@ class PbsApiClientBase
 
             foreach ($data->data as $item) {
 
+                // Check for an existing instance.
+                $criteria = new Criteria(new Comparison('id', '=', $item->id));
+                $entity = $entities->matching($criteria)->first();
+
                 // Update an existing entity or create a new one.
-                if (isset($entities[$item->id])) {
-                    $entity = $entities[$item->id];
+                if ($entity) {
                     $op = 'update';
                 }
                 else {
