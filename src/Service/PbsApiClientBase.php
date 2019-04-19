@@ -181,6 +181,12 @@ class PbsApiClientBase
 
             $data = json_decode($response->getBody());
 
+            // Reformat a single response as a one-item array.
+            if (is_object($data->data)) {
+                $object = $data->data;
+                $data->data = [$object];
+            }
+
             foreach ($data->data as $item) {
 
                 // Check for an existing instance.
@@ -248,7 +254,8 @@ class PbsApiClientBase
 
             // If another page is available, continue to it. Otherwise, end
             // execution of this loop.
-            if (isset($data->links) && $data->links->next) {
+            if (isset($data->links) && isset($data->links->next)
+                && !empty($data->links->next)) {
                 $query_string = parse_url($data->links->next, PHP_URL_QUERY);
                 if ($query_string) {
                     parse_str($query_string, $query);
