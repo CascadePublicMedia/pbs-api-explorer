@@ -206,6 +206,11 @@ class Show
      */
     private $images;
 
+    /**
+     * @ORM\OneToMany(targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\RemoteAsset", mappedBy="show")
+     */
+    private $remoteAssets;
+
     public function __construct()
     {
         $this->audience = new ArrayCollection();
@@ -215,6 +220,7 @@ class Show
         $this->specials = new ArrayCollection();
         $this->assets = new ArrayCollection();
         $this->images = new ArrayCollection();
+        $this->remoteAssets = new ArrayCollection();
     }
 
     public function __toString()
@@ -711,6 +717,37 @@ class Show
             // set the owning side to null (unless already changed)
             if ($image->getShow() === $this) {
                 $image->setShow(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|RemoteAsset[]
+     */
+    public function getRemoteAssets(): Collection
+    {
+        return $this->remoteAssets;
+    }
+
+    public function addRemoteAsset(RemoteAsset $remoteAsset): self
+    {
+        if (!$this->remoteAssets->contains($remoteAsset)) {
+            $this->remoteAssets[] = $remoteAsset;
+            $remoteAsset->setShow($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRemoteAsset(RemoteAsset $remoteAsset): self
+    {
+        if ($this->remoteAssets->contains($remoteAsset)) {
+            $this->remoteAssets->removeElement($remoteAsset);
+            // set the owning side to null (unless already changed)
+            if ($remoteAsset->getShow() === $this) {
+                $remoteAsset->setShow(null);
             }
         }
 

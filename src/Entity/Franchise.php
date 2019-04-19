@@ -118,12 +118,18 @@ class Franchise
      */
     private $images;
 
+    /**
+     * @ORM\OneToMany(targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\RemoteAsset", mappedBy="franchise")
+     */
+    private $remoteAssets;
+
     public function __construct()
     {
         $this->platforms = new ArrayCollection();
         $this->shows = new ArrayCollection();
         $this->assets = new ArrayCollection();
         $this->images = new ArrayCollection();
+        $this->remoteAssets = new ArrayCollection();
     }
 
     public function __toString()
@@ -436,6 +442,37 @@ class Franchise
             // set the owning side to null (unless already changed)
             if ($image->getFranchise() === $this) {
                 $image->setFranchise(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|RemoteAsset[]
+     */
+    public function getRemoteAssets(): Collection
+    {
+        return $this->remoteAssets;
+    }
+
+    public function addRemoteAsset(RemoteAsset $remoteAsset): self
+    {
+        if (!$this->remoteAssets->contains($remoteAsset)) {
+            $this->remoteAssets[] = $remoteAsset;
+            $remoteAsset->setFranchise($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRemoteAsset(RemoteAsset $remoteAsset): self
+    {
+        if ($this->remoteAssets->contains($remoteAsset)) {
+            $this->remoteAssets->removeElement($remoteAsset);
+            // set the owning side to null (unless already changed)
+            if ($remoteAsset->getFranchise() === $this) {
+                $remoteAsset->setFranchise(null);
             }
         }
 

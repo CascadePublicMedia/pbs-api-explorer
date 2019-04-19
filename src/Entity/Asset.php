@@ -95,11 +95,6 @@ class Asset
     private $canEmbedPlayer;
 
     /**
-     * @ORM\Column(type="array", nullable=true)
-     */
-    private $tags = [];
-
-    /**
      * @ORM\Column(type="string", length=2, nullable=true)
      */
     private $language;
@@ -166,7 +161,9 @@ class Asset
     private $chapters = [];
 
     /**
-     * @ORM\ManyToMany(targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\Platform")
+     * @ORM\ManyToMany(
+     *     targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\Platform"
+     * )
      */
     private $platforms;
 
@@ -194,11 +191,53 @@ class Asset
      */
     private $images;
 
+    /**
+     * @ORM\Column(type="array", nullable=true)
+     */
+    private $links = [];
+
+    /**
+     * @ORM\ManyToOne(targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\GeoAvailabilityProfile")
+     */
+    private $geoProfile;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\GeoAvailabilityCountry")
+     */
+    private $countries;
+
+    /**
+     * @ORM\Column(type="array", nullable=true)
+     */
+    private $captions = [];
+
+    /**
+     * @ORM\Column(type="array", nullable=true)
+     */
+    private $videos = [];
+
+    /**
+     * @ORM\ManyToMany(
+     *     targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\AssetTag",
+     *     inversedBy="assets",
+     *     cascade={"persist", "merge"}
+     * )
+     */
+    private $tags;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\RemoteAsset")
+     */
+    private $relatedPromos;
+
     public function __construct()
     {
         $this->platforms = new ArrayCollection();
         $this->availabilities = new ArrayCollection();
         $this->images = new ArrayCollection();
+        $this->countries = new ArrayCollection();
+        $this->tags = new ArrayCollection();
+        $this->relatedPromos = new ArrayCollection();
     }
 
     public function __toString()
@@ -382,18 +421,6 @@ class Asset
     public function setCanEmbedPlayer(?bool $canEmbedPlayer): self
     {
         $this->canEmbedPlayer = $canEmbedPlayer;
-
-        return $this;
-    }
-
-    public function getTags(): ?array
-    {
-        return $this->tags;
-    }
-
-    public function setTags(?array $tags): self
-    {
-        $this->tags = $tags;
 
         return $this;
     }
@@ -612,6 +639,132 @@ class Asset
             if ($image->getAsset() === $this) {
                 $image->setAsset(null);
             }
+        }
+
+        return $this;
+    }
+
+    public function getLinks(): ?array
+    {
+        return $this->links;
+    }
+
+    public function setLinks(?array $links): self
+    {
+        $this->links = $links;
+
+        return $this;
+    }
+
+    public function getGeoProfile(): ?GeoAvailabilityProfile
+    {
+        return $this->geoProfile;
+    }
+
+    public function setGeoProfile(?GeoAvailabilityProfile $geoProfile): self
+    {
+        $this->geoProfile = $geoProfile;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|GeoAvailabilityCountry[]
+     */
+    public function getCountries(): Collection
+    {
+        return $this->countries;
+    }
+
+    public function addCountry(GeoAvailabilityCountry $country): self
+    {
+        if (!$this->countries->contains($country)) {
+            $this->countries[] = $country;
+        }
+
+        return $this;
+    }
+
+    public function removeCountry(GeoAvailabilityCountry $country): self
+    {
+        if ($this->countries->contains($country)) {
+            $this->countries->removeElement($country);
+        }
+
+        return $this;
+    }
+
+    public function getCaptions(): ?array
+    {
+        return $this->captions;
+    }
+
+    public function setCaptions(?array $captions): self
+    {
+        $this->captions = $captions;
+
+        return $this;
+    }
+
+    public function getVideos(): ?array
+    {
+        return $this->videos;
+    }
+
+    public function setVideos(?array $videos): self
+    {
+        $this->videos = $videos;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|AssetTag[]
+     */
+    public function getTags(): Collection
+    {
+        return $this->tags;
+    }
+
+    public function addTag(AssetTag $tag): self
+    {
+        if (!$this->tags->contains($tag)) {
+            $this->tags[] = $tag;
+        }
+
+        return $this;
+    }
+
+    public function removeTag(AssetTag $tag): self
+    {
+        if ($this->tags->contains($tag)) {
+            $this->tags->removeElement($tag);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|RemoteAsset[]
+     */
+    public function getRelatedPromos(): Collection
+    {
+        return $this->relatedPromos;
+    }
+
+    public function addRelatedPromo(RemoteAsset $relatedPromo): self
+    {
+        if (!$this->relatedPromos->contains($relatedPromo)) {
+            $this->relatedPromos[] = $relatedPromo;
+        }
+
+        return $this;
+    }
+
+    public function removeRelatedPromo(RemoteAsset $relatedPromo): self
+    {
+        if ($this->relatedPromos->contains($relatedPromo)) {
+            $this->relatedPromos->removeElement($relatedPromo);
         }
 
         return $this;
