@@ -152,6 +152,9 @@ class PbsApiClientBase
      *       'show' => Show object
      *       'season' => Season object
      *     ];
+     * @param bool $force
+     *   (optional) Set to TRUE to ignore the "updated_at" field check and
+     *   always process the update.
      *
      * @return array
      *   Stats about the updates keyed by:
@@ -165,7 +168,8 @@ class PbsApiClientBase
                            Collection $entities,
                            $url,
                            array $queryParameters = [],
-                           array $extraProps = [])
+                           array $extraProps = [],
+                           $force = FALSE)
     {
         $stats = ['add' => 0, 'update' => 0, 'noop' => 0];
         $page = 1;
@@ -214,7 +218,7 @@ class PbsApiClientBase
                 }
 
                 // Compare date in "updated_at" field for entities that support it.
-                if (isset($item->attributes->updated_at)
+                if (isset($item->attributes->updated_at) && !$force
                     && method_exists($entity, 'getUpdated')) {
                     $entity_updated = $entity->getUpdated();
                     $record_updated = $this->apiValueProcessor
