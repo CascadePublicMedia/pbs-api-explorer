@@ -236,7 +236,9 @@ class PbsApiClientBase
                 // Iterate and update all entity attributes from the API
                 // record.
                 foreach ($item->attributes as $field_name => $value) {
-                    if (is_array($value)) {
+                    // The "tags" field may be NULL, so it does not get
+                    // picked up automatically as an array.
+                    if (is_array($value) || $field_name == 'tags') {
                         $this->apiValueProcessor->processArray($entity, $field_name, $value);
                     }
                     elseif (is_object($value)) {

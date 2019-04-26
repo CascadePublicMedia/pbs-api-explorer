@@ -4,13 +4,17 @@ namespace CascadePublicMedia\PbsApiExplorer\Utils;
 
 use CascadePublicMedia\PbsApiExplorer\Entity\Asset;
 use CascadePublicMedia\PbsApiExplorer\Entity\AssetAvailability;
+use CascadePublicMedia\PbsApiExplorer\Entity\AssetTag;
 use CascadePublicMedia\PbsApiExplorer\Entity\Audience;
 use CascadePublicMedia\PbsApiExplorer\Entity\Franchise;
 use CascadePublicMedia\PbsApiExplorer\Entity\Genre;
+use CascadePublicMedia\PbsApiExplorer\Entity\GeoAvailabilityCountry;
+use CascadePublicMedia\PbsApiExplorer\Entity\GeoAvailabilityProfile;
 use CascadePublicMedia\PbsApiExplorer\Entity\Image;
 use CascadePublicMedia\PbsApiExplorer\Entity\Platform;
 use CascadePublicMedia\PbsApiExplorer\Entity\Season;
 use CascadePublicMedia\PbsApiExplorer\Entity\Station;
+use CascadePublicMedia\PbsApiExplorer\Entity\Topic;
 use DateTime;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -18,6 +22,7 @@ use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Collections\Expr\Comparison;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
+
 
 class ApiValueProcessor
 {
@@ -154,7 +159,10 @@ class ApiValueProcessor
                     );
 
                     foreach ($item->attributes as $field_name => $value) {
-                        if (is_array($value)) {
+                        // TODO: Refactor. This loop is used in multiple places.
+                        // The "tags" field may be NULL, so it does not get
+                        // picked up automatically as an array.
+                        if (is_array($value) || $field_name == 'tags') {
                             $this->processArray($asset, $field_name, $value);
                         }
                         elseif (is_object($value)) {
@@ -201,8 +209,50 @@ class ApiValueProcessor
                     $entity->addAudience($audience);
                 }
                 break;
+            case 'captions':
+            case 'chapters':
+                $this->propertyAccessor->setValue(
+                    $entity,
+                    $this->fieldMapper->map($apiFieldName),
+                    $this->processValue($apiFieldName, $apiFieldValue)
+                );
+                break;
             case 'collections':
                 // TODO
+                break;
+            case 'countries':
+                /** @var ArrayCollection $countries */
+                $countries = $this->entityManager
+                    ->getRepository(GeoAvailabilityCountry::class)
+                    ->findAll();
+                $countries = new ArrayCollection($countries);
+
+                foreach ($apiFieldValue as $value) {
+                    $criteria = new Criteria(new Comparison(
+                        'id',
+                        '=',
+                        $value->id
+                    ));
+
+                    /** @var GeoAvailabilityCountry $country */
+                    $country = $countries->matching($criteria)->first();
+
+                    if (!$country) {
+                        $country = new GeoAvailabilityCountry();
+                        $country->setId($value->id);
+                    }
+
+                    $country->setName($value->name);
+                    $country->setCode($value->code);
+                    $country->setUpdated($this->processValue(
+                        'updated_at',
+                        $value->updated_at
+                    ));
+                    $this->entityManager->persist($country);
+
+                    $entity->addCountry($country);
+
+                }
                 break;
             case 'images':
                 // Determine the entity type these images are associated with.
@@ -267,6 +317,7 @@ class ApiValueProcessor
                 //$entity->setImages($apiFieldValue);
                 break;
             case 'links':
+            case 'related_links':
                 $entity->setLinks($apiFieldValue);
                 break;
             case 'platforms':
@@ -278,6 +329,9 @@ class ApiValueProcessor
                         $entity->addPlatform($platform);
                     }
                 }
+                break;
+            case 'related_promos':
+                // TODO
                 break;
             case 'seasons':
                 foreach ($apiFieldValue as $value) {
@@ -306,6 +360,28 @@ class ApiValueProcessor
                 }
                 break;
             case 'specials':
+                // TODO
+                break;
+            case 'tags':
+                if (is_null($apiFieldValue)) {
+                    $apiFieldValue = [];
+                }
+
+                foreach ($apiFieldValue as $value) {
+                    $tag = $this->entityManager
+                        ->getRepository(AssetTag::class)
+                        ->find($value);
+
+                    if (!$tag) {
+                        $tag = new AssetTag();
+                        $tag->setId($value);
+                        $this->entityManager->persist($tag);
+                    }
+
+                    $entity->addTag($tag);
+                }
+                break;
+            case 'topics':
                 // TODO
                 break;
         }
@@ -364,10 +440,43 @@ class ApiValueProcessor
                     ->getRepository(Genre::class)
                     ->find($apiFieldValue->id);
                 break;
+            case 'geo_profile':
+                /** @var ArrayCollection $profiles */
+                $profiles = $this->entityManager
+                    ->getRepository(GeoAvailabilityProfile::class)
+                    ->findAll();
+                $profiles = new ArrayCollection($profiles);
+
+                $criteria = new Criteria(new Comparison(
+                    'id',
+                    '=',
+                    $apiFieldValue->id
+                ));
+
+                /** @var GeoAvailabilityProfile $profile */
+                $profile = $profiles->matching($criteria)->first();
+
+                if (!$profile) {
+                    $profile = new GeoAvailabilityProfile();
+                    $profile->setId($apiFieldValue->id);
+                }
+
+                $profile->setName($apiFieldValue->name);
+                $profile->setUpdated($this->processValue(
+                    'updated_at',
+                    $apiFieldValue->updated_at
+                ));
+                $this->entityManager->persist($profile);
+
+                $entity->setGeoProfile($profile);
+                break;
             case 'station':
                 $updatedFieldValue = $this->entityManager
                     ->getRepository(Station::class)
                     ->find($apiFieldValue->id);
+                break;
+            case 'videos':
+                $updatedFieldValue = (array) $apiFieldValue;
                 break;
         }
 

@@ -2,6 +2,7 @@
 
 namespace CascadePublicMedia\PbsApiExplorer\Service;
 
+use CascadePublicMedia\PbsApiExplorer\Entity\Asset;
 use CascadePublicMedia\PbsApiExplorer\Entity\Episode;
 use CascadePublicMedia\PbsApiExplorer\Entity\Setting;
 use CascadePublicMedia\PbsApiExplorer\Entity\Show;
@@ -56,8 +57,6 @@ class MediaManagerApiClient extends PbsApiClientBase
      * Update all Episode instances for a Show.
      *
      * @param string $showId
-     *
-     * TODO: Add fetch-related and process assets.
      */
     public function updateEpisodesByShowId($showId) {
         /** @var Show $show */
@@ -66,12 +65,47 @@ class MediaManagerApiClient extends PbsApiClientBase
             ->find($showId);
 
         foreach ($show->getSeasons() as $season) {
+            $episodes = $season->getEpisodes();
+
             parent::update(
                 Episode::class,
-                $season->getEpisodes(),
+                $episodes,
                 "seasons/{$season->getId()}/episodes/",
                 ['fetch-related' => TRUE],
                 ['show' => $show, 'season' => $season]
+            );
+
+            foreach ($episodes as $episode) {
+                $this->updateAssetsByEpisodeId($episode->getId());
+            }
+        }
+    }
+
+    /**
+     * Update Assets data associated with a specific Episode.
+     *
+     * This function assumes that the Episode already exists locally and has
+     * associated Assets. Regular Episode updates will bring in limited Asset
+     * data through the `fetch-related` query parameter, but many key fields
+     * are missing and only accessible from the /assets/ API endpoint.
+     *
+     * @param $episodeId
+     */
+    public function updateAssetsByEpisodeId($episodeId) {
+        /** @var Episode $episode */
+        $episode = $this->entityManager
+            ->getRepository(Episode::class)
+            ->find($episodeId);
+
+        $assets = $episode->getAssets();
+        foreach ($assets as $asset) {
+            parent::update(
+                Asset::class,
+                $assets,
+                Asset::ENDPOINT . "/{$asset->getId()}/",
+                [],
+                [],
+                TRUE
             );
         }
     }
