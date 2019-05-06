@@ -33,7 +33,7 @@ class Genre
     private $title;
 
     /**
-     * @ORM\Column(type="datetimetz_immutable")
+     * @ORM\Column(type="datetimetz")
      */
     private $created;
 
@@ -99,12 +99,12 @@ class Genre
         return $this;
     }
 
-    public function getCreated(): ?\DateTimeImmutable
+    public function getCreated(): ?\DateTime
     {
         return $this->created;
     }
 
-    public function setCreated(\DateTimeImmutable $created): self
+    public function setCreated(\DateTime $created): self
     {
         $this->created = $created;
 

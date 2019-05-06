@@ -2,25 +2,15 @@
 
 namespace CascadePublicMedia\PbsApiExplorer\Utils;
 
-use CascadePublicMedia\PbsApiExplorer\Entity\Asset;
-use CascadePublicMedia\PbsApiExplorer\Entity\AssetAvailability;
-use CascadePublicMedia\PbsApiExplorer\Entity\AssetTag;
-use CascadePublicMedia\PbsApiExplorer\Entity\Audience;
-use CascadePublicMedia\PbsApiExplorer\Entity\Franchise;
-use CascadePublicMedia\PbsApiExplorer\Entity\Genre;
-use CascadePublicMedia\PbsApiExplorer\Entity\GeoAvailabilityCountry;
-use CascadePublicMedia\PbsApiExplorer\Entity\GeoAvailabilityProfile;
-use CascadePublicMedia\PbsApiExplorer\Entity\Image;
-use CascadePublicMedia\PbsApiExplorer\Entity\Platform;
-use CascadePublicMedia\PbsApiExplorer\Entity\Season;
-use CascadePublicMedia\PbsApiExplorer\Entity\Station;
-use CascadePublicMedia\PbsApiExplorer\Entity\Topic;
+use CascadePublicMedia\PbsApiExplorer\Entity;
 use DateTime;
-use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Collections\Expr\Comparison;
 use Doctrine\ORM\EntityManagerInterface;
+use ReflectionClass;
+use ReflectionException;
+use RuntimeException;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 
 
@@ -64,86 +54,54 @@ class ApiValueProcessor
     }
 
     /**
-     * @param $apiFieldName
-     * @param $apiFieldValue
-     * @return mixed
-     */
-    public function processValue($apiFieldName, $apiFieldValue) {
-
-        // Always return NULL values directly.
-        if (is_null($apiFieldValue)) {
-            return $apiFieldValue;
-        }
-
-       switch ($apiFieldName) {
-           case 'created_at':
-               $datetime = DateTimeImmutable::createFromFormat(
-                   self::MEDIA_MANAGER_API_DATE_FORMAT,
-                   $apiFieldValue
-               );
-               if ($datetime === FALSE) {
-                   $datetime = DateTimeImmutable::createFromFormat(
-                       self::MEDIA_MANAGER_API_DATE_FORMAT_ALT,
-                       $apiFieldValue
-                   );
-               }
-               $apiFieldValue = $datetime;
-               break;
-           case 'end':
-           case 'start':
-           case 'updated_at':
-               $datetime = DateTime::createFromFormat(
-                   self::MEDIA_MANAGER_API_DATE_FORMAT,
-                   $apiFieldValue
-               );
-               if ($datetime === FALSE) {
-                   $datetime = DateTime::createFromFormat(
-                       self::MEDIA_MANAGER_API_DATE_FORMAT_ALT,
-                       $apiFieldValue
-                   );
-               }
-               $apiFieldValue = $datetime;
-               break;
-           case 'encored_on':
-           case 'premiered_on':
-               $apiFieldValue = DateTime::createFromFormat('Y-m-d', $apiFieldValue);
-               break;
-       }
-
-       return $apiFieldValue;
-    }
-
-    /**
      * @param $entity
      * @param $apiFieldName
      * @param $apiFieldValue
      */
-    public function processArray(&$entity, $apiFieldName, $apiFieldValue) {
+    public function process(&$entity, $apiFieldName, $apiFieldValue) {
+        // The "tags" field may be NULL, so it does not get
+        // picked up automatically as an array.
+        if (is_array($apiFieldValue) || $apiFieldName == 'tags') {
+            $this->processArray($entity, $apiFieldName, $apiFieldValue);
+        }
+        elseif (is_object($apiFieldValue)) {
+            $this->processObject($entity, $apiFieldName, $apiFieldValue);
+        }
+        else {
+            $this->processString($entity, $apiFieldName, $apiFieldValue);
+        }
+    }
+
+    /**
+     * @param object $entity
+     * @param string $apiFieldName
+     * @param array $apiFieldValue
+     */
+    private function processArray(&$entity, $apiFieldName, $apiFieldValue) {
         switch ($apiFieldName) {
             case 'assets':
 
                 // Determine the entity type these assets are associated with.
                 try {
-                    $reflect = new \ReflectionClass($entity);
+                    $reflect = new ReflectionClass($entity);
                     $entity_type = strtolower($reflect->getShortName());
                 }
-                catch (\ReflectionException $e) {
-                    throw new \RuntimeException('Unknown entity type.');
+                catch (ReflectionException $e) {
+                    throw new RuntimeException('Unknown entity type.');
                 }
 
                 foreach ($apiFieldValue as $item) {
-                    /** @var Asset $asset */
+                    /** @var Entity\Asset $asset */
                     $asset = $this->entityManager
-                        ->getRepository(Asset::class)
+                        ->getRepository(Entity\Asset::class)
                         ->find($item->id);
 
                     if (!$asset) {
-                        $asset = new Asset();
+                        $asset = new Entity\Asset();
                         $asset->setId($item->id);
                     }
                     else {
-                        $updated = $this->processValue(
-                            'updated_at',
+                        $updated = self::processDateTimeString(
                             $item->attributes->updated_at
                         );
                         if ($asset->getUpdated() >= $updated) {
@@ -159,22 +117,7 @@ class ApiValueProcessor
                     );
 
                     foreach ($item->attributes as $field_name => $value) {
-                        // TODO: Refactor. This loop is used in multiple places.
-                        // The "tags" field may be NULL, so it does not get
-                        // picked up automatically as an array.
-                        if (is_array($value) || $field_name == 'tags') {
-                            $this->processArray($asset, $field_name, $value);
-                        }
-                        elseif (is_object($value)) {
-                            $this->processObject($asset, $field_name, $value);
-                        }
-                        else {
-                            $this->propertyAccessor->setValue(
-                                $asset,
-                                $this->fieldMapper->map($field_name),
-                                $this->processValue($field_name, $value)
-                            );
-                        }
+                        $this->process($asset, $field_name, $value);
                     }
 
                     $this->entityManager->merge($asset);
@@ -184,21 +127,21 @@ class ApiValueProcessor
                 foreach ($apiFieldValue as $value) {
                     $station = NULL;
                     if (!is_null($value->station)) {
-                        /** @var Station $station */
+                        /** @var Entity\Station $station */
                         $station = $this->entityManager
-                            ->getRepository(Station::class)
+                            ->getRepository(Entity\Station::class)
                             ->find($value->station->id);
                     }
 
                     $audience = $this->entityManager
-                        ->getRepository(Audience::class)
+                        ->getRepository(Entity\Audience::class)
                         ->findOneBy([
                             'scope' => $value->scope,
                             'station' => $station,
                         ]);
 
                     if (!$audience) {
-                        $audience = new Audience();
+                        $audience = new Entity\Audience();
                         $audience->setScope($value->scope);
                         $audience->setStation($station);
                         $this->entityManager->persist($audience);
@@ -211,11 +154,7 @@ class ApiValueProcessor
                 break;
             case 'captions':
             case 'chapters':
-                $this->propertyAccessor->setValue(
-                    $entity,
-                    $this->fieldMapper->map($apiFieldName),
-                    $this->processValue($apiFieldName, $apiFieldValue)
-                );
+                $this->processString($entity, $apiFieldName, $apiFieldValue);
                 break;
             case 'collections':
                 // TODO
@@ -223,7 +162,7 @@ class ApiValueProcessor
             case 'countries':
                 /** @var ArrayCollection $countries */
                 $countries = $this->entityManager
-                    ->getRepository(GeoAvailabilityCountry::class)
+                    ->getRepository(Entity\GeoAvailabilityCountry::class)
                     ->findAll();
                 $countries = new ArrayCollection($countries);
 
@@ -234,20 +173,21 @@ class ApiValueProcessor
                         $value->id
                     ));
 
-                    /** @var GeoAvailabilityCountry $country */
+                    /** @var Entity\GeoAvailabilityCountry $country */
                     $country = $countries->matching($criteria)->first();
 
                     if (!$country) {
-                        $country = new GeoAvailabilityCountry();
+                        $country = new Entity\GeoAvailabilityCountry();
                         $country->setId($value->id);
                     }
 
                     $country->setName($value->name);
                     $country->setCode($value->code);
-                    $country->setUpdated($this->processValue(
+                    $this->processString(
+                        $country,
                         'updated_at',
                         $value->updated_at
-                    ));
+                    );
                     $this->entityManager->persist($country);
 
                     $entity->addCountry($country);
@@ -257,11 +197,11 @@ class ApiValueProcessor
             case 'images':
                 // Determine the entity type these images are associated with.
                 try {
-                    $reflect = new \ReflectionClass($entity);
+                    $reflect = new ReflectionClass($entity);
                     $entity_type = strtolower($reflect->getShortName());
                 }
-                catch (\ReflectionException $e) {
-                    throw new \RuntimeException('Unknown entity type.');
+                catch (ReflectionException $e) {
+                    throw new RuntimeException('Unknown entity type.');
                 }
 
                 /** @var ArrayCollection $images */
@@ -270,8 +210,7 @@ class ApiValueProcessor
                 foreach ($apiFieldValue as $item) {
                     $updated = NULL;
                     if (isset($item->updated_at)) {
-                        $updated = $this->processValue(
-                            'updated_at',
+                        $updated = self::processDateTimeString(
                             $item->updated_at
                         );
                     }
@@ -282,11 +221,11 @@ class ApiValueProcessor
                         $item->profile
                     ));
 
-                    /** @var Image $image */
+                    /** @var Entity\Image $image */
                     $image = $images->matching($criteria)->first();
 
                     if (!$image) {
-                        $image = new Image();
+                        $image = new Entity\Image();
                         $this->propertyAccessor->setValue(
                             $image,
                             $entity_type,
@@ -313,8 +252,6 @@ class ApiValueProcessor
 
                     $this->entityManager->merge($image);
                 }
-
-                //$entity->setImages($apiFieldValue);
                 break;
             case 'links':
             case 'related_links':
@@ -323,7 +260,7 @@ class ApiValueProcessor
             case 'platforms':
                 foreach ($apiFieldValue as $value) {
                     $platform = $this->entityManager
-                        ->getRepository(Platform::class)
+                        ->getRepository(Entity\Platform::class)
                         ->find($value->id);
                     if ($platform) {
                         $entity->addPlatform($platform);
@@ -337,23 +274,24 @@ class ApiValueProcessor
                 foreach ($apiFieldValue as $value) {
                     $season = NULL;
 
-                    /** @var Season $station */
+                    /** @var Entity\Season $station */
                     $season = $this->entityManager
-                        ->getRepository(Season::class)
+                        ->getRepository(Entity\Season::class)
                         ->find($value->id);
 
                     if (!$season) {
-                        $season = new Season();
+                        $season = new Entity\Season();
                         $season->setId($value->id);
                     }
 
                     $season->setOrdinal($value->attributes->ordinal);
                     $season->setTitle($value->attributes->title);
                     $season->setTitleSortable($value->attributes->title_sortable);
-                    $season->setUpdated($this->processValue(
+                    $this->processString(
+                        $season,
                         'updated_at',
                         $value->attributes->updated_at
-                    ));
+                    );
                     $this->entityManager->persist($season);
 
                     $entity->addSeason($season);
@@ -369,11 +307,11 @@ class ApiValueProcessor
 
                 foreach ($apiFieldValue as $value) {
                     $tag = $this->entityManager
-                        ->getRepository(AssetTag::class)
+                        ->getRepository(Entity\AssetTag::class)
                         ->find($value);
 
                     if (!$tag) {
-                        $tag = new AssetTag();
+                        $tag = new Entity\AssetTag();
                         $tag->setId($value);
                         $this->entityManager->persist($tag);
                     }
@@ -387,20 +325,22 @@ class ApiValueProcessor
         }
     }
 
-    public function processObject(&$entity, $apiFieldName, $apiFieldValue) {
+    /**
+     * @param object $entity
+     * @param string $apiFieldName
+     * @param object $apiFieldValue
+     */
+    private function processObject(&$entity, $apiFieldName, $apiFieldValue) {
         $updatedFieldValue = NULL;
 
         switch ($apiFieldName) {
             case 'availabilities':
-                /** @var AssetAvailability[] $availabilities */
+                /** @var Entity\AssetAvailability[] $availabilities */
                 $availabilities = $this->entityManager
-                    ->getRepository(AssetAvailability::class)
+                    ->getRepository(Entity\AssetAvailability::class)
                     ->findAllByAssetIndexedByType($entity);
                 foreach ($apiFieldValue as $type => $constraints) {
-                    $updated = $this->processValue(
-                        'updated_at',
-                        $constraints->updated_at
-                    );
+                    $updated = self::processDateTimeString($constraints->updated_at);
 
                     if (isset($availabilities[$type])) {
                         $availability = $availabilities[$type];
@@ -409,18 +349,20 @@ class ApiValueProcessor
                         }
                     }
                     else {
-                        $availability = new AssetAvailability();
+                        $availability = new Entity\AssetAvailability();
                         $availability->setType($type);
                     }
 
-                    $availability->setStartDateTime($this->processValue(
+                    $this->processString(
+                        $availability,
                         'start',
                         $constraints->start
-                    ));
-                    $availability->setEndDateTime($this->processValue(
+                    );
+                    $this->processString(
+                        $availability,
                         'end',
                         $constraints->end
-                    ));
+                    );
                     $availability->setUpdated($updated);
                     $availability->setAsset($entity);
                     $this->entityManager->merge($availability);
@@ -432,18 +374,18 @@ class ApiValueProcessor
                 break;
             case 'franchise':
                 $updatedFieldValue = $this->entityManager
-                    ->getRepository(Franchise::class)
+                    ->getRepository(Entity\Franchise::class)
                     ->find($apiFieldValue->id);
                 break;
             case 'genre':
                 $updatedFieldValue = $this->entityManager
-                    ->getRepository(Genre::class)
+                    ->getRepository(Entity\Genre::class)
                     ->find($apiFieldValue->id);
                 break;
             case 'geo_profile':
                 /** @var ArrayCollection $profiles */
                 $profiles = $this->entityManager
-                    ->getRepository(GeoAvailabilityProfile::class)
+                    ->getRepository(Entity\GeoAvailabilityProfile::class)
                     ->findAll();
                 $profiles = new ArrayCollection($profiles);
 
@@ -453,26 +395,27 @@ class ApiValueProcessor
                     $apiFieldValue->id
                 ));
 
-                /** @var GeoAvailabilityProfile $profile */
+                /** @var Entity\GeoAvailabilityProfile $profile */
                 $profile = $profiles->matching($criteria)->first();
 
                 if (!$profile) {
-                    $profile = new GeoAvailabilityProfile();
+                    $profile = new Entity\GeoAvailabilityProfile();
                     $profile->setId($apiFieldValue->id);
                 }
 
                 $profile->setName($apiFieldValue->name);
-                $profile->setUpdated($this->processValue(
+                $this->processString(
+                    $profile,
                     'updated_at',
                     $apiFieldValue->updated_at
-                ));
+                );
                 $this->entityManager->persist($profile);
 
                 $entity->setGeoProfile($profile);
                 break;
             case 'station':
                 $updatedFieldValue = $this->entityManager
-                    ->getRepository(Station::class)
+                    ->getRepository(Entity\Station::class)
                     ->find($apiFieldValue->id);
                 break;
             case 'videos':
@@ -482,11 +425,59 @@ class ApiValueProcessor
 
         // Handle objects that need specific value updates.
         if ($updatedFieldValue) {
-            $this->propertyAccessor->setValue(
-                $entity,
-                $this->fieldMapper->map($apiFieldName),
-                $this->processValue($apiFieldName, $updatedFieldValue)
-            );
+            $this->processString($entity, $apiFieldName, $updatedFieldValue);
         }
     }
+
+    /**
+     * @param object $entity
+     * @param $apiFieldName
+     * @param $apiFieldValue
+     */
+    private function processString(&$entity, $apiFieldName, $apiFieldValue) {
+        if (!is_null($apiFieldValue)) {
+            switch ($apiFieldName) {
+                case 'created_at':
+                    $apiFieldValue = self::processDateTimeString($apiFieldValue);
+                    break;
+                case 'end':
+                case 'start':
+                case 'updated_at':
+                    $apiFieldValue = self::processDateTimeString($apiFieldValue);
+                    break;
+                case 'encored_on':
+                case 'premiered_on':
+                    $apiFieldValue = DateTime::createFromFormat(
+                        'Y-m-d',
+                        $apiFieldValue
+                    );
+                    break;
+            }
+        }
+
+        $this->propertyAccessor->setValue(
+            $entity,
+            $this->fieldMapper->map($apiFieldName),
+            $apiFieldValue
+        );
+    }
+
+    /**
+     * @param $string
+     * @return DateTime
+     */
+    public static function processDateTimeString($string) {
+        $datetime = DateTime::createFromFormat(
+            self::MEDIA_MANAGER_API_DATE_FORMAT,
+            $string
+        );
+        if ($datetime === FALSE) {
+            $datetime = DateTime::createFromFormat(
+                self::MEDIA_MANAGER_API_DATE_FORMAT_ALT,
+                $string
+            );
+        }
+        return $datetime;
+    }
+
 }

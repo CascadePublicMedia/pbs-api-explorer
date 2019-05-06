@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20190426160123 extends AbstractMigration
+final class Version20190506220055 extends AbstractMigration
 {
     public function getDescription() : string
     {
@@ -81,8 +81,7 @@ final class Version20190426160123 extends AbstractMigration
         $this->addSql('CREATE INDEX IDX_DDAA1CDAD0C1FC64 ON episode (show_id)');
         $this->addSql('CREATE INDEX IDX_DDAA1CDA5F7888C2 ON episode (full_length_asset_id)');
         $this->addSql('CREATE TABLE genre (id CHAR(36) NOT NULL --(DC2Type:guid)
-        , slug VARCHAR(255) NOT NULL, title VARCHAR(255) NOT NULL, created DATETIME NOT NULL --(DC2Type:datetimetz_immutable)
-        , updated DATETIME DEFAULT NULL, PRIMARY KEY(id))');
+        , slug VARCHAR(255) NOT NULL, title VARCHAR(255) NOT NULL, created DATETIME NOT NULL, updated DATETIME DEFAULT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE TABLE franchise (id CHAR(36) NOT NULL --(DC2Type:guid)
         , genre_id CHAR(36) DEFAULT NULL --(DC2Type:guid)
         , slug VARCHAR(255) NOT NULL, nola VARCHAR(4) DEFAULT NULL, title VARCHAR(255) NOT NULL, title_sortable VARCHAR(255) NOT NULL, description_short VARCHAR(90) DEFAULT NULL, description_long CLOB DEFAULT NULL, premiered DATETIME DEFAULT NULL, dfp_exclude BOOLEAN NOT NULL, funder_message VARCHAR(255) DEFAULT NULL, ga_tracking_page VARCHAR(255) DEFAULT NULL, ga_tracking_event VARCHAR(255) DEFAULT NULL, updated DATETIME DEFAULT NULL, hashtag VARCHAR(255) DEFAULT NULL, links CLOB DEFAULT NULL --(DC2Type:array)

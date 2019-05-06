@@ -221,8 +221,9 @@ class PbsApiClientBase
                 if (isset($item->attributes->updated_at) && !$force
                     && method_exists($entity, 'getUpdated')) {
                     $entity_updated = $entity->getUpdated();
-                    $record_updated = $this->apiValueProcessor
-                        ->processValue('updated_at', $item->attributes->updated_at);
+                    $record_updated = $this->apiValueProcessor::processDateTimeString(
+                        $item->attributes->updated_at
+                    );
 
                     // If the record update date is not greater than the entity
                     // updated date, do not continue with the update process.
@@ -236,21 +237,11 @@ class PbsApiClientBase
                 // Iterate and update all entity attributes from the API
                 // record.
                 foreach ($item->attributes as $field_name => $value) {
-                    // The "tags" field may be NULL, so it does not get
-                    // picked up automatically as an array.
-                    if (is_array($value) || $field_name == 'tags') {
-                        $this->apiValueProcessor->processArray($entity, $field_name, $value);
-                    }
-                    elseif (is_object($value)) {
-                        $this->apiValueProcessor->processObject($entity, $field_name, $value);
-                    }
-                    else {
-                        $this->propertyAccessor->setValue(
-                            $entity,
-                            $this->fieldMapper->map($field_name),
-                            $this->apiValueProcessor->processValue($field_name, $value)
-                        );
-                    }
+                    $this->apiValueProcessor->process(
+                        $entity,
+                        $field_name,
+                        $value
+                    );
                 }
 
                 // Merge changes to the entity.
