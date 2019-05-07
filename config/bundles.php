@@ -16,4 +16,5 @@ return [
     Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle::class => ['dev' => true, 'test' => true],
     KevinPapst\AdminLTEBundle\AdminLTEBundle::class => ['all' => true],
     Symfony\WebpackEncoreBundle\WebpackEncoreBundle::class => ['all' => true],
+    Omines\DataTablesBundle\DataTablesBundle::class => ['all' => true],
 ];

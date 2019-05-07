@@ -23,6 +23,7 @@
         "ext-json": "*",
         "guzzlehttp/guzzle": "^6.3",
         "kevinpapst/adminlte-bundle": "^2.0",
+        "omines/datatables-bundle": "^0.2.2",
         "sensio/framework-extra-bundle": "^5.2",
         "symfony/asset": "4.2.*",
         "symfony/console": "4.2.*",

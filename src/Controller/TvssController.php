@@ -4,9 +4,12 @@ namespace CascadePublicMedia\PbsApiExplorer\Controller;
 
 use CascadePublicMedia\PbsApiExplorer\Entity\ScheduleProgram;
 use CascadePublicMedia\PbsApiExplorer\Service\TvssApiClient;
-use Doctrine\ORM\EntityManagerInterface;
+use Omines\DataTablesBundle\Adapter\Doctrine\ORMAdapter;
+use Omines\DataTablesBundle\Column\TextColumn;
+use Omines\DataTablesBundle\DataTableFactory;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
@@ -36,24 +39,30 @@ class TvssController extends ControllerBase
      * @Route("/tvss/programs", name="tvss_programs")
      * @Security("is_granted('ROLE_USER')")
      *
-     * @param EntityManagerInterface $entityManager
+     * @param Request $request
+     * @param DataTableFactory $dataTableFactory
      *
      * @return Response
+     *
+     * TODO: Expand this implementation to all lists
+     * @url https://omines.github.io/datatables-bundle/
      */
-    public function programs(EntityManagerInterface $entityManager) {
-        $entities = $entityManager
-            ->getRepository(ScheduleProgram::class)
-            ->findAll();
-        return $this->render('datatable.html.twig', [
-            'title' => 'Programs',
-            'properties' => [
-                'programId' => 'ID',
-                'title' => 'Title',
-                'externalId' => 'External ID',
-            ],
-            'entities' => $entities,
-            'update_route' => 'tvss_programs_update',
-        ]);
+    public function programs(Request $request,
+                             DataTableFactory $dataTableFactory) {
+        $table = $dataTableFactory->create()
+            ->add('programId', TextColumn::class, ['label' => 'ID'])
+            ->add('title', TextColumn::class, ['label' => 'Title'])
+            ->add('externalId', TextColumn::class, ['label' => 'External ID'])
+            ->createAdapter(ORMAdapter::class, [
+                'entity' => ScheduleProgram::class,
+            ])
+            ->handleRequest($request);
+
+        if ($table->isCallback()) {
+            return $table->getResponse();
+        }
+
+        return $this->render('datatable_new.html.twig', ['datatable' => $table]);
     }
 
     /**

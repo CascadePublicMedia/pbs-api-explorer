@@ -1,0 +1,44 @@
+{#
+General datatable view for Entity instances.
+
+Availavble variables:
+ - properties: An array of keys for entity properties to add to the table.
+ - entities: An array of entity objects for the table.
+ - title: Title for the page. (optional)
+ - subtitle: Subtitle for the page. (optional)
+ - entity_route: A Symfony route to use as a link for the first field. The
+                 entity ID will be used an argument. (optional)
+ - update_route: A Symfony route to update *all* instances of the provided
+                 Entity. (optional)
+#}
+
+{% extends 'base.html.twig' %}
+{% import '@AdminLTE/Macros/buttons.html.twig' as btn %}
+
+{% block page_title %}
+    {% if title is defined %}
+        {{ title }}
+    {% else %}
+        Data table
+    {% endif %}
+{% endblock %}
+
+{% block page_subtitle %}
+    {% if subtitle is defined %}
+        {{ subtitle }}
+    {% endif %}
+{% endblock %}
+
+{% block page_content %}
+    <div id="datatable">Loading...</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('bundles/datatables/js/datatables.js') }}"></script>
+    <script>
+        $(function() {
+            $('#datatable').initDataTables({{ datatable_settings(datatable) }});
+        });
+    </script>
+{% endblock %}
