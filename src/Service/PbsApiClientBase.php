@@ -37,17 +37,17 @@ class PbsApiClientBase
     /**
      * @var FieldMapper
      */
-    private $fieldMapper;
+    protected $fieldMapper;
 
     /**
      * @var ApiValueProcessor
      */
-    private $apiValueProcessor;
+    protected $apiValueProcessor;
 
     /**
      * @var PropertyAccessorInterface
      */
-    private $propertyAccessor;
+    protected $propertyAccessor;
 
     /**
      * @var array

@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20190506220055 extends AbstractMigration
+final class Version20190507192106 extends AbstractMigration
 {
     public function getDescription() : string
     {
@@ -72,6 +72,8 @@ final class Version20190506220055 extends AbstractMigration
         , show_id CHAR(36) NOT NULL --(DC2Type:guid)
         , title VARCHAR(255) NOT NULL, slug VARCHAR(255) NOT NULL, title_sortable VARCHAR(255) NOT NULL, tms_id VARCHAR(255) DEFAULT NULL, description_short VARCHAR(90) NOT NULL, description_long CLOB NOT NULL, premiered DATE DEFAULT NULL, encored DATE DEFAULT NULL, nola VARCHAR(255) DEFAULT NULL, language VARCHAR(2) DEFAULT NULL, updated DATETIME DEFAULT NULL, full_length_asset BOOLEAN DEFAULT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_4C6B3FE3D0C1FC64 ON special (show_id)');
+        $this->addSql('CREATE TABLE schedule_program (id CHAR(36) NOT NULL --(DC2Type:guid)
+        , title VARCHAR(255) NOT NULL, description CLOB DEFAULT NULL, external_id VARCHAR(255) NOT NULL, program_id INTEGER NOT NULL, rovi INTEGER DEFAULT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE TABLE episode (id CHAR(36) NOT NULL --(DC2Type:guid)
         , season_id CHAR(36) NOT NULL --(DC2Type:guid)
         , show_id CHAR(36) NOT NULL --(DC2Type:guid)
@@ -167,6 +169,7 @@ final class Version20190506220055 extends AbstractMigration
         $this->addSql('DROP TABLE user');
         $this->addSql('DROP TABLE platform');
         $this->addSql('DROP TABLE special');
+        $this->addSql('DROP TABLE schedule_program');
         $this->addSql('DROP TABLE episode');
         $this->addSql('DROP TABLE genre');
         $this->addSql('DROP TABLE franchise');

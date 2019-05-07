@@ -86,9 +86,44 @@ class SettingsType extends AbstractType
                 ])
         ;
 
+        $tvss = $builder->create(
+            'tvss',
+            FormType::class,
+            [
+                'inherit_data' => TRUE,
+                'label' => 'TV Schedules Service (TVSS)',
+                'required' => FALSE,
+            ])
+            ->add(
+                'tvss_base_uri',
+                TextType::class,
+                [
+                    'constraints' => [
+                        new Url(),
+                    ],
+                    'label' => 'Endpoint',
+                    'required' => FALSE,
+                ])
+            ->add(
+                'tvss_call_sign',
+                TextType::class,
+                [
+                    'label' => 'Call sign',
+                    'required' => FALSE,
+                ])
+            ->add(
+                'tvss_api_key',
+                TextType::class,
+                [
+                    'label' => 'APY key',
+                    'required' => FALSE,
+                ])
+        ;
+
         $builder
             ->add($media_manager)
             ->add($station_manager)
+            ->add($tvss)
             ->add('save', SubmitType::class)
         ;
     }

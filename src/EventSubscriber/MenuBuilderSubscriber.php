@@ -119,6 +119,23 @@ class MenuBuilderSubscriber implements EventSubscriberInterface
             );
             $event->addItem($station_manager);
 
+            // TVSS menu items.
+            $tvss = new MenuItemModel(
+                'tvss',
+                'TV Schedules',
+                'tvss',
+                [],
+                'fas fa-tv'
+            );
+            $tvss->addChild(new MenuItemModel(
+                'tvss_programs',
+                'Programs',
+                'tvss_programs',
+                [],
+                'fas fa-list'
+            ));
+            $event->addItem($tvss);
+
         }
 
         if ($this->security->isGranted('ROLE_ADMIN')) {
