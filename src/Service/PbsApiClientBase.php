@@ -12,6 +12,7 @@ use Doctrine\Common\Collections\Expr\Comparison;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\PersistentCollection;
 use GuzzleHttp\Client;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
@@ -100,26 +101,21 @@ class PbsApiClientBase
      *
      * @param $entityClass
      *   The Entity class to be updated.
-     * @param array $queryParameters
-     *   (optional) Query parameters to add to the request.
+     * @param array $config
+     *   (optional) Additional configuration options to pass on to the update
+     *   method (@see PbsApiClientBase::update()).
      *
      * @return array
      *
      * @see self::update()
      */
-    public function updateAllByEntityClass($entityClass, array $queryParameters = []) {
+    public function updateAllByEntityClass($entityClass, array $config = []) {
         // Retrieve all existing entities to compare update dates.
         $entities = $this->entityManager
             ->getRepository($entityClass)
             ->findAll();
         $entities = new ArrayCollection($entities);
-
-        return $this->update(
-            $entityClass,
-            $entities,
-            $entityClass::ENDPOINT,
-            $queryParameters
-        );
+        return $this->update($entityClass, $entities, $entityClass::ENDPOINT, $config);
     }
 
     /**
@@ -127,7 +123,7 @@ class PbsApiClientBase
      *
      * The API returns page data in the "meta" key of the return response.
      * This loop will continue to run for all pages until the API no longer
-     * returns a value in the $data['meta']['links']['next'] field.
+     * returns a value in the $json['meta']['links']['next'] field.
      *
      * @see https://docs.pbs.org/display/CDA/Pagination
      *
@@ -139,22 +135,9 @@ class PbsApiClientBase
      *   PersistentCollection supporting the `matching` method.
      * @param string $url
      *   The API URL to query.
-     * @param array $queryParameters
-     *   (optional) Query parameters to add to the request.
-     * @param array $extraProps
-     *   (optional) Additional properties to be applied to all *new* entities.
-     *   This is meant to help with endpoints that do not provide fields for
-     *   locally required relationships (e.g. the `seasons/{id}/episodes`
-     *   endpoint does not provide `show` or `season` data). The array should
-     *   contain key => value entries for a valid property name for the Entity
-     *   and the value that will be set. E.g. --
-     *     $additionalProps = [
-     *       'show' => Show object
-     *       'season' => Season object
-     *     ];
-     * @param bool $force
-     *   (optional) Set to TRUE to ignore the "updated_at" field check and
-     *   always process the update.
+     * @param array $config
+     *   (optional) An array of additional configuration options.
+     *   @see createUpdateConfig
      *
      * @return array
      *   Stats about the updates keyed by:
@@ -164,35 +147,38 @@ class PbsApiClientBase
      *
      * @todo Delete local records for items no longer in API?
      */
-    public function update($entityClass,
-                           Collection $entities,
-                           $url,
-                           array $queryParameters = [],
-                           array $extraProps = [],
-                           $force = FALSE)
+    public function update($entityClass, Collection $entities, $url, array $config)
     {
         $stats = ['add' => 0, 'update' => 0, 'noop' => 0];
         $page = 1;
+        $config = self::createUpdateConfig($config);
 
         while(true) {
             $response = $this->client->get($url, [
-                'query' => $queryParameters + ['page' => $page],
+                'query' => $config['queryParameters'] + ['page' => $page],
             ]);
 
             if ($response->getStatusCode() != 200) {
                 throw new HttpException($response->getStatusCode());
             }
 
-            $data = json_decode($response->getBody());
-
-            // Reformat a single response as a one-item array.
-            if (is_object($data->data)) {
-                $object = $data->data;
-                $data->data = [$object];
+            $json = json_decode($response->getBody());
+            if (!isset($json->{$config['dataKey']})) {
+                throw new BadRequestHttpException('Configured data key 
+                    not found in response.');
+            }
+            else {
+                $items = $json->{$config['dataKey']};
             }
 
-            foreach ($data->data as $item) {
+            // Some requests return a single response as an object instead of an
+            // array. The object must be converted to an array for proper
+            // handling.
+            if (is_object($items)) {
+                $items = [$items];
+            }
 
+            foreach ($items as $item) {
                 // Check for an existing instance.
                 $criteria = new Criteria(new Comparison('id', '=', $item->id));
                 $entity = $entities->matching($criteria)->first();
@@ -206,7 +192,7 @@ class PbsApiClientBase
                     $this->propertyAccessor->setValue($entity, 'id', $item->id);
 
                     // Add any supplied extra properties.
-                    foreach ($extraProps as $property => $value) {
+                    foreach ($config['extraProps'] as $property => $value) {
                         $this->propertyAccessor->setValue(
                             $entity,
                             $property,
@@ -218,7 +204,7 @@ class PbsApiClientBase
                 }
 
                 // Compare date in "updated_at" field for entities that support it.
-                if (isset($item->attributes->updated_at) && !$force
+                if (isset($item->attributes->updated_at) && !$config['force']
                     && method_exists($entity, 'getUpdated')) {
                     $entity_updated = $entity->getUpdated();
                     $record_updated = $this->apiValueProcessor::processDateTimeString(
@@ -251,9 +237,9 @@ class PbsApiClientBase
 
             // If another page is available, continue to it. Otherwise, end
             // execution of this loop.
-            if (isset($data->links) && isset($data->links->next)
-                && !empty($data->links->next)) {
-                $query_string = parse_url($data->links->next, PHP_URL_QUERY);
+            if (isset($json->links) && isset($json->links->next)
+                && !empty($json->links->next)) {
+                $query_string = parse_url($json->links->next, PHP_URL_QUERY);
                 if ($query_string) {
                     parse_str($query_string, $query);
                     if (isset($query['page'])) {
@@ -270,5 +256,38 @@ class PbsApiClientBase
         $this->entityManager->flush();
 
         return $stats;
+    }
+
+    /**
+     * Create a config array from supplied options and defaults.
+     *
+     * @param array $config
+     *   (optional) An array of configuration options supporting the keys:
+     *    - queryParameters (array): Query parameters to add to the request.
+     *    - extraProps (array): Additional properties to be applied to all *new*
+     *        entities. This is meant to help with endpoints that do not provide
+     *        fields for locally required relationships (e.g. the
+     *        `seasons/{id}/episodes` endpoint does not provide `show` or
+     *        `season` data). The array should contain key => value entries for
+     *        a valid property name for the Entity and the value that will be
+     *        set. E.g. -- ['show' => Show object, 'season' => Season object];
+     *    - dataKey (string): The key of the JSON response object containing
+     *        the data to traverse (should be an array or object). Typically
+     *        this will be just "data".
+     *    - force (bool): Set to TRUE to ignore the "updated_at" field check and
+     *        always process the update.
+     *
+     * @return array
+     *   The configuration array for the update.
+     *
+     * @see update
+     */
+    protected function createUpdateConfig($config = []) {
+       return $config + [
+           'dataKey' => 'data',
+           'extraProps' => [],
+           'force' => FALSE,
+           'queryParameters' => [],
+       ];
     }
 }

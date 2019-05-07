@@ -116,7 +116,7 @@ class MediaManagerController extends ControllerBase
         $this->updateAll(
             $apiClient,
             Franchise::class,
-            ['fetch-related' => TRUE]
+            ['queryParameters' => ['fetch-related' => TRUE]]
         );
         return $this->redirectToRoute('media_manager_franchises');
     }
@@ -158,7 +158,11 @@ class MediaManagerController extends ControllerBase
         if (!$apiClient->isConfigured()) {
             throw new NotFoundHttpException(self::$notConfigured);
         }
-        $this->updateAll($apiClient, Show::class, ['fetch-related' => TRUE]);
+        $this->updateAll(
+            $apiClient,
+            Show::class,
+            ['queryParameters' => ['fetch-related' => TRUE]]
+        );
         return $this->redirectToRoute('media_manager_shows');
     }
 

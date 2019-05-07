@@ -71,8 +71,10 @@ class MediaManagerApiClient extends PbsApiClientBase
                 Episode::class,
                 $episodes,
                 "seasons/{$season->getId()}/episodes/",
-                ['fetch-related' => TRUE],
-                ['show' => $show, 'season' => $season]
+                [
+                    'extraProps' => ['show' => $show, 'season' => $season],
+                    'queryParameters' => ['fetch-related' => TRUE],
+                ]
             );
 
             foreach ($episodes as $episode) {
@@ -103,9 +105,7 @@ class MediaManagerApiClient extends PbsApiClientBase
                 Asset::class,
                 $assets,
                 Asset::ENDPOINT . "/{$asset->getId()}/",
-                [],
-                [],
-                TRUE
+                ['force' => TRUE]
             );
         }
     }
