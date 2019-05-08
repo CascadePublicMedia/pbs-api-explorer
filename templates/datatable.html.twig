@@ -31,53 +31,30 @@ Availavble variables:
 
 {% block page_content %}
 
-    {% if is_granted('ROLE_ADMIN') %}
+    {% if is_granted('ROLE_ADMIN') and update_route is defined %}
         <div class="well well-sm">
-        {% block datatable_actions %}
-            {% if update_route is defined %}
-                {{ btn.link_button('Sync from API', path(update_route), 'fas fa-sync', 'success', 'xs') }}
-            {% endif %}
-        {% endblock %}
+            {% block datatable_actions %}
+                {{ btn.link_button(
+                    'Sync from API',
+                    path(update_route),
+                    'fas fa-sync',
+                    'success',
+                    'xs')
+                }}
+            {% endblock %}
         </div>
     {% endif %}
 
-    <table class="table table-bordered table-striped table-condensed datatable">
-        <thead>
-            <tr>
-                {% for property in properties %}
-                    <th>{{ property }}</th>
-                {% endfor %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for entity in entities %}
-                <tr>
-                    {% for property, name in properties %}
-                        {% set field = attribute(entity, property) %}
-                        {% if field is instanceof('DateTime') or field is instanceof('DateTimeImmutable') %}
-                            <td>{{ field|date('Y-m-d H:i') }}</td>
-                        {% elseif field is boolean %}
-                            <td>{{ field|bool_icon }}</td>
-                        {% elseif loop.first and entity_route is defined %}
-                            <td><a href="{{ path(entity_route, {'id': entity.id}) }}">{{ field }}</a></td>
-                        {% elseif property == 'image' %}
-                            <td><a href="{{ field }}" target="_blank">{{ field|split('/')|last }}</a></td>
-                        {% else %}
-                            <td>{{ field }}</td>
-                        {% endif %}
-                    {% endfor %}
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div id="datatable">Loading...</div>
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
-    <script type="application/javascript">
-        $(document).ready( function () {
-            $('.datatable').DataTable({
-                "pageLength": 25
+    <script src="{{ asset('bundles/datatables/js/datatables.js') }}"></script>
+    <script>
+        $(function() {
+            $('#datatable').initDataTables({{ datatable_settings(datatable) }}, {
+                searching: true
             });
         });
     </script>

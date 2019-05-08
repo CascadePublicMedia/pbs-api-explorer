@@ -6,6 +6,7 @@ use CascadePublicMedia\PbsApiExplorer\Entity\ScheduleProgram;
 use CascadePublicMedia\PbsApiExplorer\Service\TvssApiClient;
 use Omines\DataTablesBundle\Adapter\Doctrine\ORMAdapter;
 use Omines\DataTablesBundle\Column\TextColumn;
+use Omines\DataTablesBundle\DataTable;
 use Omines\DataTablesBundle\DataTableFactory;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -39,30 +40,29 @@ class TvssController extends ControllerBase
      * @Route("/tvss/programs", name="tvss_programs")
      * @Security("is_granted('ROLE_USER')")
      *
-     * @param Request $request
+     *
      * @param DataTableFactory $dataTableFactory
+     * @param Request $request
      *
      * @return Response
-     *
-     * TODO: Expand this implementation to all lists
-     * @see https://omines.github.io/datatables-bundle/
      */
-    public function programs(Request $request,
-                             DataTableFactory $dataTableFactory) {
+    public function programs(DataTableFactory $dataTableFactory, Request $request) {
         $table = $dataTableFactory->create()
             ->add('programId', TextColumn::class, ['label' => 'ID'])
             ->add('title', TextColumn::class, ['label' => 'Title'])
             ->add('externalId', TextColumn::class, ['label' => 'External ID'])
-            ->createAdapter(ORMAdapter::class, [
-                'entity' => ScheduleProgram::class,
-            ])
+            ->createAdapter(ORMAdapter::class, ['entity' => ScheduleProgram::class])
+            ->addOrderBy('title', DataTable::SORT_ASCENDING)
             ->handleRequest($request);
 
         if ($table->isCallback()) {
             return $table->getResponse();
         }
 
-        return $this->render('datatable_new.html.twig', ['datatable' => $table]);
+        return $this->render('datatable.html.twig', [
+            'datatable' => $table,
+            'title' => 'Programs',
+        ]);
     }
 
     /**

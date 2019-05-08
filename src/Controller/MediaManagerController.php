@@ -11,8 +11,16 @@ use CascadePublicMedia\PbsApiExplorer\Entity\Season;
 use CascadePublicMedia\PbsApiExplorer\Entity\Show;
 use CascadePublicMedia\PbsApiExplorer\Service\MediaManagerApiClient;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\QueryBuilder;
+use Omines\DataTablesBundle\Adapter\Doctrine\ORMAdapter;
+use Omines\DataTablesBundle\Column\DateTimeColumn;
+use Omines\DataTablesBundle\Column\MapColumn;
+use Omines\DataTablesBundle\Column\TextColumn;
+use Omines\DataTablesBundle\DataTable;
+use Omines\DataTablesBundle\DataTableFactory;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
@@ -21,6 +29,8 @@ use Symfony\Component\Routing\Annotation\Route;
  * Class MediaManagerController
  *
  * @package CascadePublicMedia\PbsApiExplorer\Controller
+ *
+ * TODO: Convert DataTableFactory usages to DataTable Types.
  */
 class MediaManagerController extends ControllerBase
 {
@@ -43,22 +53,29 @@ class MediaManagerController extends ControllerBase
      * @Route("/media-manager/genres", name="media_manager_genres")
      * @Security("is_granted('ROLE_USER')")
      *
-     * @param EntityManagerInterface $entityManager
+     * @param DataTableFactory $dataTableFactory
+     * @param Request $request
      *
      * @return Response
      */
-    public function genres(EntityManagerInterface $entityManager) {
-        $entities = $entityManager->getRepository(Genre::class)->findAll();
+    public function genres(DataTableFactory $dataTableFactory, Request $request) {
+        $table = $dataTableFactory->create()
+            ->add('title', TextColumn::class, ['label' => 'Title'])
+            ->add('slug', TextColumn::class, ['label' => 'Slug'])
+            ->add('created', DateTimeColumn::class, ['label' => 'Created'])
+            ->add('updated', DateTimeColumn::class, ['label' => 'Updated'])
+            ->createAdapter(ORMAdapter::class, ['entity' => Genre::class])
+            ->addOrderBy('title', DataTable::SORT_ASCENDING)
+            ->handleRequest($request);
+
+        if ($table->isCallback()) {
+            return $table->getResponse();
+        }
+
         return $this->render('datatable.html.twig', [
+            'datatable' => $table,
             'title' => 'Genres',
-            'properties' => [
-                'title' => 'Title',
-                'slug' => 'Slug',
-                'created' => 'Created',
-                'updated' => 'Updated',
-            ],
-            'entities' => $entities,
-            'update_route' => 'media_manager_genres_update',
+            'update_route' => 'media_manager_genres_update'
         ]);
     }
 
@@ -82,22 +99,44 @@ class MediaManagerController extends ControllerBase
      * @Route("/media-manager/franchises", name="media_manager_franchises")
      * @Security("is_granted('ROLE_USER')")
      *
-     * @param EntityManagerInterface $entityManager
+     * @param DataTableFactory $dataTableFactory
+     * @param Request $request
      *
      * @return Response
      */
-    public function franchises(EntityManagerInterface $entityManager) {
-        $entities = $entityManager->getRepository(Franchise::class)->findAll();
+    public function franchises(DataTableFactory $dataTableFactory, Request $request) {
+        $table = $dataTableFactory->create()
+            ->add('title', TextColumn::class, ['label' => 'Title'])
+            ->add('slug', TextColumn::class, ['label' => 'Slug'])
+            ->add('genre', TextColumn::class, [
+                'data' => '<em>None</em>',
+                'raw' => true,
+                'field' => 'genre.title',
+                'label' => 'Genre'
+            ])
+            ->add('updated', DateTimeColumn::class, ['label' => 'Updated'])
+            ->createAdapter(ORMAdapter::class, [
+                'entity' => Franchise::class,
+                'query' => function (QueryBuilder $builder) {
+                    $builder
+                        ->select('franchise')
+                        ->addSelect('genre')
+                        ->from(Franchise::class, 'franchise')
+                        ->leftJoin('franchise.genre', 'genre')
+                    ;
+                },
+            ])
+            ->addOrderBy('title', DataTable::SORT_ASCENDING)
+            ->handleRequest($request);
+
+        if ($table->isCallback()) {
+            return $table->getResponse();
+        }
+
         return $this->render('datatable.html.twig', [
+            'datatable' => $table,
             'title' => 'Franchises',
-            'properties' => [
-                'title' => 'Title',
-                'slug' => 'Slug',
-                'genre' => 'Genre',
-                'updated' => 'Updated',
-            ],
-            'entities' => $entities,
-            'update_route' => 'media_manager_franchises_update',
+            'update_route' => 'media_manager_franchises_update'
         ]);
     }
 
@@ -125,23 +164,54 @@ class MediaManagerController extends ControllerBase
      * @Route("/media-manager/shows", name="media_manager_shows")
      * @Security("is_granted('ROLE_USER')")
      *
-     * @param EntityManagerInterface $entityManager
+     * @param DataTableFactory $dataTableFactory
+     * @param Request $request
      *
      * @return Response
      */
-    public function shows(EntityManagerInterface $entityManager) {
-        $entities = $entityManager->getRepository(Show::class)->findAll();
+    public function shows(DataTableFactory $dataTableFactory, Request $request) {
+        $table = $dataTableFactory->create()
+            ->add('title', TextColumn::class, [
+                'label' => 'Title',
+            ])
+            ->add('slug', TextColumn::class, ['label' => 'Slug'])
+            ->add('franchise', TextColumn::class, [
+                'data' => '<em>None</em>',
+                'field' => 'franchise.title',
+                'label' => 'Franchise',
+                'raw' => true,
+            ])
+            ->add('genre', TextColumn::class, [
+                'data' => '<em>None</em>',
+                'field' => 'genre.title',
+                'label' => 'Genre',
+                'raw' => true,
+            ])
+            ->add('updated', DateTimeColumn::class, ['label' => 'Updated'])
+            ->createAdapter(ORMAdapter::class, [
+                'entity' => Show::class,
+                'query' => function (QueryBuilder $builder) {
+                    $builder
+                        ->select('show')
+                        ->addSelect('franchise')
+                        ->addSelect('genre')
+                        ->from(Show::class, 'show')
+                        ->leftJoin('show.franchise', 'franchise')
+                        ->leftJoin('show.genre', 'genre')
+                    ;
+                },
+            ])
+            ->addOrderBy('updated', DataTable::SORT_DESCENDING)
+            ->handleRequest($request);
+
+        if ($table->isCallback()) {
+            return $table->getResponse();
+        }
+
         return $this->render('datatable.html.twig', [
+            'datatable' => $table,
             'title' => 'Shows',
-            'properties' => [
-                'title' => 'Title',
-                'slug' => 'Slug',
-                'franchise' => 'Franchise',
-                'genre' => 'Genre',
-                'updated' => 'Updated',
-            ],
-            'entities' => $entities,
-            'entity_route' => 'media_manager_shows_show',
+            /*'entity_route' => 'media_manager_shows_show',*/
             'update_route' => 'media_manager_shows_update',
         ]);
     }
@@ -193,21 +263,32 @@ class MediaManagerController extends ControllerBase
      * @Route("/media-manager/seasons", name="media_manager_seasons")
      * @Security("is_granted('ROLE_USER')")
      *
-     * @param EntityManagerInterface $entityManager
+     * @param DataTableFactory $dataTableFactory
+     * @param Request $request
      *
      * @return Response
      */
-    public function seasons(EntityManagerInterface $entityManager) {
-        $entities = $entityManager->getRepository(Season::class)->findAll();
+    public function seasons(DataTableFactory $dataTableFactory, Request $request) {
+        $table = $dataTableFactory->create()
+            ->add('show', TextColumn::class, [
+                'field' => 'show.title',
+                'label' => 'Show',
+            ])
+            ->add('ordinal', TextColumn::class, ['label' => 'Ordinal'])
+            ->add('title', TextColumn::class, ['label' => 'Title'])
+            ->add('updated', DateTimeColumn::class, ['label' => 'Updated'])
+            ->createAdapter(ORMAdapter::class, ['entity' => Season::class])
+            ->addOrderBy('show', DataTable::SORT_ASCENDING)
+            ->addOrderBy('ordinal', DataTable::SORT_DESCENDING)
+            ->handleRequest($request);
+
+        if ($table->isCallback()) {
+            return $table->getResponse();
+        }
+
         return $this->render('datatable.html.twig', [
+            'datatable' => $table,
             'title' => 'Seasons',
-            'properties' => [
-                'show' => 'Show',
-                'ordinal' => 'Ordinal',
-                'title' => 'Title',
-                'updated' => 'Updated',
-            ],
-            'entities' => $entities,
         ]);
     }
 
@@ -256,20 +337,68 @@ class MediaManagerController extends ControllerBase
      * @Route("/media-manager/assets", name="media_manager_assets")
      * @Security("is_granted('ROLE_USER')")
      *
-     * @param EntityManagerInterface $entityManager
+     * @param DataTableFactory $dataTableFactory
+     * @param Request $request
      *
      * @return Response
      */
-    public function assets(EntityManagerInterface $entityManager) {
-        $entities = $entityManager->getRepository(Asset::class)->findAll();
+    public function assets(DataTableFactory $dataTableFactory, Request $request) {
+        $table = $dataTableFactory->create()
+            ->add('title', TextColumn::class, ['label' => 'Title'])
+            ->add('type', MapColumn::class, [
+                'default' => 'Unknown',
+                'field' => 'asset.type',
+                'label' => 'Type',
+                'map' => [
+                    'clip' => 'Clip',
+                    'full_length' => 'Full length',
+                    'preview' => 'Preview',
+                ]
+            ])
+            ->add('franchise', TextColumn::class, [
+                'field' => 'franchise.title',
+                'label' => 'Franchise',
+            ])
+            ->add('show', TextColumn::class, [
+                'field' => 'show.title',
+                'label' => 'Show',
+            ])
+            ->add('season', TextColumn::class, [
+                'field' => 'season.title',
+                'label' => 'Season',
+            ])
+            ->add('episode', TextColumn::class, [
+                'field' => 'episode.title',
+                'label' => 'Episode',
+            ])
+            ->add('updated', DateTimeColumn::class, ['label' => 'Updated'])
+            ->createAdapter(ORMAdapter::class, [
+                'entity' => Show::class,
+                'query' => function (QueryBuilder $builder) {
+                    $builder
+                        ->select('asset')
+                        ->addSelect('franchise')
+                        ->addSelect('show')
+                        ->addSelect('season')
+                        ->addSelect('episode')
+                        ->from(Asset::class, 'asset')
+                        ->leftJoin('asset.franchise', 'franchise')
+                        ->leftJoin('asset.show', 'show')
+                        ->leftJoin('asset.season', 'season')
+                        ->leftJoin('asset.episode', 'episode')
+                    ;
+                },
+            ])
+            ->addOrderBy('updated', DataTable::SORT_DESCENDING)
+            ->handleRequest($request);
+
+        if ($table->isCallback()) {
+            return $table->getResponse();
+        }
+
         return $this->render('datatable.html.twig', [
+            'datatable' => $table,
             'title' => 'Assets',
-            'properties' => [
-                'title' => 'Title',
-                'type' => 'Type',
-                'updated' => 'Updated',
-            ],
-            'entities' => $entities,
         ]);
     }
 
@@ -277,20 +406,67 @@ class MediaManagerController extends ControllerBase
      * @Route("/media-manager/images", name="media_manager_images")
      * @Security("is_granted('ROLE_USER')")
      *
-     * @param EntityManagerInterface $entityManager
+     * @param DataTableFactory $dataTableFactory
+     * @param Request $request
      *
      * @return Response
      */
-    public function images(EntityManagerInterface $entityManager) {
-        $entities = $entityManager->getRepository(Image::class)->findAll();
+    public function images(DataTableFactory $dataTableFactory, Request $request) {
+        $table = $dataTableFactory->create()
+            ->add('image', TextColumn::class, [
+                'field' => 'image.image',
+                'label' => 'Image',
+                'raw' => true,
+                'render' => '<a href="%s">Link</a>',
+            ])
+            ->add('profile', TextColumn::class, [
+                'field' => 'image.profile',
+                'label' => 'Profile',
+            ])
+            ->add('franchise', TextColumn::class, [
+                'field' => 'franchise.title',
+                'label' => 'Franchise',
+            ])
+            ->add('show', TextColumn::class, [
+                'field' => 'show.title',
+                'label' => 'Show',
+            ])
+            ->add('asset', TextColumn::class, [
+                'field' => 'asset.title',
+                'label' => 'Asset',
+            ])
+            ->add('station', TextColumn::class, [
+                'field' => 'station.fullCommonName',
+                'label' => 'Station',
+            ])
+            ->add('updated', DateTimeColumn::class, ['label' => 'Updated'])
+            ->createAdapter(ORMAdapter::class, [
+                'entity' => Show::class,
+                'query' => function (QueryBuilder $builder) {
+                    $builder
+                        ->select('image')
+                        ->addSelect('franchise')
+                        ->addSelect('show')
+                        ->addSelect('asset')
+                        ->addSelect('station')
+                        ->from(Image::class, 'image')
+                        ->leftJoin('image.franchise', 'franchise')
+                        ->leftJoin('image.show', 'show')
+                        ->leftJoin('image.asset', 'asset')
+                        ->leftJoin('image.station', 'station')
+                    ;
+                },
+            ])
+            ->addOrderBy('updated', DataTable::SORT_DESCENDING)
+            ->handleRequest($request);
+
+        if ($table->isCallback()) {
+            return $table->getResponse();
+        }
+
         return $this->render('datatable.html.twig', [
+            'datatable' => $table,
             'title' => 'Images',
-            'properties' => [
-                'image' => 'Image',
-                'profile' => 'Profile',
-                'updated' => 'Updated',
-            ],
-            'entities' => $entities,
         ]);
     }
 }
