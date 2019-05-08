@@ -45,7 +45,7 @@ class TvssController extends ControllerBase
      * @return Response
      *
      * TODO: Expand this implementation to all lists
-     * @url https://omines.github.io/datatables-bundle/
+     * @see https://omines.github.io/datatables-bundle/
      */
     public function programs(Request $request,
                              DataTableFactory $dataTableFactory) {
