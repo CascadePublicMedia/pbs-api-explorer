@@ -296,21 +296,34 @@ class MediaManagerController extends ControllerBase
      * @Route("/media-manager/episodes", name="media_manager_episodes")
      * @Security("is_granted('ROLE_USER')")
      *
-     * @param EntityManagerInterface $entityManager
+     * @param DataTableFactory $dataTableFactory
+     * @param Request $request
      *
      * @return Response
      */
-    public function episodes(EntityManagerInterface $entityManager) {
-        $entities = $entityManager->getRepository(Episode::class)->findAll();
+    public function episodes(DataTableFactory $dataTableFactory, Request $request) {
+        $table = $dataTableFactory->create()
+            ->add('title', TextColumn::class, ['label' => 'Episode'])
+            ->add('season', TextColumn::class, [
+                'label' => 'Season',
+                'field' => 'season.ordinal',
+            ])
+            ->add('show', TextColumn::class, [
+                'label' => 'Show',
+                'field' => 'show.title',
+            ])
+            ->add('updated', DateTimeColumn::class, ['label' => 'Updated'])
+            ->createAdapter(ORMAdapter::class, ['entity' => Episode::class])
+            ->addOrderBy('show', DataTable::SORT_ASCENDING)
+            ->handleRequest($request);
+
+        if ($table->isCallback()) {
+            return $table->getResponse();
+        }
+
         return $this->render('datatable.html.twig', [
+            'datatable' => $table,
             'title' => 'Episodes',
-            'properties' => [
-                'title' => 'Title',
-                'show' => 'Show',
-                'season' => 'Season',
-                'updated' => 'Updated',
-            ],
-            'entities' => $entities,
         ]);
     }
 
