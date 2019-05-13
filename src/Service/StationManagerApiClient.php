@@ -17,7 +17,7 @@ class StationManagerApiClient extends PbsApiClientBase
     /**
      * @var array
      */
-    protected $requiredFields = [
+    protected $requiredSettings = [
         'station_manager_base_uri' => 'Endpoint',
         'station_manager_client_id' => 'Client ID',
         'station_manager_client_secret' => 'Client secret',

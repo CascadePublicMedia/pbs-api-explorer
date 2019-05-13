@@ -20,7 +20,7 @@ class TvssApiClient extends PbsApiClientBase
     /**
      * @var array
      */
-    protected $requiredFields = [
+    protected $requiredSettings = [
         'tvss_base_uri' => 'Endpoint',
         'tvss_call_sign' => 'Call Sign',
         'tvss_api_key' => 'API Key',

@@ -20,7 +20,7 @@ class MediaManagerApiClient extends PbsApiClientBase
     /**
      * @var array
      */
-    protected $requiredFields = [
+    protected $requiredSettings = [
         'media_manager_base_uri' => 'Endpoint',
         'media_manager_client_id' => 'Client ID',
         'media_manager_client_secret' => 'Client secret',

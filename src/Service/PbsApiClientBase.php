@@ -52,7 +52,12 @@ class PbsApiClientBase
     /**
      * @var array
      */
-    protected $requiredFields = [];
+    protected $requiredSettings = [];
+
+    /**
+     * @var array
+     */
+    protected $settings = [];
 
     /**
      * MediaManagerApiClient constructor.
@@ -69,6 +74,11 @@ class PbsApiClientBase
         $this->entityManager = $entityManager;
         $this->fieldMapper = $fieldMapper;
         $this->propertyAccessor = PropertyAccess::createPropertyAccessor();
+
+        /** @var Setting[] settings */
+        $this->settings = $entityManager
+            ->getRepository(Setting::class)
+            ->findAllIndexedById();
     }
 
     public function createClient($config) {
@@ -81,17 +91,29 @@ class PbsApiClientBase
      * @return bool
      */
     public function isConfigured() {
-        $settings = $this->entityManager
-            ->getRepository(Setting::class)
-            ->findAllIndexedById();
-        foreach ($this->requiredFields as $id => $name) {
-            if (!isset($settings[$id]) || empty($settings[$id])) {
+        foreach ($this->requiredSettings as $id => $name) {
+            if (!isset($this->settings[$id]) || empty($this->settings[$id])) {
                 return FALSE;
             }
         }
         return TRUE;
     }
 
+    /**
+     * Get a specific setting value for this client.
+     *
+     * @param $key
+     *   Field name of setting as found in Setting repository.
+     *
+     * @return bool|mixed
+     *   The setting value of FALSE is the setting does not exist.
+     */
+    public function getSetting($key) {
+        if (!isset($this->settings[$key])) {
+            return FALSE;
+        }
+        return $this->settings[$key]->getValue();
+    }
 
     /**
      * Update all entities of a specific class from Entity ENDPOINT constant.
