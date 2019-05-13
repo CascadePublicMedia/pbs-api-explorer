@@ -76,6 +76,7 @@ class StationManagerController extends ControllerBase
         return $this->render('station_manager/datatable.html.twig', [
             'datatable' => $table,
             'title' => 'Stations',
+            'update_route' => '#',  // @TODO Remove this requirement.
             'update_route_internal' => 'station_manager_stations_update',
             'update_route_public' => 'station_manager_stations_public_update',
         ]);
