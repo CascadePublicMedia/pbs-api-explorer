@@ -37,10 +37,11 @@ user created during setup.
     * [~~Franchises~~](https://docs.pbs.org/display/CDA/Franchises)
     * [~~Shows~~](https://docs.pbs.org/display/CDA/Shows)
     * [~~Seasons~~](https://docs.pbs.org/display/CDA/Seasons)
-    * [Episodes](https://docs.pbs.org/display/CDA/Episodes)
+    * [~~Episodes~~](https://docs.pbs.org/display/CDA/Episodes)
     * [Specials](https://docs.pbs.org/display/CDA/Specials)
-    * [Assets](https://docs.pbs.org/display/CDA/Assets)
+    * [~~Assets~~](https://docs.pbs.org/display/CDA/Assets)
     * [Topics](https://docs.pbs.org/display/CDA/Topics) (???)
+    * ~~Images~~
 * [**TV Schedules Service**](https://docs.pbs.org/display/tvsapi)
     * Listings
     * KIDS listings (???)

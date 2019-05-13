@@ -21,12 +21,31 @@ class ControllerBase extends AbstractController
      *   The Entity class to update.
      * @param array $config
      *   (optional) Additional configuration options to pass on to the update
-     *   method (@see PbsApiClientBase::update()).
+     *   method.
+     *
+     * @return array
+     *  Stats from the update process.
+     *
+     * @see PbsApiClientBase::update()
      *
      * @todo Handle/report specific exceptions.
      */
     public function updateAll($apiClient, $entityClass, array $config = []) {
-        $stats = $apiClient->updateAllByEntityClass($entityClass, $config);
+        return $apiClient->updateAllByEntityClass($entityClass, $config);
+    }
+
+    /**
+     * Add a generic flash message from stats after an update process.
+     *
+     * @param array $stats
+     *   Stats from an update process. Should contain the keys:
+     *    - add
+     *    - update
+     *    - noop
+     *
+     * @see PbsApiClientBase::update()
+     */
+    public function flashUpdateStats($stats) {
         $this->addFlash('success', sprintf(
             'Update complete! Local changes: %d added, %d updated, %d unchanged.',
             $stats['add'],

@@ -77,11 +77,11 @@ class TvssController extends ControllerBase
         if (!$apiClient->isConfigured()) {
             throw new NotFoundHttpException(self::$notConfigured);
         }
-        $this->updateAll(
-            $apiClient,
+        $stats = $apiClient->updateAllByEntityClass(
             ScheduleProgram::class,
             ['dataKey' => 'programs']
         );
+        $this->flashUpdateStats($stats);
         return $this->redirectToRoute('tvss_programs');
     }
 }

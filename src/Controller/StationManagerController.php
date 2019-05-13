@@ -93,7 +93,8 @@ class StationManagerController extends ControllerBase
         if (!$apiClient->isConfigured()) {
             throw new NotFoundHttpException(self::$notConfigured);
         }
-        $this->updateAll($apiClient, Station::class);
+        $stats = $apiClient->updateAllByEntityClass(Station::class);
+        $this->flashUpdateStats($stats);
         return $this->redirectToRoute('station_manager_stations');
     }
 
@@ -106,7 +107,8 @@ class StationManagerController extends ControllerBase
      * @return RedirectResponse
      */
     public function stations_public_update(StationManagerPublicApiClient $apiClient) {
-        $this->updateAll($apiClient, Station::class);
+        $stats = $apiClient->updateAllByEntityClass(Station::class);
+        $this->flashUpdateStats($stats);
         return $this->redirectToRoute('station_manager_stations');
     }
 }

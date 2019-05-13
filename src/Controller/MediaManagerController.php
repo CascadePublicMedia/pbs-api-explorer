@@ -91,7 +91,8 @@ class MediaManagerController extends ControllerBase
         if (!$apiClient->isConfigured()) {
             throw new NotFoundHttpException(self::$notConfigured);
         }
-        $this->updateAll($apiClient, Genre::class);
+        $stats = $apiClient->updateAllByEntityClass(Genre::class);
+        $this->flashUpdateStats($stats);
         return $this->redirectToRoute('media_manager_genres');
     }
 
@@ -152,11 +153,12 @@ class MediaManagerController extends ControllerBase
         if (!$apiClient->isConfigured()) {
             throw new NotFoundHttpException(self::$notConfigured);
         }
-        $this->updateAll(
-            $apiClient,
+        $stats = $apiClient->updateAllByEntityClass(
             Franchise::class,
             ['queryParameters' => ['fetch-related' => TRUE]]
         );
+        $this->flashUpdateStats($stats);
+
         return $this->redirectToRoute('media_manager_franchises');
     }
 
@@ -228,11 +230,11 @@ class MediaManagerController extends ControllerBase
         if (!$apiClient->isConfigured()) {
             throw new NotFoundHttpException(self::$notConfigured);
         }
-        $this->updateAll(
-            $apiClient,
+        $stats = $apiClient->updateAllByEntityClass(
             Show::class,
             ['queryParameters' => ['fetch-related' => TRUE]]
         );
+        $this->flashUpdateStats($stats);
         return $this->redirectToRoute('media_manager_shows');
     }
 
