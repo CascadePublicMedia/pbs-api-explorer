@@ -2,8 +2,10 @@
 
 namespace CascadePublicMedia\PbsApiExplorer\Controller;
 
+use CascadePublicMedia\PbsApiExplorer\Entity\Headend;
 use CascadePublicMedia\PbsApiExplorer\Entity\ScheduleProgram;
 use CascadePublicMedia\PbsApiExplorer\Service\TvssApiClient;
+use Doctrine\Common\Collections\ArrayCollection;
 use Omines\DataTablesBundle\Adapter\Doctrine\ORMAdapter;
 use Omines\DataTablesBundle\Column\TextColumn;
 use Omines\DataTablesBundle\DataTable;
@@ -62,6 +64,7 @@ class TvssController extends ControllerBase
         return $this->render('datatable.html.twig', [
             'datatable' => $table,
             'title' => 'Programs',
+            'update_route' => 'tvss_programs_update',
         ]);
     }
 
@@ -83,5 +86,56 @@ class TvssController extends ControllerBase
         );
         $this->flashUpdateStats($stats);
         return $this->redirectToRoute('tvss_programs');
+    }
+
+    /**
+     * @Route("/tvss/headends", name="tvss_headends")
+     * @Security("is_granted('ROLE_USER')")
+     *
+     *
+     * @param DataTableFactory $dataTableFactory
+     * @param Request $request
+     *
+     * @return Response
+     */
+    public function headends(DataTableFactory $dataTableFactory, Request $request) {
+        $table = $dataTableFactory->create()
+            ->add('id', TextColumn::class, ['label' => 'ID'])
+            ->add('name', TextColumn::class, ['label' => 'Name'])
+            ->createAdapter(ORMAdapter::class, ['entity' => Headend::class])
+            ->addOrderBy('name', DataTable::SORT_ASCENDING)
+            ->handleRequest($request);
+
+        if ($table->isCallback()) {
+            return $table->getResponse();
+        }
+
+        return $this->render('datatable.html.twig', [
+            'datatable' => $table,
+            'title' => 'Headends',
+            'update_route' => 'tvss_headends_update',
+        ]);
+    }
+
+    /**
+     * @Route("/tvss/headends/update", name="tvss_headends_update")
+     * @Security("is_granted('ROLE_ADMIN')")
+     *
+     * @param TvssApiClient $apiClient
+     *
+     * @return RedirectResponse
+     */
+    public function headends_update(TvssApiClient $apiClient) {
+        if (!$apiClient->isConfigured()) {
+            throw new NotFoundHttpException(self::$notConfigured);
+        }
+        $stats = $apiClient->update(
+            Headend::class,
+            new ArrayCollection([]),
+            $apiClient->getSetting('tvss_call_sign') . '/channels',
+            ['dataKey' => 'headends']
+        );
+        $this->flashUpdateStats($stats);
+        return $this->redirectToRoute('tvss_headends');
     }
 }

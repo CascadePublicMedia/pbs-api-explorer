@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20190507192106 extends AbstractMigration
+final class Version20190513214502 extends AbstractMigration
 {
     public function getDescription() : string
     {
@@ -25,6 +25,8 @@ final class Version20190507192106 extends AbstractMigration
         $this->addSql('CREATE TABLE asset_availability (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, asset_id CHAR(36) NOT NULL --(DC2Type:guid)
         , type VARCHAR(255) NOT NULL, start_date_time DATETIME DEFAULT NULL, end_date_time DATETIME DEFAULT NULL, updated DATETIME DEFAULT NULL)');
         $this->addSql('CREATE INDEX IDX_46E062425DA1941 ON asset_availability (asset_id)');
+        $this->addSql('CREATE TABLE feed (id CHAR(36) NOT NULL --(DC2Type:guid)
+        , short_name VARCHAR(255) NOT NULL, full_name VARCHAR(255) NOT NULL, timezone VARCHAR(255) NOT NULL, city VARCHAR(255) NOT NULL, state VARCHAR(255) NOT NULL, analog_channel_number VARCHAR(255) DEFAULT NULL, digital_channel_number VARCHAR(255) DEFAULT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE TABLE asset_tag (id VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE TABLE geo_availability_profile (id CHAR(36) NOT NULL --(DC2Type:guid)
         , name VARCHAR(255) NOT NULL, updated DATETIME DEFAULT NULL, PRIMARY KEY(id))');
@@ -84,6 +86,9 @@ final class Version20190507192106 extends AbstractMigration
         $this->addSql('CREATE INDEX IDX_DDAA1CDA5F7888C2 ON episode (full_length_asset_id)');
         $this->addSql('CREATE TABLE genre (id CHAR(36) NOT NULL --(DC2Type:guid)
         , slug VARCHAR(255) NOT NULL, title VARCHAR(255) NOT NULL, created DATETIME NOT NULL, updated DATETIME DEFAULT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE TABLE headend (id CHAR(36) NOT NULL --(DC2Type:guid)
+        , name VARCHAR(255) NOT NULL, feeds CLOB NOT NULL --(DC2Type:array)
+        , PRIMARY KEY(id))');
         $this->addSql('CREATE TABLE franchise (id CHAR(36) NOT NULL --(DC2Type:guid)
         , genre_id CHAR(36) DEFAULT NULL --(DC2Type:guid)
         , slug VARCHAR(255) NOT NULL, nola VARCHAR(4) DEFAULT NULL, title VARCHAR(255) NOT NULL, title_sortable VARCHAR(255) NOT NULL, description_short VARCHAR(90) DEFAULT NULL, description_long CLOB DEFAULT NULL, premiered DATETIME DEFAULT NULL, dfp_exclude BOOLEAN NOT NULL, funder_message VARCHAR(255) DEFAULT NULL, ga_tracking_page VARCHAR(255) DEFAULT NULL, ga_tracking_event VARCHAR(255) DEFAULT NULL, updated DATETIME DEFAULT NULL, hashtag VARCHAR(255) DEFAULT NULL, links CLOB DEFAULT NULL --(DC2Type:array)
@@ -157,6 +162,7 @@ final class Version20190507192106 extends AbstractMigration
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'sqlite', 'Migration can only be executed safely on \'sqlite\'.');
 
         $this->addSql('DROP TABLE asset_availability');
+        $this->addSql('DROP TABLE feed');
         $this->addSql('DROP TABLE asset_tag');
         $this->addSql('DROP TABLE geo_availability_profile');
         $this->addSql('DROP TABLE season');
@@ -172,6 +178,7 @@ final class Version20190507192106 extends AbstractMigration
         $this->addSql('DROP TABLE schedule_program');
         $this->addSql('DROP TABLE episode');
         $this->addSql('DROP TABLE genre');
+        $this->addSql('DROP TABLE headend');
         $this->addSql('DROP TABLE franchise');
         $this->addSql('DROP TABLE franchise_platform');
         $this->addSql('DROP TABLE topic');

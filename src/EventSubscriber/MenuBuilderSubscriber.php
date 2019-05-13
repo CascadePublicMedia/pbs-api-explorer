@@ -135,6 +135,14 @@ class MenuBuilderSubscriber implements EventSubscriberInterface
                 'fas fa-list'
             ));
             $event->addItem($tvss);
+            $tvss->addChild(new MenuItemModel(
+                'tvss_headends',
+                'Headends',
+                'tvss_headends',
+                [],
+                'fas fa-list'
+            ));
+            $event->addItem($tvss);
 
         }
 

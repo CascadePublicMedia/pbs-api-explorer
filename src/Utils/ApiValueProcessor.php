@@ -194,6 +194,12 @@ class ApiValueProcessor
 
                 }
                 break;
+            case 'feeds':
+                // Headend feeds are treated as a simple array because they have
+                // an added property, "cable_number", that does not conform to
+                // the standard Feed entity type.
+                $entity->setFeeds($apiFieldValue);
+                break;
             case 'images':
                 // Determine the entity type these images are associated with.
                 try {

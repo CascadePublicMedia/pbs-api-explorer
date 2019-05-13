@@ -45,8 +45,9 @@ user created during setup.
 * [**TV Schedules Service**](https://docs.pbs.org/display/tvsapi)
     * Listings
     * KIDS listings (???)
-    * Channels/feeds
-    * Programs list
+    * ~~Headends~~
+    * Feeds
+    * ~~Programs list~~
 * [**Membership Vault**](https://docs.pbs.org/display/MV/Membership+Vault+API)
     * Memberships
 * [**Transaction Vault**](https://docs.pbs.org/display/TVA/Transaction+Vault+API)
