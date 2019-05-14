@@ -7,8 +7,6 @@ use CascadePublicMedia\PbsApiExplorer\Entity\ScheduleProgram;
 use CascadePublicMedia\PbsApiExplorer\Entity\Setting;
 use CascadePublicMedia\PbsApiExplorer\Utils\ApiValueProcessor;
 use CascadePublicMedia\PbsApiExplorer\Utils\FieldMapper;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -64,18 +62,21 @@ class TvssApiClient extends PbsApiClientBase
      * @see TvssApiClient::update()
      */
     public function updateHeadends() {
+        // Remove all existing Headend instances.
         $this->entityManager
             ->createQuery('delete from ' . Headend::class)
             ->execute();
         $this->entityManager->flush();
         $this->entityManager->clear();
 
-        return $this->update(
-            Headend::class,
-            new ArrayCollection([]),
+        $config = self::createQueryConfig(['dataKey' => 'headends']);
+        $items = $this->query(
             $this->getSetting('tvss_call_sign') . '/channels',
-            ['dataKey' => 'headends']
+            $config
         );
+        $stats = $this->processItems(Headend::class, $items, $config);
+        $this->entityManager->flush();
+        return $stats;
     }
 
     /**
@@ -93,36 +94,61 @@ class TvssApiClient extends PbsApiClientBase
         $this->entityManager->flush();
         $this->entityManager->clear();
 
-        return $this->updateAllByEntityClass(
-            ScheduleProgram::class,
-            ['dataKey' => 'programs']
-        );
+        $config = self::createQueryConfig(['dataKey' => 'programs']);
+        $items = $this->query(ScheduleProgram::ENDPOINT, $config);
+        $stats = $this->processItems(ScheduleProgram::class, $items, $config);
+        $this->entityManager->flush();
+        return $stats;
     }
 
     /**
-     * {@inheritDoc}
+     * Query the TVSS API and return the result.
+     *
+     * @param string $url
+     *   API URL to query.
+     * @param array $config
+     *   Query configuration options.
+     *
+     * @return array
      */
-    public function update($entityClass, Collection $entities, $url, array $config)
-    {
-        $stats = ['add' => 0, 'update' => 0, 'noop' => 0];
-        $config = self::createUpdateConfig($config);
-
+    private function query($url, array $config) {
         $response = $this->client->get($url, [
             'query' => $config['queryParameters'],
         ]);
-
         if ($response->getStatusCode() != 200) {
             throw new HttpException($response->getStatusCode());
         }
-
         $json = json_decode($response->getBody());
-        if (!isset($json->{$config['dataKey']})) {
-            throw new BadRequestHttpException('Configured data key 
+        if (isset($config['dataKey'])) {
+            if (!isset($json->{$config['dataKey']})) {
+                throw new BadRequestHttpException('Configured data key 
                 not found in response.');
+            }
+            else {
+                $items = $json->{$config['dataKey']};
+            }
         }
         else {
-            $items = $json->{$config['dataKey']};
+            $items = $json;
         }
+        return $items;
+    }
+
+    /**
+     * Process items returned from a TVSS API query.
+     *
+     * @param $entityClass
+     *   The entity to process items for.
+     * @param $items
+     *   Items returns from the query.
+     * @param $config
+     *   Query config options.
+     *
+     * @return array
+     *   Stats about add/update/noop entities (all "update" in this case).
+     */
+    private function processItems($entityClass, $items, $config) {
+        $stats = ['add' => 0, 'update' => 0, 'noop' => 0];
 
         // The TVSS API does not provide "last updated" information for any of
         // its items and object comparision will be inefficient in most
@@ -162,9 +188,6 @@ class TvssApiClient extends PbsApiClientBase
             $stats['update']++;
         }
 
-    // Flush any changes.
-    $this->entityManager->flush();
-
-    return $stats;
+        return $stats;
     }
 }
