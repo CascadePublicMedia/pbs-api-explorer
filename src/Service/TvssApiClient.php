@@ -2,9 +2,12 @@
 
 namespace CascadePublicMedia\PbsApiExplorer\Service;
 
+use CascadePublicMedia\PbsApiExplorer\Entity\Headend;
+use CascadePublicMedia\PbsApiExplorer\Entity\ScheduleProgram;
 use CascadePublicMedia\PbsApiExplorer\Entity\Setting;
 use CascadePublicMedia\PbsApiExplorer\Utils\ApiValueProcessor;
 use CascadePublicMedia\PbsApiExplorer\Utils\FieldMapper;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -53,6 +56,50 @@ class TvssApiClient extends PbsApiClientBase
     }
 
     /**
+     * Update Headends information from the TVSS API.
+     *
+     * @return array
+     *   Stats information from the update() method.
+     *
+     * @see TvssApiClient::update()
+     */
+    public function updateHeadends() {
+        $this->entityManager
+            ->createQuery('delete from ' . Headend::class)
+            ->execute();
+        $this->entityManager->flush();
+        $this->entityManager->clear();
+
+        return $this->update(
+            Headend::class,
+            new ArrayCollection([]),
+            $this->getSetting('tvss_call_sign') . '/channels',
+            ['dataKey' => 'headends']
+        );
+    }
+
+    /**
+     * Update Programs information from the TVSS API.
+     *
+     * @return array
+     *   Stats information from the update() method.
+     *
+     * @see TvssApiClient::update()
+     */
+    public function updatePrograms() {
+        $this->entityManager
+            ->createQuery('delete from ' . ScheduleProgram::class)
+            ->execute();
+        $this->entityManager->flush();
+        $this->entityManager->clear();
+
+        return $this->updateAllByEntityClass(
+            ScheduleProgram::class,
+            ['dataKey' => 'programs']
+        );
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function update($entityClass, Collection $entities, $url, array $config)
@@ -79,14 +126,7 @@ class TvssApiClient extends PbsApiClientBase
 
         // The TVSS API does not provide "last updated" information for any of
         // its items and object comparision will be inefficient in most
-        // situations. All sync operations will fully remove and re-add data
-        // from the API.
-        $this->entityManager
-            ->createQuery('delete from ' . $entityClass)
-            ->execute();
-        $this->entityManager->flush();
-        $this->entityManager->clear();
-
+        // situations. All sync operations assume new records will be inserted.
         foreach ($items as $item) {
             $entity = new $entityClass;
             $this->propertyAccessor->setValue($entity, 'id', $item->cid);
