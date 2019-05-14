@@ -2,11 +2,14 @@
 
 namespace CascadePublicMedia\PbsApiExplorer\Service;
 
+use CascadePublicMedia\PbsApiExplorer\Entity\Feed;
 use CascadePublicMedia\PbsApiExplorer\Entity\Headend;
+use CascadePublicMedia\PbsApiExplorer\Entity\Listing;
 use CascadePublicMedia\PbsApiExplorer\Entity\ScheduleProgram;
 use CascadePublicMedia\PbsApiExplorer\Entity\Setting;
 use CascadePublicMedia\PbsApiExplorer\Utils\ApiValueProcessor;
 use CascadePublicMedia\PbsApiExplorer\Utils\FieldMapper;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -75,6 +78,73 @@ class TvssApiClient extends PbsApiClientBase
             $config
         );
         $stats = $this->processItems(Headend::class, $items, $config);
+        $this->entityManager->flush();
+        return $stats;
+    }
+
+    /**
+     * Update Listings information from the TVSS API.
+     *
+     * @param string $date
+     *   Date of listings to retrieve in the format YYYYMMDD.
+     *
+     * @return array
+     *   Stats information from the update() method.
+     *
+     * @see TvssApiClient::update()
+     */
+    public function updateListings($date) {
+        $query = $this->entityManager
+            ->createQueryBuilder()
+            ->delete(Listing::class, 'l')
+            ->where('l.date = :date')
+            ->setParameter('date', $date)
+            ->getQuery();
+        $query->execute();
+        $this->entityManager->flush();
+        $this->entityManager->clear();
+
+        $config = self::createQueryConfig(['dataKey' => 'feeds']);
+        $items = $this->query(
+            $this->getSetting('tvss_call_sign') . '/day/' . $date,
+            $config
+        );
+
+        // Listings are returned organized by feed, so each feed is processed
+        // separately and the actual listings array sent through processItems().
+        $stats = ['add' => 0, 'update' => 0, 'noop' => 0];
+        $config['extraProps'] = [
+            'date' => DateTime::createFromFormat('Ymd', $date),
+        ];
+        foreach ($items as $item) {
+            $feed = $this->entityManager
+                ->getRepository(Feed::class)
+                ->find($item->cid);
+
+            // Create the Feed instance if one does not exist.
+            if (!$feed) {
+                $feed = new Feed();
+                $feed->setId($item->cid);
+                $feed->setExternalId($item->external_id);
+                $feed->setShortName($item->short_name);
+                $feed->setFullName($item->full_name);
+                $feed->setTimezone($item->timezone);
+                $feed->setAnalogChannel($item->analog_channel);
+                $feed->setDigitalChannel($item->digital_channel);
+                $this->entityManager->merge($feed);
+            }
+
+            $config['extraProps']['feed'] = $feed;
+
+            $items_stats = $this->processItems(
+                Listing::class,
+                $item->listings,
+                $config
+            );
+
+            $stats['update'] += $items_stats['update'];
+        }
+
         $this->entityManager->flush();
         return $stats;
     }

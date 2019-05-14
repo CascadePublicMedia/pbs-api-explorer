@@ -115,7 +115,7 @@ class SettingsType extends AbstractType
                 'tvss_api_key',
                 TextType::class,
                 [
-                    'label' => 'APY key',
+                    'label' => 'API key',
                     'required' => FALSE,
                 ])
         ;

@@ -2,6 +2,8 @@
 
 namespace CascadePublicMedia\PbsApiExplorer\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -31,24 +33,29 @@ class Feed
     private $timezone;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $city;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $state;
+    private $analogChannel;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $analogChannelNumber;
+    private $digitalChannel;
+
+    /**
+     * @ORM\OneToMany(targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\Listing", mappedBy="feed", orphanRemoval=true)
+     */
+    private $listings;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $digitalChannelNumber;
+    private $externalId;
+
+    public function __construct()
+    {
+        $this->listings = new ArrayCollection();
+    }
 
     public function __toString()
     {
@@ -103,50 +110,69 @@ class Feed
         return $this;
     }
 
-    public function getCity(): ?string
+    public function getAnalogChannel(): ?string
     {
-        return $this->city;
+        return $this->analogChannel;
     }
 
-    public function setCity(string $city): self
+    public function setAnalogChannel(?string $analogChannel): self
     {
-        $this->city = $city;
+        $this->analogChannel = $analogChannel;
 
         return $this;
     }
 
-    public function getState(): ?string
+    public function getDigitalChannel(): ?string
     {
-        return $this->state;
+        return $this->digitalChannel;
     }
 
-    public function setState(string $state): self
+    public function setDigitalChannel(?string $digitalChannel): self
     {
-        $this->state = $state;
+        $this->digitalChannel = $digitalChannel;
 
         return $this;
     }
 
-    public function getAnalogChannelNumber(): ?string
+    /**
+     * @return Collection|Listing[]
+     */
+    public function getListings(): Collection
     {
-        return $this->analogChannelNumber;
+        return $this->listings;
     }
 
-    public function setAnalogChannelNumber(?string $analogChannelNumber): self
+    public function addListing(Listing $listing): self
     {
-        $this->analogChannelNumber = $analogChannelNumber;
+        if (!$this->listings->contains($listing)) {
+            $this->listings[] = $listing;
+            $listing->setFeed($this);
+        }
 
         return $this;
     }
 
-    public function getDigitalChannelNumber(): ?string
+    public function removeListing(Listing $listing): self
     {
-        return $this->digitalChannelNumber;
+        if ($this->listings->contains($listing)) {
+            $this->listings->removeElement($listing);
+            // set the owning side to null (unless already changed)
+            if ($listing->getFeed() === $this) {
+                $listing->setFeed(null);
+            }
+        }
+
+        return $this;
     }
 
-    public function setDigitalChannelNumber(?string $digitalChannelNumber): self
+    public function getExternalId(): ?string
     {
-        $this->digitalChannelNumber = $digitalChannelNumber;
+        return $this->externalId;
+    }
+
+    public function setExternalId(?string $externalId): self
+    {
+        $this->externalId = $externalId;
 
         return $this;
     }

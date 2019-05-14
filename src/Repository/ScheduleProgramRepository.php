@@ -18,4 +18,21 @@ class ScheduleProgramRepository extends RepositoryBase
     {
         parent::__construct($registry, ScheduleProgram::class);
     }
+
+    /**
+     * @param $value
+     *
+     * @return ScheduleProgram|null
+     *
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function findOneByProgramId($value): ?ScheduleProgram
+    {
+        return $this->createQueryBuilder('sp')
+            ->andWhere('sp.programId = :val')
+            ->setParameter('val', $value)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
 }

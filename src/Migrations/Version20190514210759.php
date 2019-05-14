@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20190513214502 extends AbstractMigration
+final class Version20190514210759 extends AbstractMigration
 {
     public function getDescription() : string
     {
@@ -26,7 +26,7 @@ final class Version20190513214502 extends AbstractMigration
         , type VARCHAR(255) NOT NULL, start_date_time DATETIME DEFAULT NULL, end_date_time DATETIME DEFAULT NULL, updated DATETIME DEFAULT NULL)');
         $this->addSql('CREATE INDEX IDX_46E062425DA1941 ON asset_availability (asset_id)');
         $this->addSql('CREATE TABLE feed (id CHAR(36) NOT NULL --(DC2Type:guid)
-        , short_name VARCHAR(255) NOT NULL, full_name VARCHAR(255) NOT NULL, timezone VARCHAR(255) NOT NULL, city VARCHAR(255) NOT NULL, state VARCHAR(255) NOT NULL, analog_channel_number VARCHAR(255) DEFAULT NULL, digital_channel_number VARCHAR(255) DEFAULT NULL, PRIMARY KEY(id))');
+        , short_name VARCHAR(255) NOT NULL, full_name VARCHAR(255) NOT NULL, timezone VARCHAR(255) NOT NULL, analog_channel VARCHAR(255) DEFAULT NULL, digital_channel VARCHAR(255) DEFAULT NULL, external_id VARCHAR(255) DEFAULT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE TABLE asset_tag (id VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE TABLE geo_availability_profile (id CHAR(36) NOT NULL --(DC2Type:guid)
         , name VARCHAR(255) NOT NULL, updated DATETIME DEFAULT NULL, PRIMARY KEY(id))');
@@ -70,6 +70,12 @@ final class Version20190513214502 extends AbstractMigration
         $this->addSql('CREATE UNIQUE INDEX UNIQ_8D93D649E7927C74 ON user (email)');
         $this->addSql('CREATE TABLE platform (id CHAR(36) NOT NULL --(DC2Type:guid)
         , slug VARCHAR(255) NOT NULL, title VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE TABLE listing (id CHAR(36) NOT NULL --(DC2Type:guid)
+        , program_id CHAR(36) DEFAULT NULL --(DC2Type:guid)
+        , feed_id CHAR(36) NOT NULL --(DC2Type:guid)
+        , package_id VARCHAR(255) DEFAULT NULL, taped BOOLEAN NOT NULL, duration VARCHAR(255) NOT NULL, duration_minutes INTEGER NOT NULL, nola_episode VARCHAR(255) DEFAULT NULL, nola_root VARCHAR(4) DEFAULT NULL, season_premiere_finale VARCHAR(255) DEFAULT NULL, special_warnings CLOB DEFAULT NULL, start_time VARCHAR(4) NOT NULL, title VARCHAR(255) DEFAULT NULL, animated BOOLEAN NOT NULL, closed_captions BOOLEAN NOT NULL, hd BOOLEAN NOT NULL, stereo BOOLEAN NOT NULL, type VARCHAR(255) NOT NULL, show_id VARCHAR(255) DEFAULT NULL, episode_title VARCHAR(255) DEFAULT NULL, description CLOB DEFAULT NULL, episode_description CLOB DEFAULT NULL, date DATE NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE INDEX IDX_CB0048D43EB8070A ON listing (program_id)');
+        $this->addSql('CREATE INDEX IDX_CB0048D451A5BC03 ON listing (feed_id)');
         $this->addSql('CREATE TABLE special (id CHAR(36) NOT NULL --(DC2Type:guid)
         , show_id CHAR(36) NOT NULL --(DC2Type:guid)
         , title VARCHAR(255) NOT NULL, slug VARCHAR(255) NOT NULL, title_sortable VARCHAR(255) NOT NULL, tms_id VARCHAR(255) DEFAULT NULL, description_short VARCHAR(90) NOT NULL, description_long CLOB NOT NULL, premiered DATE DEFAULT NULL, encored DATE DEFAULT NULL, nola VARCHAR(255) DEFAULT NULL, language VARCHAR(2) DEFAULT NULL, updated DATETIME DEFAULT NULL, full_length_asset BOOLEAN DEFAULT NULL, PRIMARY KEY(id))');
@@ -174,6 +180,7 @@ final class Version20190513214502 extends AbstractMigration
         $this->addSql('DROP TABLE show_platform');
         $this->addSql('DROP TABLE user');
         $this->addSql('DROP TABLE platform');
+        $this->addSql('DROP TABLE listing');
         $this->addSql('DROP TABLE special');
         $this->addSql('DROP TABLE schedule_program');
         $this->addSql('DROP TABLE episode');

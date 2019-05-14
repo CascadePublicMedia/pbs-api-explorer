@@ -14,6 +14,13 @@ use RuntimeException;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 
 
+/**
+ * Class ApiValueProcessor
+ *
+ * TODO: BLOW THIS UP. Refactor on field-specific classes/methods/etc.
+ *
+ * @package CascadePublicMedia\PbsApiExplorer\Utils
+ */
 class ApiValueProcessor
 {
     /**
@@ -441,31 +448,72 @@ class ApiValueProcessor
      * @param $apiFieldValue
      */
     private function processString(&$entity, $apiFieldName, $apiFieldValue) {
-        if (!is_null($apiFieldValue)) {
+        if (is_null($apiFieldValue)) {
+            $updatedFieldValue = NULL;
+        }
+        else {
             switch ($apiFieldName) {
+                case 'airing_type':
+                    $apiFieldName = 'taped';
+                    if ($apiFieldValue == 'Taped') {
+                        $updatedFieldValue = TRUE;
+                    }
+                    else {
+                        $updatedFieldValue = FALSE;
+                    }
+                    break;
                 case 'created_at':
-                    $apiFieldValue = self::processDateTimeString($apiFieldValue);
+                    $updatedFieldValue = self::processDateTimeString($apiFieldValue);
                     break;
                 case 'end':
                 case 'start':
                 case 'updated_at':
-                    $apiFieldValue = self::processDateTimeString($apiFieldValue);
+                    $updatedFieldValue = self::processDateTimeString($apiFieldValue);
                     break;
                 case 'encored_on':
                 case 'premiered_on':
-                    $apiFieldValue = DateTime::createFromFormat(
+                    $updatedFieldValue = DateTime::createFromFormat(
                         'Y-m-d',
                         $apiFieldValue
                     );
                     break;
+                case 'program_id':
+                    // Determine the entity type being processed.
+                    try {
+                        $reflect = new ReflectionClass($entity);
+                        $entity_type = $reflect->getName();
+                    }
+                    catch (ReflectionException $e) {
+                        throw new RuntimeException('Unknown entity type.');
+                    }
+
+                    // ScheduleProgram: pass through as string.
+                    if ($entity_type == Entity\ScheduleProgram::class) {
+                        $updatedFieldValue = $apiFieldValue;
+                    }
+                    // Listing: associate with a ScheduleProgram instance.
+                    elseif ($entity_type == Entity\Listing::class) {
+                        $program = $this->entityManager
+                            ->getRepository(Entity\ScheduleProgram::class)
+                            ->findOneByProgramId($apiFieldValue);
+                        // TODO: Create new program if not found.
+                        if ($program) {
+                            $entity->setProgram($program);
+                        }
+                    }
+                    break;
+                default:
+                    $updatedFieldValue = $apiFieldValue;
             }
         }
 
-        $this->propertyAccessor->setValue(
-            $entity,
-            $this->fieldMapper->map($apiFieldName),
-            $apiFieldValue
-        );
+        if (isset($updatedFieldValue)) {
+            $this->propertyAccessor->setValue(
+                $entity,
+                $this->fieldMapper->map($apiFieldName),
+                $updatedFieldValue
+            );
+        }
     }
 
     /**

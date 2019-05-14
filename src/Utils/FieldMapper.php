@@ -4,6 +4,13 @@ namespace CascadePublicMedia\PbsApiExplorer\Utils;
 
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
+/**
+ * Class FieldMapper
+ *
+ * TODO: BLOW THIS UP. Refactor on field-specific classes/methods/etc.
+ *
+ * @package CascadePublicMedia\PbsApiExplorer\Utils
+ */
 class FieldMapper
 {
     /**
@@ -19,6 +26,7 @@ class FieldMapper
         'event_tracking' => 'trackingCodeEvent',
         'is_excluded_from_dfp' => 'dfpExclude',
         'kids_live_stream_url' => 'kidsStationUrl',
+        'minutes' => 'durationMinutes',
         'object_type' => 'type',
         'ordinal_season' => 'ordinalSeasons',
         'page_tracking' => 'trackingCodePage',

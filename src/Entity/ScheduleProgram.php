@@ -2,6 +2,8 @@
 
 namespace CascadePublicMedia\PbsApiExplorer\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -44,6 +46,16 @@ class ScheduleProgram
      * @ORM\Column(type="integer", nullable=true)
      */
     private $rovi;
+
+    /**
+     * @ORM\OneToMany(targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\Listing", mappedBy="program")
+     */
+    private $listings;
+
+    public function __construct()
+    {
+        $this->listings = new ArrayCollection();
+    }
 
     public function __toString()
     {
@@ -118,6 +130,37 @@ class ScheduleProgram
     public function setRovi(?int $rovi): self
     {
         $this->rovi = $rovi;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Listing[]
+     */
+    public function getListings(): Collection
+    {
+        return $this->listings;
+    }
+
+    public function addListing(Listing $listing): self
+    {
+        if (!$this->listings->contains($listing)) {
+            $this->listings[] = $listing;
+            $listing->setProgram($this);
+        }
+
+        return $this;
+    }
+
+    public function removeListing(Listing $listing): self
+    {
+        if ($this->listings->contains($listing)) {
+            $this->listings->removeElement($listing);
+            // set the owning side to null (unless already changed)
+            if ($listing->getProgram() === $this) {
+                $listing->setProgram(null);
+            }
+        }
 
         return $this;
     }

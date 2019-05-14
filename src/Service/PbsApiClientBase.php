@@ -159,7 +159,7 @@ class PbsApiClientBase
      *   The API URL to query.
      * @param array $config
      *   (optional) An array of additional configuration options.
-     *   @see createUpdateConfig
+     *   @see createQueryConfig
      *
      * @return array
      *   Stats about the updates keyed by:
@@ -173,7 +173,7 @@ class PbsApiClientBase
     {
         $stats = ['add' => 0, 'update' => 0, 'noop' => 0];
         $page = 1;
-        $config = self::createUpdateConfig($config);
+        $config = self::createQueryConfig($config);
 
         while(true) {
             $response = $this->client->get($url, [
@@ -304,7 +304,7 @@ class PbsApiClientBase
      *
      * @see update
      */
-    protected function createUpdateConfig($config = []) {
+    protected function createQueryConfig($config = []) {
        return $config + [
            'dataKey' => 'data',
            'extraProps' => [],
