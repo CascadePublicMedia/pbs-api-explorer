@@ -5,5 +5,28 @@
 {% block page_subtitle %}{% endblock %}
 
 {% block page_content %}
-    {{ form(form) }}
+    {{ form_start(form) }}
+    <div class="row">
+        {% for section in form %}
+            {% if section.vars.label %}
+                <div class="col-md-12">
+                    {% embed '@AdminLTE/Widgets/box-widget.html.twig' with {
+                        'collapsible': true,
+                        'collapsed': true
+                    } %}
+                        {% block box_title %}{{ section.vars.label }}{% endblock %}
+                        {% block box_body %}{{ form_widget(section) }}{% endblock %}
+                        {% block box_footer %}
+                            <div class="pull-right">
+                                <button type="submit" class="btn btn-primary "><i class="fa fa-check-square"></i> Save</button>
+                            </div>
+                        {% endblock %}
+                    {% endembed %}
+                </div>
+            {% else %}
+                {{ form_widget(section) }}
+            {% endif %}
+        {% endfor %}
+    </div>
+    {{ form_end(form)}}
 {% endblock %}

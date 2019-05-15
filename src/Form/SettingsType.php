@@ -158,7 +158,8 @@ class SettingsType extends AbstractType
             ->add($media_manager)
             ->add($station_manager)
             ->add($tvss)
-            ->add('save', SubmitType::class)
+            ->add($mvault)
+            //->add('save', SubmitType::class)
         ;
     }
 }
