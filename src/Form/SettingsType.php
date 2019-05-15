@@ -120,6 +120,40 @@ class SettingsType extends AbstractType
                 ])
         ;
 
+        $mvault = $builder->create(
+            'mvault',
+            FormType::class,
+            [
+                'inherit_data' => TRUE,
+                'label' => 'Membership Vault',
+                'required' => FALSE,
+            ])
+            ->add(
+                'mvault_base_uri',
+                TextType::class,
+                [
+                    'constraints' => [
+                        new Url(),
+                    ],
+                    'label' => 'Endpoint',
+                    'required' => FALSE,
+                ])
+            ->add(
+                'mvault_client_id',
+                TextType::class,
+                [
+                    'label' => 'Client ID',
+                    'required' => FALSE,
+                ])
+            ->add(
+                'mvault_client_secret',
+                TextType::class,
+                [
+                    'label' => 'Client secret',
+                    'required' => FALSE,
+                ])
+        ;
+
         $builder
             ->add($media_manager)
             ->add($station_manager)
