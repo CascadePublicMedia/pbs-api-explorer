@@ -3,7 +3,6 @@
 namespace CascadePublicMedia\PbsApiExplorer\Service;
 
 use CascadePublicMedia\PbsApiExplorer\Entity\Setting;
-use CascadePublicMedia\PbsApiExplorer\Processor\DateTimeProcessor;
 use CascadePublicMedia\PbsApiExplorer\Utils\ApiValueProcessor;
 use CascadePublicMedia\PbsApiExplorer\Utils\FieldMapper;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -230,7 +229,7 @@ class PbsApiClientBase
                 if (isset($item->attributes->updated_at) && !$config['force']
                     && method_exists($entity, 'getUpdated')) {
                     $entity_updated = $entity->getUpdated();
-                    $record_updated = DateTimeProcessor::processDateTimeString(
+                    $record_updated = $this->apiValueProcessor::processDateTimeString(
                         $item->attributes->updated_at
                     );
 

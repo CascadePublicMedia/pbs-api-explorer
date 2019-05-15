@@ -3,7 +3,7 @@
 namespace CascadePublicMedia\PbsApiExplorer\Utils;
 
 use CascadePublicMedia\PbsApiExplorer\Entity;
-use CascadePublicMedia\PbsApiExplorer\Processor;
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Collections\Expr\Comparison;
@@ -23,6 +23,12 @@ use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
  */
 class ApiValueProcessor
 {
+    /**
+     * Media Manager uses two different date formats seemingly interchangeably.
+     */
+    private const MEDIA_MANAGER_API_DATE_FORMAT = 'Y-m-d\TH:i:s.u\Z';
+    private const MEDIA_MANAGER_API_DATE_FORMAT_ALT = 'Y-m-d\TH:i:s\Z';
+
     /**
      * @var EntityManagerInterface
      */
@@ -102,7 +108,7 @@ class ApiValueProcessor
                         $asset->setId($item->id);
                     }
                     else {
-                        $updated = Processor\DateTimeProcessor::processDateTimeString(
+                        $updated = self::processDateTimeString(
                             $item->attributes->updated_at
                         );
                         if ($asset->getUpdated() >= $updated) {
@@ -217,7 +223,7 @@ class ApiValueProcessor
                 foreach ($apiFieldValue as $item) {
                     $updated = NULL;
                     if (isset($item->updated_at)) {
-                        $updated = Processor\DateTimeProcessor::processDateTimeString(
+                        $updated = self::processDateTimeString(
                             $item->updated_at
                         );
                     }
@@ -347,9 +353,7 @@ class ApiValueProcessor
                     ->getRepository(Entity\AssetAvailability::class)
                     ->findAllByAssetIndexedByType($entity);
                 foreach ($apiFieldValue as $type => $constraints) {
-                    $updated = Processor\DateTimeProcessor::processDateTimeString(
-                        $constraints->updated_at
-                    );
+                    $updated = self::processDateTimeString($constraints->updated_at);
 
                     if (isset($availabilities[$type])) {
                         $availability = $availabilities[$type];
@@ -459,19 +463,19 @@ class ApiValueProcessor
                     }
                     break;
                 case 'created_at':
+                    $updatedFieldValue = self::processDateTimeString($apiFieldValue);
+                    break;
                 case 'end':
                 case 'start':
                 case 'updated_at':
-                    $processor = new Processor\DateTimeProcessor();
-                    $processor->setRawValue($apiFieldValue);
-                    $updatedFieldValue = $processor->process();
+                    $updatedFieldValue = self::processDateTimeString($apiFieldValue);
                     break;
                 case 'encored_on':
                 case 'premiered_on':
-                    $processor = new Processor\DateTimeProcessor();
-                    $processor->setRawValue($apiFieldValue);
-                    $processor->setFormat('Y-m-d');
-                    $updatedFieldValue = $processor->process();
+                    $updatedFieldValue = DateTime::createFromFormat(
+                        'Y-m-d',
+                        $apiFieldValue
+                    );
                     break;
                 case 'program_id':
                     // Determine the entity type being processed.
@@ -510,6 +514,24 @@ class ApiValueProcessor
                 $updatedFieldValue
             );
         }
+    }
+
+    /**
+     * @param $string
+     * @return DateTime
+     */
+    public static function processDateTimeString($string) {
+        $datetime = DateTime::createFromFormat(
+            self::MEDIA_MANAGER_API_DATE_FORMAT,
+            $string
+        );
+        if ($datetime === FALSE) {
+            $datetime = DateTime::createFromFormat(
+                self::MEDIA_MANAGER_API_DATE_FORMAT_ALT,
+                $string
+            );
+        }
+        return $datetime;
     }
 
 }
