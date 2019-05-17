@@ -381,6 +381,9 @@ class ApiValueProcessor
                     $this->entityManager->merge($availability);
                 }
                 break;
+            case 'current_state':
+                $updatedFieldValue = (array) $apiFieldValue;
+                break;
             case 'full_length_asset':
                 // TODO
                 $updatedFieldValue = NULL;
@@ -426,6 +429,48 @@ class ApiValueProcessor
 
                 $entity->setGeoProfile($profile);
                 break;
+            case 'pbs_profile':
+                /** @var ArrayCollection $profiles */
+                $profiles = $this->entityManager
+                    ->getRepository(Entity\PbsProfile::class)
+                    ->findAll();
+                $profiles = new ArrayCollection($profiles);
+
+                $criteria = new Criteria(new Comparison(
+                    'id',
+                    '=',
+                    $apiFieldValue->UID
+                ));
+
+                /** @var Entity\PbsProfile $profile */
+                $profile = $profiles->matching($criteria)->first();
+
+                if (!$profile) {
+                    $profile = new Entity\PbsProfile();
+                    $profile->setId($apiFieldValue->UID);
+                }
+
+                // The PBS Profile retrieval will occasionally fail, but the
+                // "retrieval_status" should report this.
+                if ($apiFieldValue->retrieval_status->status === 200) {
+                    $profile->setFirstName($apiFieldValue->first_name);
+                    $profile->setLastName($apiFieldValue->last_name);
+                    if (!is_null($apiFieldValue->birth_date)) {
+                        $profile->setBirthDate(
+                            DateTime::createFromFormat('Y-m-d', $apiFieldValue->birth_date)
+                        );
+                    }
+                    else {
+                        $profile->setBirthDate($apiFieldValue->birth_date);
+                    }
+                    $profile->setEmail($apiFieldValue->email);
+                    $profile->setLoginProvider($apiFieldValue->login_provider);
+                }
+
+                $this->entityManager->merge($profile);
+
+                $entity->setPbsProfile($profile);
+                break;
             case 'station':
                 $updatedFieldValue = $this->entityManager
                     ->getRepository(Entity\Station::class)
@@ -462,14 +507,19 @@ class ApiValueProcessor
                         $updatedFieldValue = FALSE;
                     }
                     break;
+                case 'activation_date':
+                case 'create_date':
                 case 'created_at':
-                    $updatedFieldValue = self::processDateTimeString($apiFieldValue);
-                    break;
                 case 'end':
+                case 'expire_date':
+                case 'grace_period':
                 case 'start':
+                case 'start_date':
+                case 'update_date':
                 case 'updated_at':
                     $updatedFieldValue = self::processDateTimeString($apiFieldValue);
                     break;
+                case 'birth_date':
                 case 'encored_on':
                 case 'premiered_on':
                     $updatedFieldValue = DateTime::createFromFormat(

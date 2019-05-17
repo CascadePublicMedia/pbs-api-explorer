@@ -139,6 +139,13 @@ class SettingsType extends AbstractType
                     'required' => FALSE,
                 ])
             ->add(
+                'mvault_station_id',
+                TextType::class,
+                [
+                    'label' => 'Station ID',
+                    'required' => FALSE,
+                ])
+            ->add(
                 'mvault_client_id',
                 TextType::class,
                 [

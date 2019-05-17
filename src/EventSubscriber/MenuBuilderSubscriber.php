@@ -150,6 +150,30 @@ class MenuBuilderSubscriber implements EventSubscriberInterface
             ));
             $event->addItem($tvss);
 
+            // MVault menu items.
+            $mvault = new MenuItemModel(
+                'mvault',
+                'Membership Vault',
+                'mvault',
+                [],
+                'fas fa-users'
+            );
+            $mvault->addChild(new MenuItemModel(
+                'mvault_profiles',
+                'Profiles',
+                'mvault_profiles',
+                [],
+                'fas fa-list'
+            ));
+            $mvault->addChild(new MenuItemModel(
+                'mvault_memberships',
+                'Memberships',
+                'mvault_memberships',
+                [],
+                'fas fa-list'
+            ));
+            $event->addItem($mvault);
+
         }
 
         if ($this->security->isGranted('ROLE_ADMIN')) {
