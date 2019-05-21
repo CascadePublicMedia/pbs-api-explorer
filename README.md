@@ -40,7 +40,7 @@ user created during setup.
     * [~~Episodes~~](https://docs.pbs.org/display/CDA/Episodes)
     * [Specials](https://docs.pbs.org/display/CDA/Specials)
     * [~~Assets~~](https://docs.pbs.org/display/CDA/Assets)
-    * [Topics](https://docs.pbs.org/display/CDA/Topics) (???)
+    * [~~Topics~~](https://docs.pbs.org/display/CDA/Topics)
     * ~~Images~~
     * [~~Changelog~~](https://docs.pbs.org/display/CDA/Changelog+Endpoint)
 * [~~**TV Schedules Service**~~](https://docs.pbs.org/display/tvsapi)

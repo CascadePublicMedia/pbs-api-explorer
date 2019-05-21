@@ -12,6 +12,11 @@ use Doctrine\ORM\Mapping as ORM;
 class Topic
 {
     /**
+     * The Media Manage API endpoint for this entity.
+     */
+    public const ENDPOINT = 'topics';
+
+    /**
      * @ORM\Id()
      * @ORM\Column(type="guid")
      */

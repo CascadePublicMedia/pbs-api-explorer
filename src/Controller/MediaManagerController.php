@@ -185,7 +185,7 @@ class MediaManagerController extends ControllerBase
             ])
             ->add('updated', DateTimeColumn::class, ['label' => 'Updated'])
             ->createAdapter(ORMAdapter::class, [
-                'entity' =>Entity\ Show::class,
+                'entity' =>Entity\Show::class,
                 'query' => function (QueryBuilder $builder) {
                     $builder
                         ->select('show')
@@ -340,6 +340,68 @@ class MediaManagerController extends ControllerBase
         return $this->redirectToRoute('media_manager_shows_show', [
             'id' => $showId
         ]);
+    }
+
+    /**
+     * @Route("/media-manager/topics", name="media_manager_topics")
+     * @Security("is_granted('ROLE_USER')")
+     *
+     * @param DataTableFactory $dataTableFactory
+     * @param Request $request
+     *
+     * @return Response
+     */
+    public function topics(DataTableFactory $dataTableFactory, Request $request) {
+        $table = $dataTableFactory->create()
+            ->add('name', TextColumn::class, ['label' => 'Name'])
+            ->add('parent', TextColumn::class, [
+                'label' => 'Parent',
+                'field' => 'parent.name',
+            ])
+            ->add('updated', DateTimeColumn::class, [
+                'label' => 'Updated (UTC)',
+                'format' => 'Y-m-d H:i:s',
+            ])
+            ->createAdapter(ORMAdapter::class, [
+                'entity' =>Entity\Topic::class,
+                'query' => function (QueryBuilder $builder) {
+                    $builder
+                        ->select('topic')
+                        ->addSelect('parent')
+                        ->from(Entity\Topic::class, 'topic')
+                        ->leftJoin('topic.parent', 'parent')
+                    ;
+                },
+            ])
+            ->addOrderBy('updated', DataTable::SORT_DESCENDING)
+            ->handleRequest($request);
+
+        if ($table->isCallback()) {
+            return $table->getResponse();
+        }
+
+        return $this->render('datatable.html.twig', [
+            'datatable' => $table,
+            'title' => 'Topics',
+            'update_route' => 'media_manager_topics_update',
+        ]);
+    }
+
+    /**
+     * @Route("/media-manager/topics/update", name="media_manager_topics_update")
+     * @Security("is_granted('ROLE_ADMIN')")
+     *
+     * @param MediaManagerApiClient $apiClient
+     *
+     * @return RedirectResponse
+     */
+    public function topics_update(MediaManagerApiClient $apiClient) {
+        if (!$apiClient->isConfigured()) {
+            throw new NotFoundHttpException(self::$notConfigured);
+        }
+        $stats = $apiClient->updateAllByEntityClass(Entity\Topic::class);
+        $this->flashUpdateStats($stats);
+        return $this->redirectToRoute('media_manager_topics');
     }
 
     /**

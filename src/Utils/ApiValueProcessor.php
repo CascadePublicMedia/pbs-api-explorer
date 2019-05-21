@@ -87,7 +87,6 @@ class ApiValueProcessor
     private function processArray(&$entity, $apiFieldName, $apiFieldValue) {
         switch ($apiFieldName) {
             case 'assets':
-
                 // Determine the entity type these assets are associated with.
                 try {
                     $reflect = new ReflectionClass($entity);
@@ -162,6 +161,39 @@ class ApiValueProcessor
             case 'captions':
             case 'chapters':
                 $this->processString($entity, $apiFieldName, $apiFieldValue);
+                break;
+            case 'children':
+                /** @var ArrayCollection $topics */
+                $topics = $this->entityManager
+                    ->getRepository(Entity\Topic::class)
+                    ->findAll();
+                $topics = new ArrayCollection($topics);
+
+                foreach ($apiFieldValue as $value) {
+                    $criteria = new Criteria(new Comparison(
+                        'id',
+                        '=',
+                        $value->id
+                    ));
+
+                    /** @var Entity\Topic $topic */
+                    $topic = $topics->matching($criteria)->first();
+
+                    if (!$topic) {
+                        $topic = new Entity\Topic();
+                        $topic->setId($value->id);
+                    }
+
+                    $topic->setName($value->name);
+                    $this->processString(
+                        $topic,
+                        'updated_at',
+                        $value->updated_at
+                    );
+                    $this->entityManager->merge($topic);
+
+                    $entity->addChild($topic);
+                }
                 break;
             case 'collections':
                 // TODO

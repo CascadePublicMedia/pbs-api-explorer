@@ -66,6 +66,13 @@ class MenuBuilderSubscriber implements EventSubscriberInterface
                 'fas fa-list'
             ));
             $media_manager->addChild(new MenuItemModel(
+                'media_manager_topics',
+                'Topics',
+                'media_manager_topics',
+                [],
+                'fas fa-list'
+            ));
+            $media_manager->addChild(new MenuItemModel(
                 'media_manager_assets',
                 'Assets',
                 'media_manager_assets',
