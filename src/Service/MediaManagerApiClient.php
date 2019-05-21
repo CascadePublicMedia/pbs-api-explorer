@@ -3,12 +3,21 @@
 namespace CascadePublicMedia\PbsApiExplorer\Service;
 
 use CascadePublicMedia\PbsApiExplorer\Entity\Asset;
+use CascadePublicMedia\PbsApiExplorer\Entity\ChangelogEntry;
 use CascadePublicMedia\PbsApiExplorer\Entity\Episode;
 use CascadePublicMedia\PbsApiExplorer\Entity\Setting;
 use CascadePublicMedia\PbsApiExplorer\Entity\Show;
 use CascadePublicMedia\PbsApiExplorer\Utils\ApiValueProcessor;
 use CascadePublicMedia\PbsApiExplorer\Utils\FieldMapper;
+use DateInterval;
+use DateTime;
+use Doctrine\Common\Collections\Criteria;
+use Doctrine\Common\Collections\Expr\Comparison;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Cache\Adapter\AdapterInterface;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Contracts\Cache\ItemInterface;
 
 /**
  * Class MediaManagerApiClient
@@ -33,7 +42,9 @@ class MediaManagerApiClient extends PbsApiClientBase
      * @param FieldMapper $fieldMapper
      * @param ApiValueProcessor $apiValueProcessor
      */
-    public function __construct(EntityManagerInterface $entityManager, FieldMapper $fieldMapper, ApiValueProcessor $apiValueProcessor)
+    public function __construct(EntityManagerInterface $entityManager,
+                                FieldMapper $fieldMapper,
+                                ApiValueProcessor $apiValueProcessor)
     {
         parent::__construct($entityManager, $fieldMapper, $apiValueProcessor);
 
@@ -108,5 +119,83 @@ class MediaManagerApiClient extends PbsApiClientBase
                 ['force' => TRUE]
             );
         }
+    }
+
+    /**
+     * Add new change log entries available since the last update.
+     *
+     * @return array
+     *   Stats about the operation (adds only).
+     *
+     * @throws \Exception
+     */
+    public function updateChangelog() {
+        $date_format = ApiValueProcessor::MEDIA_MANAGER_API_DATE_FORMAT;
+
+        // The changelog endpoint receives thousands of entries per
+        // hour, so this update process is limited to two hours.
+        $now_pt2h = new DateTime();
+        $now_pt2h->sub(new DateInterval('PT2H'));
+        $entity = $this->entityManager
+            ->getRepository(ChangelogEntry::class)
+            ->findLastUpdated();
+        if ($entity && $entity->getTimestamp() > $now_pt2h) {
+            $since = $entity->getTimestamp();
+        }
+        else {
+            $since = $now_pt2h;
+        }
+
+        $added = 0;
+        $page = 1;
+        $config = self::createQueryConfig([
+            'queryParameters' => [
+                'since' => $since->format($date_format)
+            ]
+        ]);
+
+        while(true) {
+            $response = $this->client->get(ChangelogEntry::ENDPOINT, [
+                'query' => $config['queryParameters'] + ['page' => $page],
+            ]);
+
+            if ($response->getStatusCode() != 200) {
+                throw new HttpException($response->getStatusCode());
+            }
+
+            $json = json_decode($response->getBody());
+            $items = $json->data;
+
+            foreach ($items as $item) {
+                /** @var ChangelogEntry $entity */
+                $entity = new ChangelogEntry();
+                $entity->setType($item->type);
+                $entity->setResourceId($item->id);
+
+                // Iterate and update all entity attributes from the API
+                // record.
+                foreach ($item->attributes as $field_name => $value) {
+                    $this->apiValueProcessor->process(
+                        $entity,
+                        $field_name,
+                        $value
+                    );
+                }
+
+                $this->entityManager->persist($entity);
+                $added++;
+            }
+
+            if ($page = $this->getNextPage($json)) {
+                continue;
+            }
+
+            break;
+        }
+
+        // Flush any changes.
+        $this->entityManager->flush();
+
+        return ['add' => $added, 'update' => 0, 'noop' => 0];
     }
 }

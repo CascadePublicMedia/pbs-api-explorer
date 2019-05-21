@@ -257,18 +257,8 @@ class PbsApiClientBase
                 $stats[$op]++;
             }
 
-            // If another page is available, continue to it. Otherwise, end
-            // execution of this loop.
-            if (isset($json->links) && isset($json->links->next)
-                && !empty($json->links->next)) {
-                $query_string = parse_url($json->links->next, PHP_URL_QUERY);
-                if ($query_string) {
-                    parse_str($query_string, $query);
-                    if (isset($query['page'])) {
-                        $page = $query['page'];
-                        continue;
-                    }
-                }
+            if ($page = $this->getNextPage($json)) {
+                continue;
             }
 
             break;
@@ -278,6 +268,31 @@ class PbsApiClientBase
         $this->entityManager->flush();
 
         return $stats;
+    }
+
+    /**
+     * Searches a response for a link containing next page information.
+     *
+     * @param $json
+     *   A full response from the API.
+     *
+     * @return bool|mixed
+     *   The number of the next page, FALSE otherwise.
+     */
+    protected function getNextPage(&$json) {
+        // If another page is available, continue to it. Otherwise, end
+        // execution of this loop.
+        if (isset($json->links) && isset($json->links->next)
+            && !empty($json->links->next)) {
+            $query_string = parse_url($json->links->next, PHP_URL_QUERY);
+            if ($query_string) {
+                parse_str($query_string, $query);
+                if (isset($query['page'])) {
+                    return $query['page'];
+                }
+            }
+        }
+        return FALSE;
     }
 
     /**

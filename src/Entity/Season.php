@@ -91,9 +91,12 @@ class Season
 
     public function __toString()
     {
-        $title = $this->title;
-        if (!$title) {
-            $title = "Season {$this->ordinal}";
+        $title = "{$this->show}: ";
+        if ($this->title) {
+            $title .= $this->title;
+        }
+        else {
+            $title .= "Season {$this->ordinal}";
         }
 
         return $title;

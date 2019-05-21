@@ -2,13 +2,7 @@
 
 namespace CascadePublicMedia\PbsApiExplorer\Controller;
 
-use CascadePublicMedia\PbsApiExplorer\Entity\Asset;
-use CascadePublicMedia\PbsApiExplorer\Entity\Episode;
-use CascadePublicMedia\PbsApiExplorer\Entity\Franchise;
-use CascadePublicMedia\PbsApiExplorer\Entity\Genre;
-use CascadePublicMedia\PbsApiExplorer\Entity\Image;
-use CascadePublicMedia\PbsApiExplorer\Entity\Season;
-use CascadePublicMedia\PbsApiExplorer\Entity\Show;
+use CascadePublicMedia\PbsApiExplorer\Entity;
 use CascadePublicMedia\PbsApiExplorer\Service\MediaManagerApiClient;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
@@ -64,7 +58,7 @@ class MediaManagerController extends ControllerBase
             ->add('slug', TextColumn::class, ['label' => 'Slug'])
             ->add('created', DateTimeColumn::class, ['label' => 'Created'])
             ->add('updated', DateTimeColumn::class, ['label' => 'Updated'])
-            ->createAdapter(ORMAdapter::class, ['entity' => Genre::class])
+            ->createAdapter(ORMAdapter::class, ['entity' => Entity\Genre::class])
             ->addOrderBy('title', DataTable::SORT_ASCENDING)
             ->handleRequest($request);
 
@@ -91,7 +85,7 @@ class MediaManagerController extends ControllerBase
         if (!$apiClient->isConfigured()) {
             throw new NotFoundHttpException(self::$notConfigured);
         }
-        $stats = $apiClient->updateAllByEntityClass(Genre::class);
+        $stats = $apiClient->updateAllByEntityClass(Entity\Genre::class);
         $this->flashUpdateStats($stats);
         return $this->redirectToRoute('media_manager_genres');
     }
@@ -117,12 +111,12 @@ class MediaManagerController extends ControllerBase
             ])
             ->add('updated', DateTimeColumn::class, ['label' => 'Updated'])
             ->createAdapter(ORMAdapter::class, [
-                'entity' => Franchise::class,
+                'entity' => Entity\Franchise::class,
                 'query' => function (QueryBuilder $builder) {
                     $builder
                         ->select('franchise')
                         ->addSelect('genre')
-                        ->from(Franchise::class, 'franchise')
+                        ->from(Entity\Franchise::class, 'franchise')
                         ->leftJoin('franchise.genre', 'genre')
                     ;
                 },
@@ -154,7 +148,7 @@ class MediaManagerController extends ControllerBase
             throw new NotFoundHttpException(self::$notConfigured);
         }
         $stats = $apiClient->updateAllByEntityClass(
-            Franchise::class,
+            Entity\Franchise::class,
             ['queryParameters' => ['fetch-related' => TRUE]]
         );
         $this->flashUpdateStats($stats);
@@ -191,13 +185,13 @@ class MediaManagerController extends ControllerBase
             ])
             ->add('updated', DateTimeColumn::class, ['label' => 'Updated'])
             ->createAdapter(ORMAdapter::class, [
-                'entity' => Show::class,
+                'entity' =>Entity\ Show::class,
                 'query' => function (QueryBuilder $builder) {
                     $builder
                         ->select('show')
                         ->addSelect('franchise')
                         ->addSelect('genre')
-                        ->from(Show::class, 'show')
+                        ->from(Entity\Show::class, 'show')
                         ->leftJoin('show.franchise', 'franchise')
                         ->leftJoin('show.genre', 'genre')
                     ;
@@ -231,7 +225,7 @@ class MediaManagerController extends ControllerBase
             throw new NotFoundHttpException(self::$notConfigured);
         }
         $stats = $apiClient->updateAllByEntityClass(
-            Show::class,
+            Entity\Show::class,
             ['queryParameters' => ['fetch-related' => TRUE]]
         );
         $this->flashUpdateStats($stats);
@@ -249,7 +243,7 @@ class MediaManagerController extends ControllerBase
      */
     public function show($id, EntityManagerInterface $entityManager) {
         $show = $entityManager
-            ->getRepository(Show::class)
+            ->getRepository(Entity\Show::class)
             ->find($id);
 
         if (!$show) {
@@ -279,7 +273,7 @@ class MediaManagerController extends ControllerBase
             ->add('ordinal', TextColumn::class, ['label' => 'Ordinal'])
             ->add('title', TextColumn::class, ['label' => 'Title'])
             ->add('updated', DateTimeColumn::class, ['label' => 'Updated'])
-            ->createAdapter(ORMAdapter::class, ['entity' => Season::class])
+            ->createAdapter(ORMAdapter::class, ['entity' => Entity\Season::class])
             ->addOrderBy('show', DataTable::SORT_ASCENDING)
             ->addOrderBy('ordinal', DataTable::SORT_DESCENDING)
             ->handleRequest($request);
@@ -315,7 +309,7 @@ class MediaManagerController extends ControllerBase
                 'field' => 'show.title',
             ])
             ->add('updated', DateTimeColumn::class, ['label' => 'Updated'])
-            ->createAdapter(ORMAdapter::class, ['entity' => Episode::class])
+            ->createAdapter(ORMAdapter::class, ['entity' => Entity\Episode::class])
             ->addOrderBy('show', DataTable::SORT_ASCENDING)
             ->handleRequest($request);
 
@@ -396,7 +390,7 @@ class MediaManagerController extends ControllerBase
                         ->addSelect('show')
                         ->addSelect('season')
                         ->addSelect('episode')
-                        ->from(Asset::class, 'asset')
+                        ->from(Entity\Asset::class, 'asset')
                         ->leftJoin('asset.franchise', 'franchise')
                         ->leftJoin('asset.show', 'show')
                         ->leftJoin('asset.season', 'season')
@@ -456,7 +450,7 @@ class MediaManagerController extends ControllerBase
             ])
             ->add('updated', DateTimeColumn::class, ['label' => 'Updated'])
             ->createAdapter(ORMAdapter::class, [
-                'entity' => Show::class,
+                'entity' => Entity\Show::class,
                 'query' => function (QueryBuilder $builder) {
                     $builder
                         ->select('image')
@@ -464,7 +458,7 @@ class MediaManagerController extends ControllerBase
                         ->addSelect('show')
                         ->addSelect('asset')
                         ->addSelect('station')
-                        ->from(Image::class, 'image')
+                        ->from(Entity\Image::class, 'image')
                         ->leftJoin('image.franchise', 'franchise')
                         ->leftJoin('image.show', 'show')
                         ->leftJoin('image.asset', 'asset')
@@ -483,5 +477,136 @@ class MediaManagerController extends ControllerBase
             'datatable' => $table,
             'title' => 'Images',
         ]);
+    }
+
+    /**
+     * @Route("/media-manager/changelog", name="media_manager_changelog")
+     * @Security("is_granted('ROLE_USER')")
+     *
+     * @param DataTableFactory $dataTableFactory
+     * @param Request $request
+     * @param EntityManagerInterface $entityManager
+     *
+     * @return Response
+     */
+    public function changelog(DataTableFactory $dataTableFactory,
+                              Request $request,
+                              EntityManagerInterface $entityManager) {
+        $table = $dataTableFactory->create()
+            ->add('activity', TextColumn::class, ['label' => 'Change type'])
+            ->add('type', TextColumn::class, ['label' => 'Entity type'])
+            ->add('resourceId', TextColumn::class, [
+                'label' => 'Entity',
+                'data' => function($context, $value) use ($entityManager) {
+                    return self::renderChangelogEntity($context, $value, $entityManager);
+                },
+                'raw' => TRUE,
+            ])
+            ->add('updatedFields', TextColumn::class, [
+                'label' => 'Updated fields',
+                'data' => function($context, $value) {
+                    return self::renderChangelogUpdatedFields($context, $value);
+                },
+                'raw' => TRUE,
+            ])
+            ->add('timestamp', DateTimeColumn::class, [
+                'label' => 'Timestamp (UTC)',
+                'format' => 'Y-m-d H:i:s',
+            ])
+            ->createAdapter(ORMAdapter::class, [
+                'entity' => Entity\ChangelogEntry::class
+            ])
+            ->addOrderBy('timestamp', DataTable::SORT_DESCENDING)
+            ->handleRequest($request);
+
+        if ($table->isCallback()) {
+            return $table->getResponse();
+        }
+
+        return $this->render('datatable.html.twig', [
+            'datatable' => $table,
+            'title' => 'Changelog',
+            'update_route' => 'media_manager_changelog_update',
+        ]);
+    }
+
+    /**
+     * Create a string value for a locally synced resource in a Changelog.
+     *
+     * @param Entity\ChangelogEntry $context
+     *   Changelog entity data
+     * @param string $value
+     *   Resource ID from the Changelog entry.
+     * @param EntityManagerInterface $entityManager
+     *   The Entity Manager service.
+     *
+     * @return string
+     *   An entity title if the entity is available locally, the resource ID
+     *   otherwise.
+     */
+    private static function renderChangelogEntity(Entity\ChangelogEntry $context, $value, EntityManagerInterface $entityManager) {
+        $str = $value;
+        if ($value) {
+            $type = $context->getType();
+            if ($type == 'remoteasset') {
+                $type = 'RemoteAsset';
+            }
+            else {
+                $type = ucfirst($type);
+            }
+            $class = sprintf(
+                'CascadePublicMedia\PbsApiExplorer\Entity\%s',
+                $type
+            );
+            if (class_exists($class)) {
+                $entity = $entityManager->getRepository($class)->find($value);
+                if ($entity) {
+                    $str = sprintf('<strong>%s</strong>', (string) $entity);
+                }
+            }
+        }
+        return $str;
+    }
+
+    /**
+     * Create a list out of an array of updated fields names for a Changelog.
+     *
+     * @param $context
+     *   Changelog entity data
+     * @param array $value
+     *   Value of the "updated_fields" Changelog entry.
+     *
+     * @return string
+     *   An HTML list of all array values, empty string otherwise.
+     */
+    private static function renderChangelogUpdatedFields(Entity\ChangelogEntry $context, array $value) {
+        $str = '';
+        if (!empty($value)) {
+            $str = '<ul>';
+            foreach ($value as $field) {
+                $str .= sprintf('<li><code>%s</code></li>', $field);
+            }
+            $str .= '</ul>';
+        }
+        return $str;
+    }
+
+    /**
+     * @Route("/media-manager/changelog/update", name="media_manager_changelog_update")
+     * @Security("is_granted('ROLE_ADMIN')")
+     *
+     * @param MediaManagerApiClient $apiClient
+     *
+     * @return RedirectResponse
+     *
+     * @throws \Exception
+     */
+    public function changelog_update(MediaManagerApiClient $apiClient) {
+        if (!$apiClient->isConfigured()) {
+            throw new NotFoundHttpException(self::$notConfigured);
+        }
+        $stats = $apiClient->updateChangelog();
+        $this->flashUpdateStats($stats);
+        return $this->redirectToRoute('media_manager_changelog');
     }
 }

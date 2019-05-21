@@ -17,6 +17,7 @@ class FieldMapper
      * API -> Entity field name mappings.
      */
     private const FIELD_MAP = [
+        'action' => 'activity',
         'city' => 'addressCity',
         'country_code' => 'addressCountryCode',
         'created_at' => 'created',

@@ -42,13 +42,14 @@ user created during setup.
     * [~~Assets~~](https://docs.pbs.org/display/CDA/Assets)
     * [Topics](https://docs.pbs.org/display/CDA/Topics) (???)
     * ~~Images~~
+    * [~~Changelog~~](https://docs.pbs.org/display/CDA/Changelog+Endpoint)
 * [~~**TV Schedules Service**~~](https://docs.pbs.org/display/tvsapi)
     * ~~Listings~~
     * ~~Headends~~
     * ~~Feeds~~
     * ~~Programs list~~
-* [**Membership Vault**](https://docs.pbs.org/display/MV/Membership+Vault+API)
-    * Memberships
+* [~~**Membership Vault**~~](https://docs.pbs.org/display/MV/Membership+Vault+API)
+    * ~~Memberships~~
     
 ## Future TODOs
 

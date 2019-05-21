@@ -26,8 +26,8 @@ class ApiValueProcessor
     /**
      * Media Manager uses two different date formats seemingly interchangeably.
      */
-    private const MEDIA_MANAGER_API_DATE_FORMAT = 'Y-m-d\TH:i:s.u\Z';
-    private const MEDIA_MANAGER_API_DATE_FORMAT_ALT = 'Y-m-d\TH:i:s\Z';
+    public const MEDIA_MANAGER_API_DATE_FORMAT = 'Y-m-d\TH:i:s.u\Z';
+    public const MEDIA_MANAGER_API_DATE_FORMAT_ALT = 'Y-m-d\TH:i:s\Z';
 
     /**
      * @var EntityManagerInterface
@@ -335,6 +335,9 @@ class ApiValueProcessor
             case 'topics':
                 // TODO
                 break;
+            case 'updated_fields':
+                $entity->setUpdatedFields($apiFieldValue);
+                break;
         }
     }
 
@@ -515,6 +518,7 @@ class ApiValueProcessor
                 case 'grace_period':
                 case 'start':
                 case 'start_date':
+                case 'timestamp':
                 case 'update_date':
                 case 'updated_at':
                     $updatedFieldValue = self::processDateTimeString($apiFieldValue);
