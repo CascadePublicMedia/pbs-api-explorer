@@ -365,7 +365,23 @@ class ApiValueProcessor
                 }
                 break;
             case 'topics':
-                // TODO
+                /** @var ArrayCollection $topics */
+                $topics = $this->entityManager
+                    ->getRepository(Entity\Topic::class)
+                    ->findAll();
+                $topics = new ArrayCollection($topics);
+                foreach ($apiFieldValue as $value) {
+                    $criteria = new Criteria(new Comparison(
+                        'id',
+                        '=',
+                        $value->id
+                    ));
+                    /** @var Entity\Topic $topic */
+                    $topic = $topics->matching($criteria)->first();
+                    if ($topic) {
+                        $entity->addTopic($topic);
+                    }
+                }
                 break;
             case 'updated_fields':
                 $entity->setUpdatedFields($apiFieldValue);

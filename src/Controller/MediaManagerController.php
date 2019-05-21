@@ -167,9 +167,8 @@ class MediaManagerController extends ControllerBase
      */
     public function shows(DataTableFactory $dataTableFactory, Request $request) {
         $table = $dataTableFactory->create()
-            ->add('title', TextColumn::class, [
-                'label' => 'Title',
-            ])
+            ->add('id', TextColumn::class, ['label' => 'ID'])
+            ->add('title', TextColumn::class, ['label' => 'Title'])
             ->add('slug', TextColumn::class, ['label' => 'Slug'])
             ->add('franchise', TextColumn::class, [
                 'data' => '<em>None</em>',

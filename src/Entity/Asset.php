@@ -178,11 +178,6 @@ class Asset
     private $availabilities;
 
     /**
-     * @var object
-     */
-    private $parent;
-
-    /**
      * @ORM\OneToMany(
      *     targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\Image",
      *     mappedBy="asset",
@@ -230,6 +225,11 @@ class Asset
      */
     private $relatedPromos;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\Topic", inversedBy="assets")
+     */
+    private $topics;
+
     public function __construct()
     {
         $this->platforms = new ArrayCollection();
@@ -238,6 +238,7 @@ class Asset
         $this->countries = new ArrayCollection();
         $this->tags = new ArrayCollection();
         $this->relatedPromos = new ArrayCollection();
+        $this->topics = new ArrayCollection();
     }
 
     public function __toString()
@@ -765,6 +766,32 @@ class Asset
     {
         if ($this->relatedPromos->contains($relatedPromo)) {
             $this->relatedPromos->removeElement($relatedPromo);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Topic[]
+     */
+    public function getTopics(): Collection
+    {
+        return $this->topics;
+    }
+
+    public function addTopic(Topic $topic): self
+    {
+        if (!$this->topics->contains($topic)) {
+            $this->topics[] = $topic;
+        }
+
+        return $this;
+    }
+
+    public function removeTopic(Topic $topic): self
+    {
+        if ($this->topics->contains($topic)) {
+            $this->topics->removeElement($topic);
         }
 
         return $this;

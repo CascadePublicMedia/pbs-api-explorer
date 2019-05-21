@@ -50,9 +50,15 @@ class Topic
      */
     private $children;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="CascadePublicMedia\PbsApiExplorer\Entity\Asset", mappedBy="topics")
+     */
+    private $assets;
+
     public function __construct()
     {
         $this->children = new ArrayCollection();
+        $this->assets = new ArrayCollection();
     }
 
     public function __toString()
@@ -134,6 +140,34 @@ class Topic
             if ($child->getParent() === $this) {
                 $child->setParent(null);
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Asset[]
+     */
+    public function getAssets(): Collection
+    {
+        return $this->assets;
+    }
+
+    public function addAsset(Asset $asset): self
+    {
+        if (!$this->assets->contains($asset)) {
+            $this->assets[] = $asset;
+            $asset->addTopic($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAsset(Asset $asset): self
+    {
+        if ($this->assets->contains($asset)) {
+            $this->assets->removeElement($asset);
+            $asset->removeTopic($this);
         }
 
         return $this;
