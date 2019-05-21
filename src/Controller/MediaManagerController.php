@@ -382,7 +382,7 @@ class MediaManagerController extends ControllerBase
             ])
             ->add('updated', DateTimeColumn::class, ['label' => 'Updated'])
             ->createAdapter(ORMAdapter::class, [
-                'entity' => Show::class,
+                'entity' => Entity\Show::class,
                 'query' => function (QueryBuilder $builder) {
                     $builder
                         ->select('asset')
@@ -561,7 +561,11 @@ class MediaManagerController extends ControllerBase
             if (class_exists($class)) {
                 $entity = $entityManager->getRepository($class)->find($value);
                 if ($entity) {
-                    $str = sprintf('<strong>%s</strong>', (string) $entity);
+                    $str = sprintf(
+                        '<strong>%s</strong><br/><code>%s</code>',
+                        (string) $entity,
+                        $value
+                    );
                 }
             }
         }
@@ -580,14 +584,16 @@ class MediaManagerController extends ControllerBase
      *   An HTML list of all array values, empty string otherwise.
      */
     private static function renderChangelogUpdatedFields(Entity\ChangelogEntry $context, array $value) {
-        $str = '';
-        if (!empty($value)) {
-            $str = '<ul>';
-            foreach ($value as $field) {
-                $str .= sprintf('<li><code>%s</code></li>', $field);
-            }
-            $str .= '</ul>';
+        if (empty($value)) {
+            return '';
         }
+
+        $str = '<ul>';
+        foreach ($value as $field) {
+            $str .= sprintf('<li><code>%s</code></li>', $field);
+        }
+        $str .= '</ul>';
+
         return $str;
     }
 
