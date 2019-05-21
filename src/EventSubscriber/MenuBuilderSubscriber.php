@@ -59,34 +59,6 @@ class MenuBuilderSubscriber implements EventSubscriberInterface
                 'fas fa-video'
             );
             $media_manager->addChild(new MenuItemModel(
-                'media_manager_genres',
-                'Genres',
-                'media_manager_genres',
-                [],
-                'fas fa-list'
-            ));
-            $media_manager->addChild(new MenuItemModel(
-                'media_manager_topics',
-                'Topics',
-                'media_manager_topics',
-                [],
-                'fas fa-list'
-            ));
-            $media_manager->addChild(new MenuItemModel(
-                'media_manager_assets',
-                'Assets',
-                'media_manager_assets',
-                [],
-                'fas fa-list'
-            ));
-            $media_manager->addChild(new MenuItemModel(
-                'media_manager_images',
-                'Images',
-                'media_manager_images',
-                [],
-                'fas fa-list'
-            ));
-            $media_manager->addChild(new MenuItemModel(
                 'media_manager_franchises',
                 'Franchises',
                 'media_manager_franchises',
@@ -121,6 +93,50 @@ class MenuBuilderSubscriber implements EventSubscriberInterface
                 [],
                 'fas fa-bullhorn'
             ));
+            $media_manager_assets = new MenuItemModel(
+                'media_manager',
+                'Assets',
+                'media_manager',
+                [],
+                'fas fa-link'
+            );
+            $media_manager_assets->addChild(new MenuItemModel(
+                'media_manager_assets',
+                'Assets',
+                'media_manager_assets',
+                [],
+                'fas fa-list'
+            ));
+            $media_manager_assets->addChild(new MenuItemModel(
+                'media_manager_images',
+                'Images',
+                'media_manager_images',
+                [],
+                'fas fa-list'
+            ));
+            $media_manager->addChild($media_manager_assets);
+            $media_manager_metadata = new MenuItemModel(
+                'media_manager',
+                'Metadata',
+                'media_manager',
+                [],
+                'fas fa-tags'
+            );
+            $media_manager_metadata->addChild(new MenuItemModel(
+                'media_manager_genres',
+                'Genres',
+                'media_manager_genres',
+                [],
+                'fas fa-list'
+            ));
+            $media_manager_metadata->addChild(new MenuItemModel(
+                'media_manager_topics',
+                'Topics',
+                'media_manager_topics',
+                [],
+                'fas fa-list'
+            ));
+            $media_manager->addChild($media_manager_metadata);
             $event->addItem($media_manager);
 
             // Station Manager menu items.
