@@ -17,6 +17,11 @@ class ScheduleProgram
     public const ENDPOINT = 'programs';
 
     /**
+     * The human readable name for this class.
+     */
+    public const NAME = 'program';
+
+    /**
      * @ORM\Id()
      * @ORM\Column(type="guid")
      */

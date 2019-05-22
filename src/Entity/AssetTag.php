@@ -12,6 +12,11 @@ use Doctrine\ORM\Mapping as ORM;
 class AssetTag
 {
     /**
+     * The human readable name for this class.
+     */
+    public const NAME = 'tag';
+
+    /**
      * @ORM\Id()
      * @ORM\Column(type="string")
      */

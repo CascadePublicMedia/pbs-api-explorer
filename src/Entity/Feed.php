@@ -12,6 +12,11 @@ use Doctrine\ORM\Mapping as ORM;
 class Feed
 {
     /**
+     * The human readable name for this class.
+     */
+    public const NAME = 'feed';
+
+    /**
      * @ORM\Id()
      * @ORM\Column(type="guid")
      */

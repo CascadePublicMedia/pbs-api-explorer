@@ -10,6 +10,11 @@ use Doctrine\ORM\Mapping as ORM;
 class AssetAvailability
 {
     /**
+     * The human readable name for this class.
+     */
+    public const NAME = 'availability';
+
+    /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")

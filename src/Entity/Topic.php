@@ -17,6 +17,11 @@ class Topic
     public const ENDPOINT = 'topics';
 
     /**
+     * The human readable name for this class.
+     */
+    public const NAME = 'topic';
+
+    /**
      * @ORM\Id()
      * @ORM\Column(type="guid")
      */

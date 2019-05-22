@@ -17,6 +17,11 @@ class Episode
     public const ENDPOINT = 'episodes';
 
     /**
+     * The human readable name for this class.
+     */
+    public const NAME = 'episode';
+
+    /**
      * @ORM\Id()
      * @ORM\Column(type="guid")
      */

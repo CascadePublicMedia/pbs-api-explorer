@@ -12,6 +12,11 @@ use Doctrine\ORM\Mapping as ORM;
 class PbsProfile
 {
     /**
+     * The human readable name for this class.
+     */
+    public const NAME = 'account';
+
+    /**
      * @ORM\Id()
      * @ORM\Column(type="guid")
      */

@@ -10,6 +10,11 @@ use Doctrine\ORM\Mapping as ORM;
 class GeoAvailabilityCountry
 {
     /**
+     * The human readable name for this class.
+     */
+    public const NAME = 'country';
+
+    /**
      * @ORM\Id()
      * @ORM\Column(type="guid")
      */

@@ -17,6 +17,11 @@ class Genre
     public const ENDPOINT = 'genres';
 
     /**
+     * The human readable name for this class.
+     */
+    public const NAME = 'genre';
+
+    /**
      * @ORM\Id
      * @ORM\Column(type="guid")
      */

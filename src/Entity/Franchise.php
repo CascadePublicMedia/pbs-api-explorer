@@ -17,6 +17,11 @@ class Franchise
     public const ENDPOINT = 'franchises';
 
     /**
+     * The human readable name for this class.
+     */
+    public const NAME = 'franchise';
+
+    /**
      * @ORM\Id()
      * @ORM\Column(type="guid")
      */

@@ -10,6 +10,11 @@ use Doctrine\ORM\Mapping as ORM;
 class Image
 {
     /**
+     * The human readable name for this class.
+     */
+    public const NAME = 'image';
+
+    /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")

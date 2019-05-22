@@ -12,6 +12,11 @@ use Doctrine\ORM\Mapping as ORM;
 class Audience
 {
     /**
+     * The human readable name for this class.
+     */
+    public const NAME = 'audience';
+
+    /**
      * @ORM\Id()
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")

@@ -425,21 +425,12 @@ class MediaManagerController extends ControllerBase
                     'preview' => 'Preview',
                 ]
             ])
-            ->add('franchise', TextColumn::class, [
-                'field' => 'franchise.title',
-                'label' => 'Franchise',
-            ])
-            ->add('show', TextColumn::class, [
-                'field' => 'show.title',
-                'label' => 'Show',
-            ])
-            ->add('season', TextColumn::class, [
-                'field' => 'season.title',
-                'label' => 'Season',
-            ])
-            ->add('episode', TextColumn::class, [
-                'field' => 'episode.title',
-                'label' => 'Episode',
+            ->add('id', TextColumn::class, [
+                'label' => 'Parent',
+                'data' => function($context, $value) {
+                    return $this->renderAssetParentEntity($context, $value);
+                },
+                'raw' => TRUE,
             ])
             ->add('updated', DateTimeColumn::class, ['label' => 'Updated'])
             ->createAdapter(ORMAdapter::class, [
@@ -470,6 +461,48 @@ class MediaManagerController extends ControllerBase
             'datatable' => $table,
             'title' => 'Assets',
         ]);
+    }
+
+    /**
+     * Create a (potentially linked) string representing an Asset's parent.
+     *
+     * @param Entity\Asset $context
+     *   The Asset entity being evaluated.
+     * @param string $value
+     *   The Asset ID (unused).
+     *
+     * @return string
+     *   A string with the parent entity's name, otherwise 'Unknown'.
+     */
+    private function renderAssetParentEntity(Entity\Asset $context, $value) {
+        if ($context->getFranchise()) {
+            $entity = $context->getFranchise();
+            $str = (string) $entity;
+        }
+        elseif ($context->getShow()) {
+            $entity = $context->getShow();
+            $url = $this->generateUrl(
+                'media_manager_shows_show',
+                ['id' => $entity->getId()
+            ]);
+            $str = sprintf('<a href="%s">%s</a>', $url, (string) $entity);
+        }
+        elseif ($context->getSeason()) {
+            $entity = $context->getSeason();
+            $str = (string) $entity;
+        }
+        elseif ($context->getEpisode()) {
+            $entity = $context->getEpisode();
+            $str = (string) $entity;
+        }
+        else {
+            return 'Unknown';
+        }
+        return sprintf(
+            '%s <span class="entity-type">%s</span>',
+            $str,
+            $entity::NAME
+        );
     }
 
     /**

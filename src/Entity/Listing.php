@@ -10,6 +10,11 @@ use Doctrine\ORM\Mapping as ORM;
 class Listing
 {
     /**
+     * The human readable name for this class.
+     */
+    public const NAME = 'listing';
+
+    /**
      * @ORM\Id()
      * @ORM\Column(type="guid")
      */

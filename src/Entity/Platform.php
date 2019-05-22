@@ -12,6 +12,11 @@ use Doctrine\ORM\Mapping as ORM;
 class Platform
 {
     /**
+     * The human readable name for this class.
+     */
+    public const NAME = 'platform';
+
+    /**
      * @ORM\Id()
      * @ORM\Column(type="guid")
      */

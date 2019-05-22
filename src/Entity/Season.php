@@ -17,6 +17,11 @@ class Season
     public const ENDPOINT = 'seasons';
 
     /**
+     * The human readable name for this class.
+     */
+    public const NAME = 'season';
+
+    /**
      * @ORM\Id()
      * @ORM\Column(type="guid")
      */

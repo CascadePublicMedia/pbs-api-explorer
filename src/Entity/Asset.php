@@ -19,6 +19,11 @@ class Asset
     public const ENDPOINT = 'assets';
 
     /**
+     * The human readable name for this class.
+     */
+    public const NAME = 'asset';
+
+    /**
      * @ORM\Id()
      * @ORM\Column(type="guid")
      */

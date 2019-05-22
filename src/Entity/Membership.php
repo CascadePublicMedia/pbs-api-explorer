@@ -10,6 +10,11 @@ use Doctrine\ORM\Mapping as ORM;
 class Membership
 {
     /**
+     * The human readable name for this class.
+     */
+    public const NAME = 'membership';
+
+    /**
      * @ORM\Id()
      * @ORM\Column(type="string")
      */

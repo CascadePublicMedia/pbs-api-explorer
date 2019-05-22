@@ -12,6 +12,11 @@ use Doctrine\ORM\Mapping as ORM;
 class Headend
 {
     /**
+     * The human readable name for this class.
+     */
+    public const NAME = 'channel';
+
+    /**
      * @ORM\Id()
      * @ORM\Column(type="guid")
      */

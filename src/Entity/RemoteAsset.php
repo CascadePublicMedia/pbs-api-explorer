@@ -12,6 +12,11 @@ use Doctrine\ORM\Mapping as ORM;
 class RemoteAsset
 {
     /**
+     * The human readable name for this class.
+     */
+    public const NAME = 'remote asset';
+
+    /**
      * @ORM\Id()
      * @ORM\Column(type="guid")
      */

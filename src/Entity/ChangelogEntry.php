@@ -10,6 +10,11 @@ use Doctrine\ORM\Mapping as ORM;
 class ChangelogEntry
 {
     /**
+     * The human readable name for this class.
+     */
+    public const NAME = 'changelog';
+
+    /**
      * The Media Manage API endpoint for this entity.
      */
     public const ENDPOINT = 'changelog';

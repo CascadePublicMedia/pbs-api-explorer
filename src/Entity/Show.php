@@ -17,6 +17,11 @@ class Show
     public const ENDPOINT = 'shows';
 
     /**
+     * The human readable name for this class.
+     */
+    public const NAME = 'show';
+
+    /**
      * @ORM\Id()
      * @ORM\Column(type="guid")
      */

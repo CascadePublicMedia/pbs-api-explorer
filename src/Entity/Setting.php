@@ -10,6 +10,11 @@ use Doctrine\ORM\Mapping as ORM;
 class Setting
 {
     /**
+     * The human readable name for this class.
+     */
+    public const NAME = 'setting';
+
+    /**
      * @ORM\Id()
      * @ORM\Column(type="string")
      */

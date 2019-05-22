@@ -17,6 +17,11 @@ class Station
     public const ENDPOINT = 'stations';
 
     /**
+     * The human readable name for this class.
+     */
+    public const NAME = 'station';
+
+    /**
      * @ORM\Id()
      * @ORM\Column(type="guid")
      */
