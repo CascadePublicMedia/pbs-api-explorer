@@ -2,15 +2,8 @@
 
 namespace CascadePublicMedia\PbsApiExplorer\Controller;
 
-use CascadePublicMedia\PbsApiExplorer\Entity\Headend;
-use CascadePublicMedia\PbsApiExplorer\Entity\Listing;
-use CascadePublicMedia\PbsApiExplorer\Entity\ScheduleProgram;
+use CascadePublicMedia\PbsApiExplorer\DataTable\Type as DataTableType;
 use CascadePublicMedia\PbsApiExplorer\Service\TvssApiClient;
-use Omines\DataTablesBundle\Adapter\Doctrine\ORMAdapter;
-use Omines\DataTablesBundle\Column\DateTimeColumn;
-use Omines\DataTablesBundle\Column\NumberColumn;
-use Omines\DataTablesBundle\Column\TextColumn;
-use Omines\DataTablesBundle\DataTable;
 use Omines\DataTablesBundle\DataTableFactory;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -51,18 +44,11 @@ class TvssController extends ControllerBase
      * @return Response
      */
     public function programs(DataTableFactory $dataTableFactory, Request $request) {
-        $table = $dataTableFactory->create()
-            ->add('programId', TextColumn::class, ['label' => 'ID'])
-            ->add('title', TextColumn::class, ['label' => 'Title'])
-            ->add('externalId', TextColumn::class, ['label' => 'External ID'])
-            ->createAdapter(ORMAdapter::class, ['entity' => ScheduleProgram::class])
-            ->addOrderBy('title', DataTable::SORT_ASCENDING)
+        $table = $dataTableFactory->createFromType(DataTableType\ProgramsTableType::class)
             ->handleRequest($request);
-
         if ($table->isCallback()) {
             return $table->getResponse();
         }
-
         return $this->render('datatable.html.twig', [
             'datatable' => $table,
             'title' => 'Programs',
@@ -98,17 +84,11 @@ class TvssController extends ControllerBase
      * @return Response
      */
     public function headends(DataTableFactory $dataTableFactory, Request $request) {
-        $table = $dataTableFactory->create()
-            ->add('id', TextColumn::class, ['label' => 'ID'])
-            ->add('name', TextColumn::class, ['label' => 'Name'])
-            ->createAdapter(ORMAdapter::class, ['entity' => Headend::class])
-            ->addOrderBy('name', DataTable::SORT_ASCENDING)
+        $table = $dataTableFactory->createFromType(DataTableType\HeadendsTableType::class)
             ->handleRequest($request);
-
         if ($table->isCallback()) {
             return $table->getResponse();
         }
-
         return $this->render('datatable.html.twig', [
             'datatable' => $table,
             'title' => 'Headends',
@@ -144,29 +124,11 @@ class TvssController extends ControllerBase
      * @return Response
      */
     public function listings(DataTableFactory $dataTableFactory, Request $request) {
-        $table = $dataTableFactory->create()
-            ->add('feed', TextColumn::class, [
-                'field' => 'feed.fullName',
-                'label' => 'Feed',
-            ])
-            ->add('date', DateTimeColumn::class, [
-                'label' => 'Date',
-                'format' => 'Y-m-d',
-            ])
-            ->add('startTime', TextColumn::class, ['label' => 'Start time'])
-            ->add('durationMinutes', NumberColumn::class, ['label' => 'Duration'])
-            ->add('title', TextColumn::class, ['label' => 'Title'])
-            ->add('episodeTitle', TextColumn::class, ['label' => 'Episode title'])
-            ->createAdapter(ORMAdapter::class, ['entity' => Listing::class])
-            ->addOrderBy('feed', DataTable::SORT_DESCENDING)
-            ->addOrderBy('date', DataTable::SORT_DESCENDING)
-            ->addOrderBy('startTime', DataTable::SORT_ASCENDING)
+        $table = $dataTableFactory->createFromType(DataTableType\ListingsTableType::class)
             ->handleRequest($request);
-
         if ($table->isCallback()) {
             return $table->getResponse();
         }
-
         return $this->render('datatable.html.twig', [
             'datatable' => $table,
             'title' => 'Listings',

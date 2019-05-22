@@ -2,14 +2,10 @@
 
 namespace CascadePublicMedia\PbsApiExplorer\Controller;
 
+use CascadePublicMedia\PbsApiExplorer\DataTable\Type as DataTableType;
 use CascadePublicMedia\PbsApiExplorer\Entity\Station;
 use CascadePublicMedia\PbsApiExplorer\Service\StationManagerApiClient;
 use CascadePublicMedia\PbsApiExplorer\Service\StationManagerPublicApiClient;
-use Omines\DataTablesBundle\Adapter\Doctrine\ORMAdapter;
-use Omines\DataTablesBundle\Column\BoolColumn;
-use Omines\DataTablesBundle\Column\DateTimeColumn;
-use Omines\DataTablesBundle\Column\TextColumn;
-use Omines\DataTablesBundle\DataTable;
 use Omines\DataTablesBundle\DataTableFactory;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -47,32 +43,13 @@ class StationManagerController extends ControllerBase
      *
      * @return Response
      */
-    public function stations(DataTableFactory $dataTableFactory, Request $request) {
-        $table = $dataTableFactory->create()
-            ->add('fullCommonName', TextColumn::class, ['label' => 'Name'])
-            ->add('shortCommonName', TextColumn::class, ['label' => 'Name (short)'])
-            ->add('callSign', TextColumn::class, ['label' => 'Call sign'])
-            ->add('pdp', BoolColumn::class, [
-                'label' => 'PDP',
-                'className' => 'text-center',
-                'trueValue' => '<i class="fas fa-check-circle text-green"></i>',
-                'falseValue' => '<i class="fas fa-times-circle text-red"></i>',
-            ])
-            ->add('passportEnabled', BoolColumn::class, [
-                'label' => 'Passport',
-                'className' => 'text-center',
-                'trueValue' => '<i class="fas fa-check-circle text-green"></i>',
-                'falseValue' => '<i class="fas fa-times-circle text-red"></i>',
-            ])
-            ->add('updated', DateTimeColumn::class, ['label' => 'Updated'])
-            ->createAdapter(ORMAdapter::class, ['entity' => Station::class])
-            ->addOrderBy('fullCommonName', DataTable::SORT_ASCENDING)
+    public function stations(DataTableFactory $dataTableFactory, Request $request)
+    {
+        $table = $dataTableFactory->createFromType(DataTableType\StationsTableType::class)
             ->handleRequest($request);
-
         if ($table->isCallback()) {
             return $table->getResponse();
         }
-
         return $this->render('station_manager/datatable.html.twig', [
             'datatable' => $table,
             'title' => 'Stations',
@@ -90,7 +67,8 @@ class StationManagerController extends ControllerBase
      *
      * @return RedirectResponse
      */
-    public function stations_update(StationManagerApiClient $apiClient) {
+    public function stations_update(StationManagerApiClient $apiClient)
+    {
         if (!$apiClient->isConfigured()) {
             throw new NotFoundHttpException(self::$notConfigured);
         }
@@ -107,7 +85,8 @@ class StationManagerController extends ControllerBase
      *
      * @return RedirectResponse
      */
-    public function stations_public_update(StationManagerPublicApiClient $apiClient) {
+    public function stations_public_update(StationManagerPublicApiClient $apiClient)
+    {
         $stats = $apiClient->updateAllByEntityClass(Station::class);
         $this->flashUpdateStats($stats);
         return $this->redirectToRoute('station_manager_stations');
