@@ -9,7 +9,7 @@ use Omines\DataTablesBundle\Column\TextColumn;
 use Omines\DataTablesBundle\DataTable;
 use Omines\DataTablesBundle\DataTableTypeInterface;
 
-class GenresTableType implements DataTableTypeInterface
+class GenresTableType extends DataTableTypeBase implements DataTableTypeInterface
 {
     /**
      * @param DataTable $dataTable
@@ -18,7 +18,13 @@ class GenresTableType implements DataTableTypeInterface
     public function configure(DataTable $dataTable, array $options)
     {
         $dataTable
-            ->add('title', TextColumn::class, ['label' => 'Title'])
+            ->add('title', TextColumn::class, [
+                'label' => 'Title',
+                'data' => function($context, $value) {
+                    return $this->renderGenreLink($context, $value);
+                },
+                'raw' => TRUE,
+            ])
             ->add('slug', TextColumn::class, ['label' => 'Slug'])
             ->add('created', DateTimeColumn::class, [
                 'label' => 'Created (UTC)',

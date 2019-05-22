@@ -248,7 +248,7 @@ class Asset
 
     public function __toString()
     {
-        return "{$this->title} ({$this->type})";
+        return $this->title;
     }
 
     public function getId(): ?string

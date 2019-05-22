@@ -6,6 +6,7 @@ use CascadePublicMedia\PbsApiExplorer\DataTable\Type as DataTableType;
 use CascadePublicMedia\PbsApiExplorer\Entity\Station;
 use CascadePublicMedia\PbsApiExplorer\Service\StationManagerApiClient;
 use CascadePublicMedia\PbsApiExplorer\Service\StationManagerPublicApiClient;
+use Doctrine\ORM\EntityManagerInterface;
 use Omines\DataTablesBundle\DataTableFactory;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -90,5 +91,27 @@ class StationManagerController extends ControllerBase
         $stats = $apiClient->updateAllByEntityClass(Station::class);
         $this->flashUpdateStats($stats);
         return $this->redirectToRoute('station_manager_stations');
+    }
+
+    /**
+     * @Route("/media-manager/stations/{id}", name="station_manager_stations_station")
+     * @Security("is_granted('ROLE_USER')")
+     *
+     * @param string $id
+     * @param EntityManagerInterface $entityManager
+     *
+     * @return Response
+     */
+    public function station($id, EntityManagerInterface $entityManager) {
+        $entity = $entityManager
+            ->getRepository(Station::class)
+            ->findEager($id);
+        if (!$entity) {
+            throw new NotFoundHttpException();
+        }
+        return $this->render('station_manager/station.html.twig', [
+            'entity' => $entity,
+            'type' => $entity::NAME,
+        ]);
     }
 }

@@ -20,7 +20,13 @@ class AssetsTableType extends DataTableTypeBase implements DataTableTypeInterfac
     public function configure(DataTable $dataTable, array $options)
     {
         $dataTable
-            ->add('title', TextColumn::class, ['label' => 'Title'])
+            ->add('title', TextColumn::class, [
+                'label' => 'Title',
+                'data' => function($context, $value) {
+                    return $this->renderAssetLink($context, $value);
+                },
+                'raw' => TRUE,
+            ])
             ->add('type', MapColumn::class, [
                 'default' => 'Unknown',
                 'field' => 'asset.type',
@@ -38,7 +44,10 @@ class AssetsTableType extends DataTableTypeBase implements DataTableTypeInterfac
                 },
                 'raw' => TRUE,
             ])
-            ->add('updated', DateTimeColumn::class, ['label' => 'Updated'])
+            ->add('updated', DateTimeColumn::class, [
+                'label' => 'Updated (UTC)',
+                'format' => 'Y-m-d H:i:s',
+            ])
             ->createAdapter(ORMAdapter::class, [
                 'entity' => Asset::class,
                 'query' => function (QueryBuilder $builder) {
@@ -71,32 +80,26 @@ class AssetsTableType extends DataTableTypeBase implements DataTableTypeInterfac
      *   A string with the parent entity's name, otherwise 'Unknown'.
      */
     private function renderParentEntity(Asset $context, $value) {
-        if ($context->getFranchise()) {
-            $entity = $context->getFranchise();
-            $str = (string) $entity;
+        if ($entity = $context->getFranchise()) {
+            $route = 'media_manager_franchises_franchise';
         }
-        elseif ($context->getShow()) {
-            $entity = $context->getShow();
-            $url = $this->router->generate(
-                'media_manager_shows_show',
-                ['id' => $entity->getId()]
-            );
-            $str = sprintf('<a href="%s">%s</a>', $url, (string) $entity);
+        elseif ($entity = $context->getShow()) {
+            $route = 'media_manager_shows_show';
         }
-        elseif ($context->getSeason()) {
-            $entity = $context->getSeason();
-            $str = (string) $entity;
+        elseif ($entity = $context->getSeason()) {
+            $route = 'media_manager_seasons_season';
         }
-        elseif ($context->getEpisode()) {
-            $entity = $context->getEpisode();
-            $str = (string) $entity;
+        elseif ($entity = $context->getEpisode()) {
+            $route = 'media_manager_episodes_episode';
         }
         else {
             return 'Unknown';
         }
+        $url = $this->router->generate($route, ['id' => $entity->getId()]);
         return sprintf(
-            '%s <span class="entity-type">%s</span>',
-            $str,
+            '<a href="%s">%s</a> <span class="entity-type">%s</span>',
+            $url,
+            (string) $entity,
             $entity::NAME
         );
     }

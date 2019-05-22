@@ -22,28 +22,21 @@ class ImagesTableType extends DataTableTypeBase implements DataTableTypeInterfac
             ->add('image', TextColumn::class, [
                 'field' => 'image.image',
                 'label' => 'Image',
-                'raw' => true,
-                'render' => '<a href="%s">Link</a>',
+                'data' => function($context, $value) {
+                    return $this->renderImageLink($context, $value);
+                },
+                'raw' => TRUE,
             ])
             ->add('profile', TextColumn::class, [
                 'field' => 'image.profile',
                 'label' => 'Profile',
             ])
-            ->add('franchise', TextColumn::class, [
-                'field' => 'franchise.title',
-                'label' => 'Franchise',
-            ])
-            ->add('show', TextColumn::class, [
-                'field' => 'show.title',
-                'label' => 'Show',
-            ])
-            ->add('asset', TextColumn::class, [
-                'field' => 'asset.title',
-                'label' => 'Asset',
-            ])
-            ->add('station', TextColumn::class, [
-                'field' => 'station.fullCommonName',
-                'label' => 'Station',
+            ->add('id', TextColumn::class, [
+                'label' => 'Parent',
+                'data' => function($context, $value) {
+                    return $this->renderParentEntity($context, $value);
+                },
+                'raw' => TRUE,
             ])
             ->add('updated', DateTimeColumn::class, ['label' => 'Updated'])
             ->createAdapter(ORMAdapter::class, [
@@ -64,5 +57,41 @@ class ImagesTableType extends DataTableTypeBase implements DataTableTypeInterfac
                 },
             ])
             ->addOrderBy('updated', DataTable::SORT_DESCENDING);
+    }
+
+    /**
+     * Create a (potentially linked) string representing an Asset's parent.
+     *
+     * @param Image $context
+     *   The Image entity being evaluated.
+     * @param string $value
+     *   The Image ID (unused).
+     *
+     * @return string
+     *   A string with the parent entity's name, otherwise 'Unknown'.
+     */
+    private function renderParentEntity(Image $context, $value) {
+        if ($entity = $context->getFranchise()) {
+            $route = 'media_manager_franchises_franchise';
+        }
+        elseif ($entity = $context->getShow()) {
+            $route = 'media_manager_shows_show';
+        }
+        elseif ($entity = $context->getAsset()) {
+            $route = 'media_manager_assets_asset';
+        }
+        elseif ($entity = $context->getStation()) {
+            $route = 'station_manager_stations_station';
+        }
+        else {
+            return 'Unknown';
+        }
+        $url = $this->router->generate($route, ['id' => $entity->getId()]);
+        return sprintf(
+            '<a href="%s">%s</a> <span class="entity-type">%s</span>',
+            $url,
+            (string) $entity,
+            $entity::NAME
+        );
     }
 }

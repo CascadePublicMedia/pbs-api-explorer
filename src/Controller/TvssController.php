@@ -3,7 +3,11 @@
 namespace CascadePublicMedia\PbsApiExplorer\Controller;
 
 use CascadePublicMedia\PbsApiExplorer\DataTable\Type as DataTableType;
+use CascadePublicMedia\PbsApiExplorer\Entity\Headend;
+use CascadePublicMedia\PbsApiExplorer\Entity\Listing;
+use CascadePublicMedia\PbsApiExplorer\Entity\ScheduleProgram;
 use CascadePublicMedia\PbsApiExplorer\Service\TvssApiClient;
+use Doctrine\ORM\EntityManagerInterface;
 use Omines\DataTablesBundle\DataTableFactory;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -74,6 +78,28 @@ class TvssController extends ControllerBase
     }
 
     /**
+     * @Route("/tvss/programs/{id}", name="tvss_programs_program")
+     * @Security("is_granted('ROLE_USER')")
+     *
+     * @param string $id
+     * @param EntityManagerInterface $entityManager
+     *
+     * @return Response
+     */
+    public function program($id, EntityManagerInterface $entityManager) {
+        $entity = $entityManager
+            ->getRepository(ScheduleProgram::class)
+            ->findEager($id);
+        if (!$entity) {
+            throw new NotFoundHttpException();
+        }
+        return $this->render('tvss/program.html.twig', [
+            'entity' => $entity,
+            'type' => $entity::NAME,
+        ]);
+    }
+
+    /**
      * @Route("/tvss/headends", name="tvss_headends")
      * @Security("is_granted('ROLE_USER')")
      *
@@ -111,6 +137,28 @@ class TvssController extends ControllerBase
         $stats = $apiClient->updateHeadends();
         $this->flashUpdateStats($stats);
         return $this->redirectToRoute('tvss_headends');
+    }
+
+    /**
+     * @Route("/tvss/headends/{id}", name="tvss_headends_headend")
+     * @Security("is_granted('ROLE_USER')")
+     *
+     * @param string $id
+     * @param EntityManagerInterface $entityManager
+     *
+     * @return Response
+     */
+    public function headend($id, EntityManagerInterface $entityManager) {
+        $entity = $entityManager
+            ->getRepository(Headend::class)
+            ->findEager($id);
+        if (!$entity) {
+            throw new NotFoundHttpException();
+        }
+        return $this->render('tvss/headend.html.twig', [
+            'entity' => $entity,
+            'type' => $entity::NAME,
+        ]);
     }
 
     /**
@@ -152,5 +200,27 @@ class TvssController extends ControllerBase
         $stats = $apiClient->updateListings($date);
         $this->flashUpdateStats($stats);
         return $this->redirectToRoute('tvss_listings');
+    }
+
+    /**
+     * @Route("/tvss/listings/{id}", name="tvss_listings_listing")
+     * @Security("is_granted('ROLE_USER')")
+     *
+     * @param string $id
+     * @param EntityManagerInterface $entityManager
+     *
+     * @return Response
+     */
+    public function listing($id, EntityManagerInterface $entityManager) {
+        $entity = $entityManager
+            ->getRepository(Listing::class)
+            ->findEager($id);
+        if (!$entity) {
+            throw new NotFoundHttpException();
+        }
+        return $this->render('tvss/listing.html.twig', [
+            'entity' => $entity,
+            'type' => $entity::NAME,
+        ]);
     }
 }

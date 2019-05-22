@@ -10,7 +10,7 @@ use Omines\DataTablesBundle\Column\TextColumn;
 use Omines\DataTablesBundle\DataTable;
 use Omines\DataTablesBundle\DataTableTypeInterface;
 
-class TopicsTableType implements DataTableTypeInterface
+class TopicsTableType extends DataTableTypeBase implements DataTableTypeInterface
 {
     /**
      * @param DataTable $dataTable
@@ -19,7 +19,13 @@ class TopicsTableType implements DataTableTypeInterface
     public function configure(DataTable $dataTable, array $options)
     {
         $dataTable
-            ->add('name', TextColumn::class, ['label' => 'Name'])
+            ->add('name', TextColumn::class, [
+                'label' => 'Name',
+                'data' => function($context, $value) {
+                    return $this->renderTopicLink($context, $value);
+                },
+                'raw' => TRUE,
+            ])
             ->add('parent', TextColumn::class, [
                 'label' => 'Parent',
                 'field' => 'parent.name',

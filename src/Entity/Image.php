@@ -77,6 +77,11 @@ class Image
      */
     private $parent;
 
+    public function __toString()
+    {
+        return sprintf('%s (%s)', $this->getParent(), $this->profile);
+    }
+
     public function getId(): ?int
     {
         return $this->id;

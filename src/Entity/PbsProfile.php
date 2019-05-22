@@ -62,7 +62,13 @@ class PbsProfile
 
     public function __toString()
     {
-        return $this->email;
+        if (!$this->email) {
+            $title = $this->id;
+        }
+        else {
+            $title = $this->email;
+        }
+        return $title;
     }
 
     public function getId(): ?string

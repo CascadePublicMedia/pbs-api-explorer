@@ -18,7 +18,13 @@ class EpisodesTableType extends DataTableTypeBase implements DataTableTypeInterf
     public function configure(DataTable $dataTable, array $options)
     {
         $dataTable
-            ->add('title', TextColumn::class, ['label' => 'Episode'])
+            ->add('title', TextColumn::class, [
+                'label' => 'Episode',
+                'data' => function($context, $value) {
+                    return $this->renderEpisodeLink($context, $value);
+                },
+                'raw' => TRUE,
+            ])
             ->add('season', TextColumn::class, [
                 'label' => 'Season',
                 'field' => 'season.ordinal',

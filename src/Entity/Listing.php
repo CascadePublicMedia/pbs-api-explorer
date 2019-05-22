@@ -140,7 +140,7 @@ class Listing
     public function __toString()
     {
         if (!empty($this->episodeTitle)) {
-            $title = $this->episodeTitle . '(' . $this->title . ')';
+            $title = $this->episodeTitle;
         }
         else {
             $title = $this->title;

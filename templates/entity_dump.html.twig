@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+{% import '@AdminLTE/Macros/buttons.html.twig' as btn %}
+
+{% block page_title %}
+    {{ type|capitalize }} - {{ entity }}
+{% endblock %}
+
+{% block page_subtitle %}
+    {% if subtitle is defined %}
+        {{ subtitle }}
+    {% endif %}
+{% endblock %}
+
+{% block page_content %}
+
+    {{ dump(entity) }}
+
+{% endblock %}

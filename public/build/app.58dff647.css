@@ -1,4 +1,4 @@
-@charset "UTF-8";.entity-type{color:#888;font-family:monospace;font-size:.8em;vertical-align:super}
+@charset "UTF-8";.entity-type{color:#888;font-family:monospace;font-size:.8em;vertical-align:super}.asset-embed{position:relative;display:block;height:0;padding:0;overflow:hidden}.asset-embed-16x9{padding-bottom:56.25%}.asset-embed iframe{position:absolute;top:0;left:0;bottom:0;height:100%;width:100%;border:0}
 /*!
  * Bootstrap v3.4.1 (https://getbootstrap.com/)
  * Copyright 2011-2019 Twitter, Inc.

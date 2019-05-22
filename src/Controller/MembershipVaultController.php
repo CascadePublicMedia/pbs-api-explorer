@@ -3,7 +3,10 @@
 namespace CascadePublicMedia\PbsApiExplorer\Controller;
 
 use CascadePublicMedia\PbsApiExplorer\DataTable\Type as DataTableType;
+use CascadePublicMedia\PbsApiExplorer\Entity\Membership;
+use CascadePublicMedia\PbsApiExplorer\Entity\PbsProfile;
 use CascadePublicMedia\PbsApiExplorer\Service\MembershipVaultApiClient;
+use Doctrine\ORM\EntityManagerInterface;
 use Omines\DataTablesBundle\DataTableFactory;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -31,29 +34,6 @@ class MembershipVaultController extends ControllerBase
     }
 
     /**
-     * @Route("/membership-vault/memberships", name="mvault_memberships")
-     * @Security("is_granted('ROLE_USER')")
-     *
-     *
-     * @param DataTableFactory $dataTableFactory
-     * @param Request $request
-     *
-     * @return Response
-     */
-    public function memberships(DataTableFactory $dataTableFactory, Request $request)
-    {
-        $table = $dataTableFactory->createFromType(DataTableType\MembershipsTableType::class)
-            ->handleRequest($request);
-        if ($table->isCallback()) {
-            return $table->getResponse();
-        }
-        return $this->render('datatable.html.twig', [
-            'datatable' => $table,
-            'title' => 'Memberships',
-        ]);
-    }
-
-    /**
      * @Route("/membership-vault/profiles", name="mvault_profiles")
      * @Security("is_granted('ROLE_USER')")
      *
@@ -77,6 +57,51 @@ class MembershipVaultController extends ControllerBase
     }
 
     /**
+     * @Route("/membership-vault/profiles/{id}", name="mvault_profiles_profile")
+     * @Security("is_granted('ROLE_USER')")
+     *
+     * @param string $id
+     * @param EntityManagerInterface $entityManager
+     *
+     * @return Response
+     */
+    public function profile($id, EntityManagerInterface $entityManager) {
+        $entity = $entityManager
+            ->getRepository(PbsProfile::class)
+            ->findEager($id);
+        if (!$entity) {
+            throw new NotFoundHttpException();
+        }
+        return $this->render('mvault/profile.html.twig', [
+            'entity' => $entity,
+            'type' => $entity::NAME,
+        ]);
+    }
+
+    /**
+     * @Route("/membership-vault/memberships", name="mvault_memberships")
+     * @Security("is_granted('ROLE_USER')")
+     *
+     *
+     * @param DataTableFactory $dataTableFactory
+     * @param Request $request
+     *
+     * @return Response
+     */
+    public function memberships(DataTableFactory $dataTableFactory, Request $request)
+    {
+        $table = $dataTableFactory->createFromType(DataTableType\MembershipsTableType::class)
+            ->handleRequest($request);
+        if ($table->isCallback()) {
+            return $table->getResponse();
+        }
+        return $this->render('datatable.html.twig', [
+            'datatable' => $table,
+            'title' => 'Memberships',
+        ]);
+    }
+
+    /**
      * @Route("/membership-vault/memberships/update", name="mvault_memberships_update")
      * @Security("is_granted('ROLE_ADMIN')")
      *
@@ -92,6 +117,28 @@ class MembershipVaultController extends ControllerBase
         $stats = $apiClient->updateMemberships();
         $this->flashUpdateStats($stats);
         return $this->redirectToRoute('mvault');
+    }
+
+    /**
+     * @Route("/membership-vault/memberships/{id}", name="mvault_memberships_membership")
+     * @Security("is_granted('ROLE_USER')")
+     *
+     * @param string $id
+     * @param EntityManagerInterface $entityManager
+     *
+     * @return Response
+     */
+    public function membership($id, EntityManagerInterface $entityManager) {
+        $entity = $entityManager
+            ->getRepository(Membership::class)
+            ->findEager($id);
+        if (!$entity) {
+            throw new NotFoundHttpException();
+        }
+        return $this->render('mvault/membership.html.twig', [
+            'entity' => $entity,
+            'type' => $entity::NAME,
+        ]);
     }
 
 }

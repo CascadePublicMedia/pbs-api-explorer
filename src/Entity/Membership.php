@@ -106,7 +106,7 @@ class Membership
 
     public function __toString()
     {
-        return $this->email . ' (' . $this->id . ')';
+        return $this->id;
     }
 
     public function getId(): ?string

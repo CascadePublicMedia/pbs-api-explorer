@@ -10,7 +10,7 @@ use Omines\DataTablesBundle\Column\TextColumn;
 use Omines\DataTablesBundle\DataTable;
 use Omines\DataTablesBundle\DataTableTypeInterface;
 
-class FranchisesTableType implements DataTableTypeInterface
+class FranchisesTableType extends DataTableTypeBase implements DataTableTypeInterface
 {
     /**
      * @param DataTable $dataTable
@@ -19,13 +19,21 @@ class FranchisesTableType implements DataTableTypeInterface
     public function configure(DataTable $dataTable, array $options)
     {
         $dataTable
-            ->add('title', TextColumn::class, ['label' => 'Title'])
+            ->add('title', TextColumn::class, [
+                'label' => 'Title',
+                'data' => function($context, $value) {
+                    return $this->renderFranchiseLink($context, $value);
+                },
+                'raw' => TRUE,
+            ])
             ->add('slug', TextColumn::class, ['label' => 'Slug'])
             ->add('genre', TextColumn::class, [
-                'data' => '<em>None</em>',
-                'raw' => true,
                 'field' => 'genre.title',
-                'label' => 'Genre'
+                'label' => 'Genre',
+                'data' => function($context, $value) {
+                    return $this->renderGenreLink($context, $value);
+                },
+                'raw' => TRUE,
             ])
             ->add('updated', DateTimeColumn::class, [
                 'label' => 'Updated (UTC)',

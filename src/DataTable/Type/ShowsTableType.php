@@ -28,16 +28,20 @@ class ShowsTableType extends DataTableTypeBase implements DataTableTypeInterface
             ])
             ->add('slug', TextColumn::class, ['label' => 'Slug'])
             ->add('franchise', TextColumn::class, [
-                'data' => '<em>None</em>',
                 'field' => 'franchise.title',
                 'label' => 'Franchise',
-                'raw' => true,
+                'data' => function($context, $value) {
+                    return $this->renderFranchiseLink($context, $value);
+                },
+                'raw' => TRUE,
             ])
             ->add('genre', TextColumn::class, [
-                'data' => '<em>None</em>',
                 'field' => 'genre.title',
                 'label' => 'Genre',
-                'raw' => true,
+                'data' => function($context, $value) {
+                    return $this->renderGenreLink($context, $value);
+                },
+                'raw' => TRUE,
             ])
             ->add('updated', DateTimeColumn::class, [
                 'label' => 'Updated (UTC)',

@@ -5,6 +5,7 @@ namespace CascadePublicMedia\PbsApiExplorer\DataTable\Type;
 use CascadePublicMedia\PbsApiExplorer\Entity\Season;
 use Omines\DataTablesBundle\Adapter\Doctrine\ORMAdapter;
 use Omines\DataTablesBundle\Column\DateTimeColumn;
+use Omines\DataTablesBundle\Column\NumberColumn;
 use Omines\DataTablesBundle\Column\TextColumn;
 use Omines\DataTablesBundle\DataTable;
 use Omines\DataTablesBundle\DataTableTypeInterface;
@@ -18,6 +19,14 @@ class SeasonsTableType extends DataTableTypeBase implements DataTableTypeInterfa
     public function configure(DataTable $dataTable, array $options)
     {
         $dataTable
+            ->add('title', TextColumn::class, [
+                'label' => 'Title',
+                'data' => function($context, $value) {
+                    return $this->renderSeasonLink($context, $value);
+                },
+                'raw' => TRUE,
+            ])
+            ->add('ordinal', NumberColumn::class, ['label' => 'Ordinal'])
             ->add('show', TextColumn::class, [
                 'field' => 'show.title',
                 'label' => 'Show',
@@ -26,8 +35,6 @@ class SeasonsTableType extends DataTableTypeBase implements DataTableTypeInterfa
                 },
                 'raw' => TRUE,
             ])
-            ->add('ordinal', TextColumn::class, ['label' => 'Ordinal'])
-            ->add('title', TextColumn::class, ['label' => 'Title'])
             ->add('updated', DateTimeColumn::class, [
                 'label' => 'Updated (UTC)',
                 'format' => 'Y-m-d H:i:s',

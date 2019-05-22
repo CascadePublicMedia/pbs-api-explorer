@@ -10,7 +10,7 @@ use Omines\DataTablesBundle\Column\TextColumn;
 use Omines\DataTablesBundle\DataTable;
 use Omines\DataTablesBundle\DataTableTypeInterface;
 
-class StationsTableType implements DataTableTypeInterface
+class StationsTableType extends DataTableTypeBase implements DataTableTypeInterface
 {
     /**
      * @param DataTable $dataTable
@@ -19,7 +19,13 @@ class StationsTableType implements DataTableTypeInterface
     public function configure(DataTable $dataTable, array $options)
     {
         $dataTable
-            ->add('fullCommonName', TextColumn::class, ['label' => 'Name'])
+            ->add('fullCommonName', TextColumn::class, [
+                'label' => 'Name',
+                'data' => function($context, $value) {
+                    return $this->renderStationLink($context, $value);
+                },
+                'raw' => TRUE,
+            ])
             ->add('shortCommonName', TextColumn::class, ['label' => 'Name (short)'])
             ->add('callSign', TextColumn::class, ['label' => 'Call sign'])
             ->add('pdp', BoolColumn::class, [

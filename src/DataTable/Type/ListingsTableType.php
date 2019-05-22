@@ -10,7 +10,7 @@ use Omines\DataTablesBundle\Column\TextColumn;
 use Omines\DataTablesBundle\DataTable;
 use Omines\DataTablesBundle\DataTableTypeInterface;
 
-class ListingsTableType implements DataTableTypeInterface
+class ListingsTableType extends DataTableTypeBase implements DataTableTypeInterface
 {
     /**
      * @param DataTable $dataTable
@@ -29,8 +29,25 @@ class ListingsTableType implements DataTableTypeInterface
             ])
             ->add('startTime', TextColumn::class, ['label' => 'Start time'])
             ->add('durationMinutes', NumberColumn::class, ['label' => 'Duration'])
-            ->add('title', TextColumn::class, ['label' => 'Title'])
-            ->add('episodeTitle', TextColumn::class, ['label' => 'Episode title'])
+            ->add('program', TextColumn::class, [
+                'field' => 'program.title',
+                'label' => 'Program',
+                'data' => function($context, $value) {
+                    return $this->renderProgramLink($context, $value);
+                },
+                'raw' => TRUE,
+            ])
+            ->add('title', TextColumn::class, [
+                'label' => 'Title',
+                'data' => function($context, $value) {
+                    return $this->renderListingLink($context, $value);
+                },
+                'raw' => TRUE,
+            ])
+            ->add('episodeTitle', TextColumn::class, [
+                'label' => 'Episode title',
+                'visible' => FALSE,
+            ])
             ->createAdapter(ORMAdapter::class, ['entity' => Listing::class])
             ->addOrderBy('feed', DataTable::SORT_DESCENDING)
             ->addOrderBy('date', DataTable::SORT_DESCENDING)

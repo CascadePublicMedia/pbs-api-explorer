@@ -76,6 +76,28 @@ class MediaManagerController extends ControllerBase
     }
 
     /**
+     * @Route("/media-manager/genres/{id}", name="media_manager_genres_genre")
+     * @Security("is_granted('ROLE_USER')")
+     *
+     * @param string $id
+     * @param EntityManagerInterface $entityManager
+     *
+     * @return Response
+     */
+    public function genre($id, EntityManagerInterface $entityManager) {
+        $entity = $entityManager
+            ->getRepository(Entity\Genre::class)
+            ->findEager($id);
+        if (!$entity) {
+            throw new NotFoundHttpException();
+        }
+        return $this->render('media_manager/genre.html.twig', [
+            'entity' => $entity,
+            'type' => $entity::NAME,
+        ]);
+    }
+
+    /**
      * @Route("/media-manager/franchises", name="media_manager_franchises")
      * @Security("is_granted('ROLE_USER')")
      *
@@ -116,6 +138,28 @@ class MediaManagerController extends ControllerBase
         $this->flashUpdateStats($stats);
 
         return $this->redirectToRoute('media_manager_franchises');
+    }
+
+    /**
+     * @Route("/media-manager/franchises/{id}", name="media_manager_franchises_franchise")
+     * @Security("is_granted('ROLE_USER')")
+     *
+     * @param string $id
+     * @param EntityManagerInterface $entityManager
+     *
+     * @return Response
+     */
+    public function franchise($id, EntityManagerInterface $entityManager) {
+        $entity = $entityManager
+            ->getRepository(Entity\Franchise::class)
+            ->findEager($id);
+        if (!$entity) {
+            throw new NotFoundHttpException();
+        }
+        return $this->render('media_manager/franchise.html.twig', [
+            'entity' => $entity,
+            'type' => $entity::NAME,
+        ]);
     }
 
     /**
@@ -170,16 +214,15 @@ class MediaManagerController extends ControllerBase
      * @return Response
      */
     public function show($id, EntityManagerInterface $entityManager) {
-        $show = $entityManager
+        $entity = $entityManager
             ->getRepository(Entity\Show::class)
-            ->find($id);
-
-        if (!$show) {
+            ->findEager($id);
+        if (!$entity) {
             throw new NotFoundHttpException();
         }
-
         return $this->render('media_manager/show.html.twig', [
-            'show' => $show,
+            'entity' => $entity,
+            'type' => $entity::NAME,
         ]);
     }
 
@@ -201,6 +244,28 @@ class MediaManagerController extends ControllerBase
         return $this->render('datatable.html.twig', [
             'datatable' => $table,
             'title' => 'Seasons',
+        ]);
+    }
+
+    /**
+     * @Route("/media-manager/seasons/{id}", name="media_manager_seasons_season")
+     * @Security("is_granted('ROLE_USER')")
+     *
+     * @param string $id
+     * @param EntityManagerInterface $entityManager
+     *
+     * @return Response
+     */
+    public function season($id, EntityManagerInterface $entityManager) {
+        $entity = $entityManager
+            ->getRepository(Entity\Season::class)
+            ->findEager($id);
+        if (!$entity) {
+            throw new NotFoundHttpException();
+        }
+        return $this->render('media_manager/season.html.twig', [
+            'entity' => $entity,
+            'type' => $entity::NAME,
         ]);
     }
 
@@ -245,6 +310,28 @@ class MediaManagerController extends ControllerBase
     }
 
     /**
+     * @Route("/media-manager/episodes/{id}", name="media_manager_episodes_episode")
+     * @Security("is_granted('ROLE_USER')")
+     *
+     * @param string $id
+     * @param EntityManagerInterface $entityManager
+     *
+     * @return Response
+     */
+    public function episode($id, EntityManagerInterface $entityManager) {
+        $entity = $entityManager
+            ->getRepository(Entity\Episode::class)
+            ->findEager($id);
+        if (!$entity) {
+            throw new NotFoundHttpException();
+        }
+        return $this->render('media_manager/episode.html.twig', [
+            'entity' => $entity,
+            'type' => $entity::NAME,
+        ]);
+    }
+
+    /**
      * @Route("/media-manager/topics", name="media_manager_topics")
      * @Security("is_granted('ROLE_USER')")
      *
@@ -284,6 +371,28 @@ class MediaManagerController extends ControllerBase
     }
 
     /**
+     * @Route("/media-manager/topics/{id}", name="media_manager_topics_topic")
+     * @Security("is_granted('ROLE_USER')")
+     *
+     * @param string $id
+     * @param EntityManagerInterface $entityManager
+     *
+     * @return Response
+     */
+    public function topic($id, EntityManagerInterface $entityManager) {
+        $entity = $entityManager
+            ->getRepository(Entity\Topic::class)
+            ->findEager($id);
+        if (!$entity) {
+            throw new NotFoundHttpException();
+        }
+        return $this->render('media_manager/topic.html.twig', [
+            'entity' => $entity,
+            'type' => $entity::NAME,
+        ]);
+    }
+
+    /**
      * @Route("/media-manager/assets", name="media_manager_assets")
      * @Security("is_granted('ROLE_USER')")
      *
@@ -305,6 +414,28 @@ class MediaManagerController extends ControllerBase
     }
 
     /**
+     * @Route("/media-manager/assets/{id}", name="media_manager_assets_asset")
+     * @Security("is_granted('ROLE_USER')")
+     *
+     * @param string $id
+     * @param EntityManagerInterface $entityManager
+     *
+     * @return Response
+     */
+    public function asset($id, EntityManagerInterface $entityManager) {
+        $entity = $entityManager
+            ->getRepository(Entity\Asset::class)
+            ->findEager($id);
+        if (!$entity) {
+            throw new NotFoundHttpException();
+        }
+        return $this->render('media_manager/asset.html.twig', [
+            'entity' => $entity,
+            'type' => $entity::NAME,
+        ]);
+    }
+
+    /**
      * @Route("/media-manager/images", name="media_manager_images")
      * @Security("is_granted('ROLE_USER')")
      *
@@ -322,6 +453,28 @@ class MediaManagerController extends ControllerBase
         return $this->render('datatable.html.twig', [
             'datatable' => $table,
             'title' => 'Images',
+        ]);
+    }
+
+    /**
+     * @Route("/media-manager/images/{id}", name="media_manager_images_image")
+     * @Security("is_granted('ROLE_USER')")
+     *
+     * @param string $id
+     * @param EntityManagerInterface $entityManager
+     *
+     * @return Response
+     */
+    public function image($id, EntityManagerInterface $entityManager) {
+        $entity = $entityManager
+            ->getRepository(Entity\Image::class)
+            ->findEager($id);
+        if (!$entity) {
+            throw new NotFoundHttpException();
+        }
+        return $this->render('media_manager/image.html.twig', [
+            'entity' => $entity,
+            'type' => $entity::NAME,
         ]);
     }
 
@@ -364,5 +517,27 @@ class MediaManagerController extends ControllerBase
         $stats = $apiClient->updateChangelog();
         $this->flashUpdateStats($stats);
         return $this->redirectToRoute('media_manager_changelog');
+    }
+
+    /**
+     * @Route("/media-manager/changelog/{id}", name="media_manager_changelog_entry")
+     * @Security("is_granted('ROLE_USER')")
+     *
+     * @param string $id
+     * @param EntityManagerInterface $entityManager
+     *
+     * @return Response
+     */
+    public function changelog_entry($id, EntityManagerInterface $entityManager) {
+        $entity = $entityManager
+            ->getRepository(Entity\ChangelogEntry::class)
+            ->findEager($id);
+        if (!$entity) {
+            throw new NotFoundHttpException();
+        }
+        return $this->render('media_manager/changelog_entry.html.twig', [
+            'entity' => $entity,
+            'type' => $entity::NAME,
+        ]);
     }
 }

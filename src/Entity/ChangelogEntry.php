@@ -51,6 +51,11 @@ class ChangelogEntry
      */
     private $timestamp;
 
+    public function __toString()
+    {
+        return $this->activity;
+    }
+
     public function getId(): ?int
     {
         return $this->id;

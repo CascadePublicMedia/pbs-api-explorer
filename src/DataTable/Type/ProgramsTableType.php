@@ -8,7 +8,7 @@ use Omines\DataTablesBundle\Column\TextColumn;
 use Omines\DataTablesBundle\DataTable;
 use Omines\DataTablesBundle\DataTableTypeInterface;
 
-class ProgramsTableType implements DataTableTypeInterface
+class ProgramsTableType extends DataTableTypeBase implements DataTableTypeInterface
 {
     /**
      * @param DataTable $dataTable
@@ -18,7 +18,13 @@ class ProgramsTableType implements DataTableTypeInterface
     {
         $dataTable
             ->add('programId', TextColumn::class, ['label' => 'ID'])
-            ->add('title', TextColumn::class, ['label' => 'Title'])
+            ->add('title', TextColumn::class, [
+                'label' => 'Title',
+                'data' => function($context, $value) {
+                    return $this->renderProgramLink($context, $value);
+                },
+                'raw' => TRUE,
+            ])
             ->add('externalId', TextColumn::class, ['label' => 'External ID'])
             ->createAdapter(ORMAdapter::class, ['entity' => ScheduleProgram::class])
             ->addOrderBy('title', DataTable::SORT_ASCENDING);

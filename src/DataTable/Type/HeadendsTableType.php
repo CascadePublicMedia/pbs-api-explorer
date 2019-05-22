@@ -8,7 +8,7 @@ use Omines\DataTablesBundle\Column\TextColumn;
 use Omines\DataTablesBundle\DataTable;
 use Omines\DataTablesBundle\DataTableTypeInterface;
 
-class HeadendsTableType implements DataTableTypeInterface
+class HeadendsTableType extends DataTableTypeBase implements DataTableTypeInterface
 {
     /**
      * @param DataTable $dataTable
@@ -17,8 +17,13 @@ class HeadendsTableType implements DataTableTypeInterface
     public function configure(DataTable $dataTable, array $options)
     {
         $dataTable
-            ->add('id', TextColumn::class, ['label' => 'ID'])
-            ->add('name', TextColumn::class, ['label' => 'Name'])
+            ->add('name', TextColumn::class, [
+                'label' => 'Name',
+                'data' => function($context, $value) {
+                    return $this->renderHeadendLink($context, $value);
+                },
+                'raw' => TRUE,
+            ])
             ->createAdapter(ORMAdapter::class, ['entity' => Headend::class])
             ->addOrderBy('name', DataTable::SORT_ASCENDING);
     }

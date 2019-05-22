@@ -9,7 +9,7 @@ use Omines\DataTablesBundle\Column\TextColumn;
 use Omines\DataTablesBundle\DataTable;
 use Omines\DataTablesBundle\DataTableTypeInterface;
 
-class MembershipsTableType implements DataTableTypeInterface
+class MembershipsTableType extends DataTableTypeBase implements DataTableTypeInterface
 {
     /**
      * @param DataTable $dataTable
@@ -18,7 +18,20 @@ class MembershipsTableType implements DataTableTypeInterface
     public function configure(DataTable $dataTable, array $options)
     {
         $dataTable
-            ->add('id', TextColumn::class, ['label' => 'ID'])
+            ->add('id', TextColumn::class, [
+                'label' => 'ID',
+                'data' => function($context, $value) {
+                    return $this->renderMembershipLink($context, $value);
+                },
+                'raw' => TRUE,
+            ])
+            ->add('profile', TextColumn::class, [
+                'label' => 'Profile',
+                'data' => function($context, $value) {
+                    return $this->renderPbProfileLink($context, $value);
+                },
+                'raw' => TRUE,
+            ])
             ->add('firstName', TextColumn::class, ['label' => 'First'])
             ->add('lastName', TextColumn::class, ['label' => 'Last'])
             ->add('email', TextColumn::class, ['label' => 'Email'])

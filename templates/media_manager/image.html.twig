@@ -1,0 +1,16 @@
+{% extends 'entity_dump.html.twig' %}
+
+{% block page_content %}
+
+    {% embed '@AdminLTE/Widgets/box-widget.html.twig' with {
+        'collapsible': true
+    } %}
+        {% block box_title %}Image{% endblock %}
+        {% block box_body %}
+            <img src="{{ entity.image }}" class="img-responsive center-block" />
+        {% endblock %}
+    {% endembed %}
+
+    {{ parent() }}
+
+{% endblock %}

@@ -2,7 +2,7 @@
 
 namespace CascadePublicMedia\PbsApiExplorer\DataTable\Type;
 
-use CascadePublicMedia\PbsApiExplorer\Entity\ChangelogEntry;
+use CascadePublicMedia\PbsApiExplorer\Entity;
 use Omines\DataTablesBundle\Adapter\Doctrine\ORMAdapter;
 use Omines\DataTablesBundle\Column\DateTimeColumn;
 use Omines\DataTablesBundle\Column\TextColumn;
@@ -18,7 +18,13 @@ class ChangelogTableType extends DataTableTypeBase implements DataTableTypeInter
     public function configure(DataTable $dataTable, array $options)
     {
         $dataTable
-            ->add('activity', TextColumn::class, ['label' => 'Change type'])
+            ->add('activity', TextColumn::class, [
+                'label' => 'Change',
+                'data' => function($context, $value) {
+                    return $this->renderChangelogEntryLink($context, $value);
+                },
+                'raw' => TRUE,
+            ])
             ->add('type', TextColumn::class, ['label' => 'Entity type'])
             ->add('resourceId', TextColumn::class, [
                 'label' => 'Entity',
@@ -39,7 +45,7 @@ class ChangelogTableType extends DataTableTypeBase implements DataTableTypeInter
                 'format' => 'Y-m-d H:i:s',
             ])
             ->createAdapter(ORMAdapter::class, [
-                'entity' => ChangelogEntry::class
+                'entity' => Entity\ChangelogEntry::class
             ])
             ->addOrderBy('timestamp', DataTable::SORT_DESCENDING);
     }
@@ -47,7 +53,7 @@ class ChangelogTableType extends DataTableTypeBase implements DataTableTypeInter
     /**
      * Create a string value for a locally synced resource in a Changelog.
      *
-     * @param ChangelogEntry $context
+     * @param Entity\ChangelogEntry $context
      *   Changelog entity data
      * @param string $value
      *   Resource ID from the Changelog entry.
@@ -56,7 +62,7 @@ class ChangelogTableType extends DataTableTypeBase implements DataTableTypeInter
      *   An entity title if the entity is available locally, the resource ID
      *   otherwise.
      */
-    private function renderChangelogEntity(ChangelogEntry $context, $value) {
+    private function renderChangelogEntity(Entity\ChangelogEntry $context, $value) {
         $str = $value;
         if ($value) {
             $type = $context->getType();
@@ -73,11 +79,34 @@ class ChangelogTableType extends DataTableTypeBase implements DataTableTypeInter
             if (class_exists($class)) {
                 $entity = $this->entityManager->getRepository($class)->find($value);
                 if ($entity) {
-                    $str = sprintf(
-                        '<strong>%s</strong><br/><code>%s</code>',
-                        (string) $entity,
-                        $value
-                    );
+
+                    switch ($class) {
+                        case Entity\Franchise::class:
+                            $str = $this->renderFranchiseLink($entity, $value);
+                            break;
+                        case Entity\Show::class:
+                            $str = $this->renderShowLink($entity, $value);
+                            break;
+                        case Entity\Season::class:
+                            $str = $this->renderSeasonLink($entity, $value);
+                            break;
+                        case Entity\Episode::class:
+                            $str = $this->renderEpisodeLink($entity, $value);
+                            break;
+                        case Entity\Asset::class:
+                            $str = $this->renderAssetLink($entity, $value);
+                            break;
+                        case Entity\Image::class:
+                            $str = $this->renderImageLink($entity, $value);
+                            break;
+                        default:
+                            $str = sprintf(
+                                '<strong>%s</strong><br/><code>%s</code>',
+                                (string) $entity,
+                                $value
+                            );
+                            break;
+                    }
                 }
             }
         }
@@ -87,7 +116,7 @@ class ChangelogTableType extends DataTableTypeBase implements DataTableTypeInter
     /**
      * Create a list out of an array of updated fields names for a Changelog.
      *
-     * @param $context
+     * @param Entity\ChangelogEntry $context
      *   Changelog entity data
      * @param array $value
      *   Value of the "updated_fields" Changelog entry.
@@ -95,7 +124,7 @@ class ChangelogTableType extends DataTableTypeBase implements DataTableTypeInter
      * @return string
      *   An HTML list of all array values, empty string otherwise.
      */
-    private function renderChangelogUpdatedFields(ChangelogEntry $context, array $value) {
+    private function renderChangelogUpdatedFields(Entity\ChangelogEntry $context, array $value) {
         if (empty($value)) {
             return '';
         }

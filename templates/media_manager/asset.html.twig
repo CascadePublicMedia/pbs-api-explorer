@@ -1,0 +1,20 @@
+{% extends 'entity_dump.html.twig' %}
+
+{% block page_content %}
+
+    {% if entity.playerCode is not empty %}
+        {% embed '@AdminLTE/Widgets/box-widget.html.twig' with {
+            'collapsible': true
+        } %}
+            {% block box_title %}Asset Embed{% endblock %}
+            {% block box_body %}
+                <div class="asset-embed asset-embed-16x9">
+                    {{ entity.playerCode|raw }}
+                </div>
+            {% endblock %}
+        {% endembed %}
+    {% endif %}
+
+    {{ parent() }}
+
+{% endblock %}
