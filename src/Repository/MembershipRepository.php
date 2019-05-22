@@ -12,7 +12,7 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  * @method Membership[]    findAll()
  * @method Membership[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class MembershipRepository extends ServiceEntityRepository
+class MembershipRepository extends RepositoryBase
 {
     public function __construct(RegistryInterface $registry)
     {

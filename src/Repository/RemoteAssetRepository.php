@@ -12,7 +12,7 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  * @method RemoteAsset[]    findAll()
  * @method RemoteAsset[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class RemoteAssetRepository extends ServiceEntityRepository
+class RemoteAssetRepository extends RepositoryBase
 {
     public function __construct(RegistryInterface $registry)
     {

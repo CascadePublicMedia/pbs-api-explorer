@@ -12,7 +12,7 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  * @method Feed[]    findAll()
  * @method Feed[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class FeedRepository extends ServiceEntityRepository
+class FeedRepository extends RepositoryBase
 {
     public function __construct(RegistryInterface $registry)
     {

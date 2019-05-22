@@ -12,7 +12,7 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  * @method ChangelogEntry[]    findAll()
  * @method ChangelogEntry[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class ChangelogEntryRepository extends ServiceEntityRepository
+class ChangelogEntryRepository extends RepositoryBase
 {
     public function __construct(RegistryInterface $registry)
     {

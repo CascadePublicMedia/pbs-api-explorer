@@ -12,7 +12,7 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  * @method GeoAvailabilityCountry[]    findAll()
  * @method GeoAvailabilityCountry[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class GeoAvailabilityCountryRepository extends ServiceEntityRepository
+class GeoAvailabilityCountryRepository extends RepositoryBase
 {
     public function __construct(RegistryInterface $registry)
     {

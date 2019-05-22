@@ -12,7 +12,7 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  * @method Season[]    findAll()
  * @method Season[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class SeasonRepository extends ServiceEntityRepository
+class SeasonRepository extends RepositoryBase
 {
     public function __construct(RegistryInterface $registry)
     {

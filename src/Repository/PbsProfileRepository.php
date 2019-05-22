@@ -12,7 +12,7 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  * @method PbsProfile[]    findAll()
  * @method PbsProfile[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class PbsProfileRepository extends ServiceEntityRepository
+class PbsProfileRepository extends RepositoryBase
 {
     public function __construct(RegistryInterface $registry)
     {
