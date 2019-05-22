@@ -1,1 +1,6 @@
-
+.entity-type {
+    color: #888;
+    font-family: monospace;
+    font-size: .8em;
+    vertical-align: super;
+}
