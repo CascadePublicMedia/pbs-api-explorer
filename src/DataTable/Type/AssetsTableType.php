@@ -10,26 +10,9 @@ use Omines\DataTablesBundle\Column\MapColumn;
 use Omines\DataTablesBundle\Column\TextColumn;
 use Omines\DataTablesBundle\DataTable;
 use Omines\DataTablesBundle\DataTableTypeInterface;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-class AssetsTableType implements DataTableTypeInterface
+class AssetsTableType extends DataTableTypeBase implements DataTableTypeInterface
 {
-
-    /**
-     * @var UrlGeneratorInterface
-     */
-    private $router;
-
-    /**
-     * AssetsTableType constructor.
-     *
-     * @param UrlGeneratorInterface $router
-     */
-    public function __construct(UrlGeneratorInterface $router)
-    {
-        $this->router = $router;
-    }
-
     /**
      * @param DataTable $dataTable
      * @param array $options
@@ -51,7 +34,7 @@ class AssetsTableType implements DataTableTypeInterface
             ->add('id', TextColumn::class, [
                 'label' => 'Parent',
                 'data' => function($context, $value) {
-                    return $this->renderAssetParentEntity($context, $value);
+                    return $this->renderParentEntity($context, $value);
                 },
                 'raw' => TRUE,
             ])
@@ -87,7 +70,7 @@ class AssetsTableType implements DataTableTypeInterface
      * @return string
      *   A string with the parent entity's name, otherwise 'Unknown'.
      */
-    private function renderAssetParentEntity(Asset $context, $value) {
+    private function renderParentEntity(Asset $context, $value) {
         if ($context->getFranchise()) {
             $entity = $context->getFranchise();
             $str = (string) $entity;

@@ -9,26 +9,9 @@ use Omines\DataTablesBundle\Column\DateTimeColumn;
 use Omines\DataTablesBundle\Column\TextColumn;
 use Omines\DataTablesBundle\DataTable;
 use Omines\DataTablesBundle\DataTableTypeInterface;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-class ImagesTableType implements DataTableTypeInterface
+class ImagesTableType extends DataTableTypeBase implements DataTableTypeInterface
 {
-
-    /**
-     * @var UrlGeneratorInterface
-     */
-    private $router;
-
-    /**
-     * AssetsTableType constructor.
-     *
-     * @param UrlGeneratorInterface $router
-     */
-    public function __construct(UrlGeneratorInterface $router)
-    {
-        $this->router = $router;
-    }
-
     /**
      * @param DataTable $dataTable
      * @param array $options

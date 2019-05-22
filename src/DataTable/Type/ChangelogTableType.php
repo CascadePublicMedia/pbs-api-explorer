@@ -3,30 +3,14 @@
 namespace CascadePublicMedia\PbsApiExplorer\DataTable\Type;
 
 use CascadePublicMedia\PbsApiExplorer\Entity\ChangelogEntry;
-use Doctrine\ORM\EntityManagerInterface;
 use Omines\DataTablesBundle\Adapter\Doctrine\ORMAdapter;
 use Omines\DataTablesBundle\Column\DateTimeColumn;
 use Omines\DataTablesBundle\Column\TextColumn;
 use Omines\DataTablesBundle\DataTable;
 use Omines\DataTablesBundle\DataTableTypeInterface;
 
-class ChangelogTableType implements DataTableTypeInterface
+class ChangelogTableType extends DataTableTypeBase implements DataTableTypeInterface
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-
-    /**
-     * AssetsTableType constructor.
-     *
-     * @param EntityManagerInterface $entityManager
-     */
-    public function __construct(EntityManagerInterface $entityManager)
-    {
-        $this->entityManager = $entityManager;
-    }
-
     /**
      * @param DataTable $dataTable
      * @param array $options

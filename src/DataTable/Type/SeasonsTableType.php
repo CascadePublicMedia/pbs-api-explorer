@@ -9,7 +9,7 @@ use Omines\DataTablesBundle\Column\TextColumn;
 use Omines\DataTablesBundle\DataTable;
 use Omines\DataTablesBundle\DataTableTypeInterface;
 
-class SeasonsTableType implements DataTableTypeInterface
+class SeasonsTableType extends DataTableTypeBase implements DataTableTypeInterface
 {
     /**
      * @param DataTable $dataTable
@@ -21,6 +21,10 @@ class SeasonsTableType implements DataTableTypeInterface
             ->add('show', TextColumn::class, [
                 'field' => 'show.title',
                 'label' => 'Show',
+                'data' => function($context, $value) {
+                    return $this->renderShowLink($context, $value);
+                },
+                'raw' => TRUE,
             ])
             ->add('ordinal', TextColumn::class, ['label' => 'Ordinal'])
             ->add('title', TextColumn::class, ['label' => 'Title'])

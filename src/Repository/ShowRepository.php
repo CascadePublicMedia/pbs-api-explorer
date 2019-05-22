@@ -18,6 +18,16 @@ class ShowRepository extends RepositoryBase
         parent::__construct($registry, Show::class);
     }
 
+    public function findOneBySlug($value): ?Show
+    {
+        return $this->createQueryBuilder('s')
+            ->andWhere('s.slug = :val')
+            ->setParameter('val', $value)
+            ->getQuery()
+            ->getOneOrNullResult()
+            ;
+    }
+
     // /**
     //  * @return Show[] Returns an array of Show objects
     //  */

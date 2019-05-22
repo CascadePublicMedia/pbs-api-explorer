@@ -9,7 +9,7 @@ use Omines\DataTablesBundle\Column\TextColumn;
 use Omines\DataTablesBundle\DataTable;
 use Omines\DataTablesBundle\DataTableTypeInterface;
 
-class EpisodesTableType implements DataTableTypeInterface
+class EpisodesTableType extends DataTableTypeBase implements DataTableTypeInterface
 {
     /**
      * @param DataTable $dataTable
@@ -24,8 +24,12 @@ class EpisodesTableType implements DataTableTypeInterface
                 'field' => 'season.ordinal',
             ])
             ->add('show', TextColumn::class, [
-                'label' => 'Show',
                 'field' => 'show.title',
+                'label' => 'Show',
+                'data' => function($context, $value) {
+                    return $this->renderShowLink($context, $value);
+                },
+                'raw' => TRUE,
             ])
             ->add('updated', DateTimeColumn::class, [
                 'label' => 'Updated (UTC)',
