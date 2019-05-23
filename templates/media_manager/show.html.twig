@@ -3,9 +3,23 @@
 
 {% block page_content %}
 
-    {% if is_granted('ROLE_ADMIN') %}
-        <div class="well well-sm">
-            {% block datatable_actions %}
+    <div class="well well-sm">
+        {% block datatable_actions %}
+            {{ btn.link_button(
+                'List Seasons',
+                path('media_manager_seasons') ~ '#search[search]=' ~ entity.id,
+                'fas fa-list',
+                'info',
+                'xs')
+            }}
+            {{ btn.link_button(
+                'List Episodes',
+                path('media_manager_episodes') ~ '#search[search]=' ~ entity.id,
+                'fas fa-list',
+                'info',
+                'xs')
+            }}
+            {% if is_granted('ROLE_ADMIN') %}
                 {{ btn.link_button(
                     'Sync Episodes',
                     path('media_manager_episodes_update', {'showId': entity.id}),
@@ -13,9 +27,9 @@
                     'success',
                     'xs')
                 }}
-            {% endblock %}
-        </div>
-    {% endif %}
+            {% endif %}
+        {% endblock %}
+    </div>
 
     {{ parent() }}
 

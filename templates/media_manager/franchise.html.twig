@@ -1,1 +1,20 @@
 {% extends 'entity_dump.html.twig' %}
+{% import '@AdminLTE/Macros/buttons.html.twig' as btn %}
+
+{% block page_content %}
+
+    <div class="well well-sm">
+        {% block datatable_actions %}
+            {{ btn.link_button(
+                'List Shows',
+                path('media_manager_shows') ~ '#search[search]=' ~ entity.id,
+                'fas fa-list',
+                'info',
+                'xs')
+            }}
+        {% endblock %}
+    </div>
+
+    {{ parent() }}
+
+{% endblock %}

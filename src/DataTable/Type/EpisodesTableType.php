@@ -29,6 +29,11 @@ class EpisodesTableType extends DataTableTypeBase implements DataTableTypeInterf
                 'label' => 'Season',
                 'field' => 'season.ordinal',
             ])
+            ->add('showId', TextColumn::class, [
+                'field' => 'show.id',
+                'label' => 'Show ID',
+                'visible' => FALSE,
+            ])
             ->add('show', TextColumn::class, [
                 'field' => 'show.title',
                 'label' => 'Show',
@@ -36,6 +41,11 @@ class EpisodesTableType extends DataTableTypeBase implements DataTableTypeInterf
                     return $this->renderShowLink($context, $value);
                 },
                 'raw' => TRUE,
+            ])
+            ->add('seasonId', TextColumn::class, [
+                'field' => 'season.id',
+                'label' => 'Season ID',
+                'visible' => FALSE,
             ])
             ->add('updated', DateTimeColumn::class, [
                 'label' => 'Updated (UTC)',

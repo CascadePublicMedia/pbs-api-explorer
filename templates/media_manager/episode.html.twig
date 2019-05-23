@@ -1,1 +1,45 @@
 {% extends 'entity_dump.html.twig' %}
+{% import '@AdminLTE/Macros/buttons.html.twig' as btn %}
+
+{% block page_content %}
+
+    <div class="well well-sm">
+        {% block datatable_actions %}
+            {{ btn.link_button(
+                'List Assets',
+                path('media_manager_assets') ~ '#search[search]=' ~ entity.id,
+                'fas fa-list',
+                'info',
+                'xs')
+            }}
+            {% if is_granted('ROLE_ADMIN') %}
+                {{ btn.link_button(
+                    'Sync Episode (w/Assets)',
+                    path('media_manager_episodes_episode_update', {'episodeId': entity.id}),
+                    'fas fa-sync',
+                    'success',
+                    'xs')
+                }}
+            {% endif %}
+        {% endblock %}
+    </div>
+
+    {{ parent() }}
+
+    {% for asset in entity.assets %}
+        {% if asset.playerCode is not empty %}
+            {% embed '@AdminLTE/Widgets/box-widget.html.twig' with {
+                'collapsible': true,
+                'collapsed': true
+            } %}
+                {% block box_title %}Asset: {{ asset.title }}{% endblock %}
+                {% block box_body %}
+                    <div class="asset-embed asset-embed-16x9">
+                        {{ asset.playerCode|raw }}
+                    </div>
+                {% endblock %}
+            {% endembed %}
+        {% endif %}
+    {% endfor %}
+
+{% endblock %}

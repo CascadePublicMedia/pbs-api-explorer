@@ -227,6 +227,26 @@ class MediaManagerController extends ControllerBase
     }
 
     /**
+     * @Route("/media-manager/shows/{showId}/episodes/update", name="media_manager_episodes_update")
+     * @Security("is_granted('ROLE_ADMIN')")
+     *
+     * @param string $showId
+     * @param MediaManagerApiClient $apiClient
+     *
+     * @return RedirectResponse
+     */
+    public function show_episodes_update($showId, MediaManagerApiClient $apiClient) {
+        if (!$apiClient->isConfigured()) {
+            throw new NotFoundHttpException(self::$notConfigured);
+        }
+        $stats = $apiClient->updateEpisodesByShowId($showId);
+        $this->flashUpdateStats($stats);
+        return $this->redirectToRoute('media_manager_shows_show', [
+            'id' => $showId
+        ]);
+    }
+
+    /**
      * @Route("/media-manager/seasons", name="media_manager_seasons")
      * @Security("is_granted('ROLE_USER')")
      *
@@ -291,26 +311,6 @@ class MediaManagerController extends ControllerBase
     }
 
     /**
-     * @Route("/media-manager/episodes/{showId}/update", name="media_manager_episodes_update")
-     * @Security("is_granted('ROLE_ADMIN')")
-     *
-     * @param string $showId
-     * @param MediaManagerApiClient $apiClient
-     *
-     * @return RedirectResponse
-     */
-    public function episodes_update($showId, MediaManagerApiClient $apiClient) {
-        if (!$apiClient->isConfigured()) {
-            throw new NotFoundHttpException(self::$notConfigured);
-        }
-        $stats = $apiClient->updateEpisodesByShowId($showId);
-        $this->flashUpdateStats($stats);
-        return $this->redirectToRoute('media_manager_shows_show', [
-            'id' => $showId
-        ]);
-    }
-
-    /**
      * @Route("/media-manager/episodes/{id}", name="media_manager_episodes_episode")
      * @Security("is_granted('ROLE_USER')")
      *
@@ -329,6 +329,38 @@ class MediaManagerController extends ControllerBase
         return $this->render('media_manager/episode.html.twig', [
             'entity' => $entity,
             'type' => $entity::NAME,
+        ]);
+    }
+
+    /**
+     * @Route("/media-manager/episodes/{episodeId}/update", name="media_manager_episodes_episode_update")
+     * @Security("is_granted('ROLE_ADMIN')")
+     *
+     * @param string $episodeId
+     * @param MediaManagerApiClient $apiClient
+     * @param EntityManagerInterface $entityManager
+     *
+     * @return RedirectResponse
+     */
+    public function episode_update($episodeId,
+                                   MediaManagerApiClient $apiClient,
+                                   EntityManagerInterface $entityManager) {
+        if (!$apiClient->isConfigured()) {
+            throw new NotFoundHttpException(self::$notConfigured);
+        }
+
+        /** @var Entity\Episode $episode */
+        $episode = $entityManager
+            ->getRepository(Entity\Episode::class)
+            ->find($episodeId);
+        if (!$episode) {
+            throw new NotFoundHttpException('Episode not found.');
+        }
+
+        $stats = $apiClient->updateAssetsByEpisode($episode);
+        $this->flashUpdateStats($stats);
+        return $this->redirectToRoute('media_manager_episodes_episode', [
+            'id' => $episode->getId()
         ]);
     }
 

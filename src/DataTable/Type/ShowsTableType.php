@@ -35,6 +35,11 @@ class ShowsTableType extends DataTableTypeBase implements DataTableTypeInterface
                 },
                 'raw' => TRUE,
             ])
+            ->add('franchiseId', TextColumn::class, [
+                'field' => 'franchise.id',
+                'label' => 'Franchise ID',
+                'visible' => FALSE,
+            ])
             ->add('genre', TextColumn::class, [
                 'field' => 'genre.title',
                 'label' => 'Genre',

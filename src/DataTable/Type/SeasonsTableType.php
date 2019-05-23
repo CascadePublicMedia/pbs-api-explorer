@@ -35,6 +35,11 @@ class SeasonsTableType extends DataTableTypeBase implements DataTableTypeInterfa
                 },
                 'raw' => TRUE,
             ])
+            ->add('showId', TextColumn::class, [
+                'field' => 'show.id',
+                'label' => 'Show ID',
+                'visible' => FALSE,
+            ])
             ->add('updated', DateTimeColumn::class, [
                 'label' => 'Updated (UTC)',
                 'format' => 'Y-m-d H:i:s',

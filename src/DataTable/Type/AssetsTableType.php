@@ -3,6 +3,7 @@
 namespace CascadePublicMedia\PbsApiExplorer\DataTable\Type;
 
 use CascadePublicMedia\PbsApiExplorer\Entity\Asset;
+use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\QueryBuilder;
 use Omines\DataTablesBundle\Adapter\Doctrine\ORMAdapter;
 use Omines\DataTablesBundle\Column\DateTimeColumn;
@@ -43,6 +44,26 @@ class AssetsTableType extends DataTableTypeBase implements DataTableTypeInterfac
                     return $this->renderParentEntity($context, $value);
                 },
                 'raw' => TRUE,
+            ])
+            ->add('franchiseId', TextColumn::class, [
+                'label' => 'Franchise ID',
+                'field' => 'franchise.id',
+                'visible' => FALSE,
+            ])
+            ->add('showId', TextColumn::class, [
+                'label' => 'Show ID',
+                'field' => 'show.id',
+                'visible' => FALSE,
+            ])
+            ->add('seasonId', TextColumn::class, [
+                'label' => 'Season ID',
+                'field' => 'season.id',
+                'visible' => FALSE,
+            ])
+            ->add('episodeId', TextColumn::class, [
+                'label' => 'Episode ID',
+                'field' => 'episode.id',
+                'visible' => FALSE,
             ])
             ->add('updated', DateTimeColumn::class, [
                 'label' => 'Updated (UTC)',

@@ -113,17 +113,25 @@ class MediaManagerApiClient extends PbsApiClientBase
      * are missing and only accessible from the /assets/ API endpoint.
      *
      * @param Episode $episode
+     *
+     * @return array
      */
     public function updateAssetsByEpisode($episode) {
+        $stats = ['add' => 0, 'update' => 0, 'noop' => 0];
         $assets = $episode->getAssets();
         foreach ($assets as $asset) {
-            parent::update(
+            $update_stats = parent::update(
                 Asset::class,
                 $assets,
                 Asset::ENDPOINT . "/{$asset->getId()}/",
                 ['force' => TRUE]
             );
+
+            foreach ($update_stats as $key => $count) {
+                $stats[$key] += $count;
+            }
         }
+        return $stats;
     }
 
     /**
