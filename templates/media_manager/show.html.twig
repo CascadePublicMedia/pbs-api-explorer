@@ -1,1 +1,22 @@
 {% extends 'entity_dump.html.twig' %}
+{% import '@AdminLTE/Macros/buttons.html.twig' as btn %}
+
+{% block page_content %}
+
+    {% if is_granted('ROLE_ADMIN') %}
+        <div class="well well-sm">
+            {% block datatable_actions %}
+                {{ btn.link_button(
+                    'Sync Episodes',
+                    path('media_manager_episodes_update', {'showId': entity.id}),
+                    'fas fa-sync',
+                    'success',
+                    'xs')
+                }}
+            {% endblock %}
+        </div>
+    {% endif %}
+
+    {{ parent() }}
+
+{% endblock %}

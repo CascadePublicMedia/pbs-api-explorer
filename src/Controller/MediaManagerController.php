@@ -303,7 +303,8 @@ class MediaManagerController extends ControllerBase
         if (!$apiClient->isConfigured()) {
             throw new NotFoundHttpException(self::$notConfigured);
         }
-        $apiClient->updateEpisodesByShowId($showId);
+        $stats = $apiClient->updateEpisodesByShowId($showId);
+        $this->flashUpdateStats($stats);
         return $this->redirectToRoute('media_manager_shows_show', [
             'id' => $showId
         ]);

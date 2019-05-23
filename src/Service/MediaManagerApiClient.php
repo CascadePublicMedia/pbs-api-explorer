@@ -68,8 +68,12 @@ class MediaManagerApiClient extends PbsApiClientBase
      * Update all Episode instances for a Show.
      *
      * @param string $showId
+     *
+     * @return array
      */
     public function updateEpisodesByShowId($showId) {
+        $stats = ['add' => 0, 'update' => 0, 'noop' => 0];
+
         /** @var Show $show */
         $show = $this->entityManager
             ->getRepository(Show::class)
@@ -78,7 +82,7 @@ class MediaManagerApiClient extends PbsApiClientBase
         foreach ($show->getSeasons() as $season) {
             $episodes = $season->getEpisodes();
 
-            parent::update(
+            $update_stats = parent::update(
                 Episode::class,
                 $episodes,
                 "seasons/{$season->getId()}/episodes/",
@@ -88,10 +92,16 @@ class MediaManagerApiClient extends PbsApiClientBase
                 ]
             );
 
+            foreach ($update_stats as $key => $count) {
+                $stats[$key] += $count;
+            }
+
             foreach ($episodes as $episode) {
-                $this->updateAssetsByEpisodeId($episode->getId());
+                $this->updateAssetsByEpisode($episode);
             }
         }
+
+        return $stats;
     }
 
     /**
@@ -102,14 +112,9 @@ class MediaManagerApiClient extends PbsApiClientBase
      * data through the `fetch-related` query parameter, but many key fields
      * are missing and only accessible from the /assets/ API endpoint.
      *
-     * @param $episodeId
+     * @param Episode $episode
      */
-    public function updateAssetsByEpisodeId($episodeId) {
-        /** @var Episode $episode */
-        $episode = $this->entityManager
-            ->getRepository(Episode::class)
-            ->find($episodeId);
-
+    public function updateAssetsByEpisode($episode) {
         $assets = $episode->getAssets();
         foreach ($assets as $asset) {
             parent::update(
