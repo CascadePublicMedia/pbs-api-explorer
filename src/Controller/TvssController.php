@@ -180,6 +180,10 @@ class TvssController extends ControllerBase
         return $this->render('datatable.html.twig', [
             'datatable' => $table,
             'title' => 'Listings',
+            'subtitle' => self::createIconLink(
+                'docs',
+                'https://docs.pbs.org/display/tvsapi/TV+Schedules+Service+(TVSS)+API'
+            ),
         ]);
     }
 

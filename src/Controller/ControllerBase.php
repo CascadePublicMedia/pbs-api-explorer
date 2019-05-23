@@ -53,4 +53,26 @@ class ControllerBase extends AbstractController
             $stats['noop']
         ));
     }
+
+    /**
+     * Create HTML for a link with an icon.
+     *
+     * Defaults to a Bootstrap xs info button.
+     *
+     * @param string $text
+     * @param string $url
+     * @param string $icon_classes
+     * @param string $classes
+     *
+     * @return string
+     */
+    public static function createIconLink($text, $url, $icon_classes = 'fas fa-book', $classes = 'btn btn-info btn-xs') {
+        return sprintf(
+            '<a href="%s" class="%s" target="_blank"><i class="%s"></i> %s</a>',
+            $url,
+            $classes,
+            $icon_classes,
+            $text
+        );
+    }
 }

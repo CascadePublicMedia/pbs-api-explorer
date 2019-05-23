@@ -54,6 +54,10 @@ class StationManagerController extends ControllerBase
         return $this->render('station_manager/datatable.html.twig', [
             'datatable' => $table,
             'title' => 'Stations',
+            'subtitle' => self::createIconLink(
+                'docs',
+                'https://docs.pbs.org/display/SM/Station+Manager+Internal+API'
+            ),
             'update_route' => '#',  // @TODO Remove this requirement.
             'update_route_internal' => 'station_manager_stations_update',
             'update_route_public' => 'station_manager_stations_public_update',

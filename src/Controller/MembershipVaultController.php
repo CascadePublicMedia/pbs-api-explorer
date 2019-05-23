@@ -53,6 +53,10 @@ class MembershipVaultController extends ControllerBase
         return $this->render('datatable.html.twig', [
             'datatable' => $table,
             'title' => 'Profiles',
+            'subtitle' => self::createIconLink(
+                'docs',
+                'https://docs.pbs.org/display/uua/Integrating+PBS+Account+with+your+website+or+app'
+            ),
         ]);
     }
 
@@ -98,6 +102,10 @@ class MembershipVaultController extends ControllerBase
         return $this->render('datatable.html.twig', [
             'datatable' => $table,
             'title' => 'Memberships',
+            'subtitle' => self::createIconLink(
+                'docs',
+                'https://docs.pbs.org/display/MV/Membership+Vault+API'
+            ),
         ]);
     }
 

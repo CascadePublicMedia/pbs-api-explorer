@@ -54,6 +54,10 @@ class MediaManagerController extends ControllerBase
         return $this->render('datatable.html.twig', [
             'datatable' => $table,
             'title' => 'Genres',
+            'subtitle' => self::createIconLink(
+                '"docs"',
+                'https://docs.pbs.org/display/CDA/Shows#Shows-genreTableGenreList'
+            ),
             'update_route' => 'media_manager_genres_update'
         ]);
     }
@@ -115,6 +119,10 @@ class MediaManagerController extends ControllerBase
         return $this->render('datatable.html.twig', [
             'datatable' => $table,
             'title' => 'Franchises',
+            'subtitle' => self::createIconLink(
+                'docs',
+                'https://docs.pbs.org/display/CDA/Franchises'
+            ),
             'update_route' => 'media_manager_franchises_update'
         ]);
     }
@@ -180,6 +188,10 @@ class MediaManagerController extends ControllerBase
         return $this->render('datatable.html.twig', [
             'datatable' => $table,
             'title' => 'Shows',
+            'subtitle' => self::createIconLink(
+                'docs',
+                'https://docs.pbs.org/display/CDA/Shows'
+            ),
             'update_route' => 'media_manager_shows_update',
         ]);
     }
@@ -264,6 +276,10 @@ class MediaManagerController extends ControllerBase
         return $this->render('datatable.html.twig', [
             'datatable' => $table,
             'title' => 'Seasons',
+            'subtitle' => self::createIconLink(
+                'docs',
+                'https://docs.pbs.org/display/CDA/Seasons'
+            )
         ]);
     }
 
@@ -307,6 +323,10 @@ class MediaManagerController extends ControllerBase
         return $this->render('datatable.html.twig', [
             'datatable' => $table,
             'title' => 'Episodes',
+            'subtitle' => self::createIconLink(
+                'docs',
+                'https://docs.pbs.org/display/CDA/Episodes'
+            )
         ]);
     }
 
@@ -383,6 +403,10 @@ class MediaManagerController extends ControllerBase
             'datatable' => $table,
             'title' => 'Topics',
             'update_route' => 'media_manager_topics_update',
+            'subtitle' => self::createIconLink(
+                'docs',
+                'https://docs.pbs.org/display/CDA/Topics'
+            )
         ]);
     }
 
@@ -443,6 +467,10 @@ class MediaManagerController extends ControllerBase
         return $this->render('datatable.html.twig', [
             'datatable' => $table,
             'title' => 'Assets',
+            'subtitle' => self::createIconLink(
+                'docs',
+                'https://docs.pbs.org/display/CDA/Assets'
+            )
         ]);
     }
 
@@ -486,6 +514,10 @@ class MediaManagerController extends ControllerBase
         return $this->render('datatable.html.twig', [
             'datatable' => $table,
             'title' => 'Images',
+            'subtitle' => self::createIconLink(
+                'docs',
+                'https://docs.pbs.org/display/CDA/Image+and+Text+Specs'
+            )
         ]);
     }
 
@@ -530,6 +562,10 @@ class MediaManagerController extends ControllerBase
             'datatable' => $table,
             'title' => 'Changelog',
             'update_route' => 'media_manager_changelog_update',
+            'subtitle' => self::createIconLink(
+                'docs',
+                'https://docs.pbs.org/display/CDA/Changelog+Endpoint'
+            )
         ]);
     }
 
