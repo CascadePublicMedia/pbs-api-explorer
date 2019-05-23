@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20190514210759 extends AbstractMigration
+final class Version20190523221351 extends AbstractMigration
 {
     public function getDescription() : string
     {
@@ -25,6 +25,8 @@ final class Version20190514210759 extends AbstractMigration
         $this->addSql('CREATE TABLE asset_availability (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, asset_id CHAR(36) NOT NULL --(DC2Type:guid)
         , type VARCHAR(255) NOT NULL, start_date_time DATETIME DEFAULT NULL, end_date_time DATETIME DEFAULT NULL, updated DATETIME DEFAULT NULL)');
         $this->addSql('CREATE INDEX IDX_46E062425DA1941 ON asset_availability (asset_id)');
+        $this->addSql('CREATE TABLE pbs_profile (id CHAR(36) NOT NULL --(DC2Type:guid)
+        , first_name VARCHAR(255) DEFAULT NULL, last_name VARCHAR(255) DEFAULT NULL, birth_date DATE DEFAULT NULL, email VARCHAR(255) DEFAULT NULL, login_provider VARCHAR(255) DEFAULT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE TABLE feed (id CHAR(36) NOT NULL --(DC2Type:guid)
         , short_name VARCHAR(255) NOT NULL, full_name VARCHAR(255) NOT NULL, timezone VARCHAR(255) NOT NULL, analog_channel VARCHAR(255) DEFAULT NULL, digital_channel VARCHAR(255) DEFAULT NULL, external_id VARCHAR(255) DEFAULT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE TABLE asset_tag (id VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
@@ -92,6 +94,9 @@ final class Version20190514210759 extends AbstractMigration
         $this->addSql('CREATE INDEX IDX_DDAA1CDA5F7888C2 ON episode (full_length_asset_id)');
         $this->addSql('CREATE TABLE genre (id CHAR(36) NOT NULL --(DC2Type:guid)
         , slug VARCHAR(255) NOT NULL, title VARCHAR(255) NOT NULL, created DATETIME NOT NULL, updated DATETIME DEFAULT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE TABLE membership (id VARCHAR(255) NOT NULL, pbs_profile_id CHAR(36) DEFAULT NULL --(DC2Type:guid)
+        , first_name VARCHAR(255) DEFAULT NULL, last_name VARCHAR(255) DEFAULT NULL, email VARCHAR(255) NOT NULL, offer VARCHAR(255) DEFAULT NULL, notes CLOB DEFAULT NULL, status VARCHAR(255) DEFAULT NULL, token VARCHAR(255) DEFAULT NULL, additional_metadata VARCHAR(255) DEFAULT NULL, provisional BOOLEAN NOT NULL, start_date DATETIME NOT NULL, expire_date DATETIME NOT NULL, activation_date DATETIME DEFAULT NULL, grace_period DATETIME NOT NULL, create_date DATETIME NOT NULL, update_date DATETIME DEFAULT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE INDEX IDX_86FFD285C299A5BF ON membership (pbs_profile_id)');
         $this->addSql('CREATE TABLE headend (id CHAR(36) NOT NULL --(DC2Type:guid)
         , name VARCHAR(255) NOT NULL, feeds CLOB NOT NULL --(DC2Type:array)
         , PRIMARY KEY(id))');
@@ -109,6 +114,9 @@ final class Version20190514210759 extends AbstractMigration
         , parent_id CHAR(36) DEFAULT NULL --(DC2Type:guid)
         , name VARCHAR(255) NOT NULL, updated DATETIME DEFAULT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_9D40DE1B727ACA70 ON topic (parent_id)');
+        $this->addSql('CREATE TABLE changelog_entry (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, activity VARCHAR(255) NOT NULL, updated_fields CLOB DEFAULT NULL --(DC2Type:array)
+        , type VARCHAR(255) NOT NULL, resource_id CHAR(36) DEFAULT NULL --(DC2Type:guid)
+        , timestamp DATETIME NOT NULL)');
         $this->addSql('CREATE TABLE setting (id VARCHAR(255) NOT NULL, owner_id INTEGER NOT NULL, value VARCHAR(255) NOT NULL, updated DATETIME NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_9F74B8987E3C61F9 ON setting (owner_id)');
         $this->addSql('CREATE TABLE geo_availability_country (id CHAR(36) NOT NULL --(DC2Type:guid)
@@ -160,6 +168,11 @@ final class Version20190514210759 extends AbstractMigration
         , PRIMARY KEY(asset_id, remote_asset_id))');
         $this->addSql('CREATE INDEX IDX_8472097D5DA1941 ON asset_remote_asset (asset_id)');
         $this->addSql('CREATE INDEX IDX_8472097DD648660D ON asset_remote_asset (remote_asset_id)');
+        $this->addSql('CREATE TABLE asset_topic (asset_id CHAR(36) NOT NULL --(DC2Type:guid)
+        , topic_id CHAR(36) NOT NULL --(DC2Type:guid)
+        , PRIMARY KEY(asset_id, topic_id))');
+        $this->addSql('CREATE INDEX IDX_81BF05C5DA1941 ON asset_topic (asset_id)');
+        $this->addSql('CREATE INDEX IDX_81BF05C1F55203D ON asset_topic (topic_id)');
     }
 
     public function down(Schema $schema) : void
@@ -168,6 +181,7 @@ final class Version20190514210759 extends AbstractMigration
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'sqlite', 'Migration can only be executed safely on \'sqlite\'.');
 
         $this->addSql('DROP TABLE asset_availability');
+        $this->addSql('DROP TABLE pbs_profile');
         $this->addSql('DROP TABLE feed');
         $this->addSql('DROP TABLE asset_tag');
         $this->addSql('DROP TABLE geo_availability_profile');
@@ -185,10 +199,12 @@ final class Version20190514210759 extends AbstractMigration
         $this->addSql('DROP TABLE schedule_program');
         $this->addSql('DROP TABLE episode');
         $this->addSql('DROP TABLE genre');
+        $this->addSql('DROP TABLE membership');
         $this->addSql('DROP TABLE headend');
         $this->addSql('DROP TABLE franchise');
         $this->addSql('DROP TABLE franchise_platform');
         $this->addSql('DROP TABLE topic');
+        $this->addSql('DROP TABLE changelog_entry');
         $this->addSql('DROP TABLE setting');
         $this->addSql('DROP TABLE geo_availability_country');
         $this->addSql('DROP TABLE station');
@@ -198,5 +214,6 @@ final class Version20190514210759 extends AbstractMigration
         $this->addSql('DROP TABLE asset_geo_availability_country');
         $this->addSql('DROP TABLE asset_asset_tag');
         $this->addSql('DROP TABLE asset_remote_asset');
+        $this->addSql('DROP TABLE asset_topic');
     }
 }
