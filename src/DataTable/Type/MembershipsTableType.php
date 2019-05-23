@@ -48,7 +48,10 @@ class MembershipsTableType extends DataTableTypeBase implements DataTableTypeInt
                 'label' => 'Expire',
                 'format' => 'Y-m-d',
             ])
-            ->add('updateDate', DateTimeColumn::class, ['label' => 'Updated'])
+            ->add('updateDate', DateTimeColumn::class, [
+                'label' => 'Updated (UTC)',
+                'format' => 'Y-m-d H:i:s',
+            ])
             ->createAdapter(ORMAdapter::class, ['entity' => Membership::class])
             ->addOrderBy('updateDate', DataTable::SORT_DESCENDING);
     }
