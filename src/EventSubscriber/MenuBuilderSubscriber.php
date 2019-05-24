@@ -209,7 +209,7 @@ class MenuBuilderSubscriber implements EventSubscriberInterface
         if ($this->security->isGranted('ROLE_ADMIN')) {
             $event->addItem(new MenuItemModel(
                'settings',
-               'Settings',
+               'System Settings',
                'settings',
                [],
                'fas fa-cogs'
@@ -217,13 +217,32 @@ class MenuBuilderSubscriber implements EventSubscriberInterface
         }
 
         if ($this->security->isGranted('ROLE_USER')) {
-            $event->addItem(new MenuItemModel(
-               'user_logout',
-               'Logout',
-               'logout',
-               [],
-               'fas fa-sign-out-alt'
+            // User menu items.
+            $user = new MenuItemModel(
+                'user',
+                'User',
+                'home',
+                [],
+                'fas fa-user'
+            );
+
+            $user->addChild(new MenuItemModel(
+                'user_password',
+                'Change Password',
+                'user_password',
+                [],
+                'fas fa-key'
             ));
+
+            $user->addChild(new MenuItemModel(
+                'user_logout',
+                'Logout',
+                'logout',
+                [],
+                'fas fa-sign-out-alt'
+            ));
+
+            $event->addItem($user);
         }
         else {
             $event->addItem(new MenuItemModel(
