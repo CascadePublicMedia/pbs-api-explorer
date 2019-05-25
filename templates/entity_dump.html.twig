@@ -13,6 +13,11 @@
 
 {% block page_content %}
 
-    {{ dump(entity) }}
+    {% if app.environment == 'dev' %}
+        {{ dump(entity) }}
+    {% else %}
+       <h2>{{ entity }}</h2>
+       <code>{{ entity.id }}</code>
+    {% endif %}
 
 {% endblock %}
