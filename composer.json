@@ -21,6 +21,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ext-json": "*",
+        "doctrine/doctrine-fixtures-bundle": "^3.1",
         "guzzlehttp/guzzle": "^6.3",
         "kevinpapst/adminlte-bundle": "^2.0",
         "omines/datatables-bundle": "^0.2.2",
@@ -48,7 +49,6 @@
         "symfony/yaml": "4.2.*"
     },
     "require-dev": {
-        "doctrine/doctrine-fixtures-bundle": "^3.1",
         "symfony/debug-pack": "*",
         "symfony/maker-bundle": "^1.11",
         "symfony/profiler-pack": "*",
