@@ -4,14 +4,14 @@ namespace CascadePublicMedia\PbsApiExplorer\Command;
 
 use CascadePublicMedia\PbsApiExplorer\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\MakerBundle\ConsoleStyle;
-use Symfony\Bundle\MakerBundle\Exception\RuntimeCommandException;
+use RuntimeException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\Question;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\Length;
@@ -90,7 +90,7 @@ class UserCreateCommand extends Command
      */
     protected function interact(InputInterface $input, OutputInterface $output)
     {
-        $io = new ConsoleStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
 
         $arg1 = $input->getArgument('email');
         $question = new Question('User email address', $arg1);
@@ -129,7 +129,7 @@ class UserCreateCommand extends Command
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
-        $io = new ConsoleStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
         $io->success('User created!');
     }
 
@@ -141,7 +141,7 @@ class UserCreateCommand extends Command
      *
      * @return string
      *
-     * @throws RuntimeCommandException
+     * @throws RuntimeException
      */
     public function validateEmail($email) {
         $violations = $this->validator->validate($email, [
@@ -149,7 +149,7 @@ class UserCreateCommand extends Command
             new Email()
         ]);
         if (count($violations) > 0) {
-            throw new RuntimeCommandException($violations[0]->getMessage());
+            throw new RuntimeException($violations[0]->getMessage());
         }
 
         // Check for an existing user with this email address.
@@ -157,7 +157,7 @@ class UserCreateCommand extends Command
             ->getRepository(User::class)
             ->findOneByEmail($email);
         if (!is_null($user)) {
-            throw new RuntimeCommandException('A user with that email address already exists.');
+            throw new RuntimeException('A user with that email address already exists.');
         }
         return $email;
     }
@@ -169,7 +169,7 @@ class UserCreateCommand extends Command
      *
      * @return string
      *
-     * @throws RuntimeCommandException
+     * @throws RuntimeException
      */
     public function validatePassword($password) {
         $violations = $this->validator->validate($password, [
@@ -177,7 +177,7 @@ class UserCreateCommand extends Command
             new Length(['min' => 3])
         ]);
         if (count($violations) > 0) {
-            throw new RuntimeCommandException($violations[0]->getMessage());
+            throw new RuntimeException($violations[0]->getMessage());
         }
         return $password;
     }
@@ -189,7 +189,7 @@ class UserCreateCommand extends Command
      */
     public function validateConfirmPassword($password) {
         if ($password != $this->password) {
-            throw new RuntimeCommandException("Passwords did not match.");
+            throw new RuntimeException("Passwords did not match.");
         }
     }
 }
