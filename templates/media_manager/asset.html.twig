@@ -1,6 +1,19 @@
 {% extends 'entity_dump.html.twig' %}
+{% import '@AdminLTE/Macros/buttons.html.twig' as btn %}
 
 {% block page_content %}
+
+    <div class="well well-sm">
+        {% block datatable_actions %}
+            {{ btn.link_button(
+                'List Images',
+                path('media_manager_images') ~ '#search[search]=' ~ entity.id,
+                'fas fa-images',
+                'info',
+                'xs')
+            }}
+        {% endblock %}
+    </div>
 
     {% if entity.playerCode is not empty %}
         {% embed '@AdminLTE/Widgets/box-widget.html.twig' with {

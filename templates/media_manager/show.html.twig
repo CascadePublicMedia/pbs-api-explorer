@@ -19,6 +19,13 @@
                 'info',
                 'xs')
             }}
+            {{ btn.link_button(
+                'List Images',
+                path('media_manager_images') ~ '#search[search]=' ~ entity.id,
+                'fas fa-images',
+                'info',
+                'xs')
+            }}
             {% if is_granted('ROLE_ADMIN') %}
                 {{ btn.link_button(
                     'Sync Episodes',

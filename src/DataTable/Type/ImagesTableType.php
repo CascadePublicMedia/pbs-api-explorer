@@ -38,6 +38,26 @@ class ImagesTableType extends DataTableTypeBase implements DataTableTypeInterfac
                 },
                 'raw' => TRUE,
             ])
+            ->add('franchiseId', TextColumn::class, [
+                'label' => 'Franchise ID',
+                'field' => 'franchise.id',
+                'visible' => FALSE,
+            ])
+            ->add('showId', TextColumn::class, [
+                'label' => 'Show ID',
+                'field' => 'show.id',
+                'visible' => FALSE,
+            ])
+            ->add('assetId', TextColumn::class, [
+                'label' => 'Asset ID',
+                'field' => 'asset.id',
+                'visible' => FALSE,
+            ])
+            ->add('stationId', TextColumn::class, [
+                'label' => 'Station ID',
+                'field' => 'station.id',
+                'visible' => FALSE,
+            ])
             ->add('updated', DateTimeColumn::class, ['label' => 'Updated'])
             ->createAdapter(ORMAdapter::class, [
                 'entity' => Image::class,
