@@ -177,7 +177,7 @@ class TvssController extends ControllerBase
         if ($table->isCallback()) {
             return $table->getResponse();
         }
-        return $this->render('datatable.html.twig', [
+        return $this->render('tvss/listings.html.twig', [
             'datatable' => $table,
             'title' => 'Listings',
             'subtitle' => self::createIconLink(
@@ -188,7 +188,7 @@ class TvssController extends ControllerBase
     }
 
     /**
-     * @Route("/tvss/listings/update/{date}", name="tvss_listings_update")
+     * @Route("/tvss/listings/update/date/{date}", name="tvss_listings_update_date")
      * @Security("is_granted('ROLE_ADMIN')")
      *
      * @param string $date
@@ -197,11 +197,31 @@ class TvssController extends ControllerBase
      *
      * @return RedirectResponse
      */
-    public function listings_update($date, TvssApiClient $apiClient) {
+    public function listings_update_date($date, TvssApiClient $apiClient) {
         if (!$apiClient->isConfigured()) {
             throw new NotFoundHttpException(self::$notConfigured);
         }
         $stats = $apiClient->updateListings($date);
+        $this->flashUpdateStats($stats);
+        return $this->redirectToRoute('tvss_listings');
+    }
+
+    /**
+     * @Route("/tvss/listings/update/month/{month}", name="tvss_listings_update_month")
+     * @Security("is_granted('ROLE_ADMIN')")
+     *
+     * @param string $month
+     *   Month designation in the format YYYYMM.
+     * @param TvssApiClient $apiClient
+     *
+     * @return RedirectResponse
+     * @throws \Exception
+     */
+    public function listings_update_month($month, TvssApiClient $apiClient) {
+        if (!$apiClient->isConfigured()) {
+            throw new NotFoundHttpException(self::$notConfigured);
+        }
+        $stats = $apiClient->updateListingsByMonth($month);
         $this->flashUpdateStats($stats);
         return $this->redirectToRoute('tvss_listings');
     }

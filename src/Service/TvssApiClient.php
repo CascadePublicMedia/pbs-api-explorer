@@ -9,7 +9,10 @@ use CascadePublicMedia\PbsApiExplorer\Entity\ScheduleProgram;
 use CascadePublicMedia\PbsApiExplorer\Entity\Setting;
 use CascadePublicMedia\PbsApiExplorer\Utils\ApiValueProcessor;
 use CascadePublicMedia\PbsApiExplorer\Utils\FieldMapper;
+use DateInterval;
+use DatePeriod;
 use DateTime;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -83,7 +86,7 @@ class TvssApiClient extends PbsApiClientBase
     }
 
     /**
-     * Update Listings information from the TVSS API.
+     * Update Listings information from the TVSS API by date.
      *
      * @param string $date
      *   Date of listings to retrieve in the format YYYYMMDD.
@@ -146,6 +149,40 @@ class TvssApiClient extends PbsApiClientBase
         }
 
         $this->entityManager->flush();
+        return $stats;
+    }
+
+    /**
+     * Update Listings information from the TVSS API by month.
+     *
+     * @param string $month
+     *   Date of listings to retrieve in the format YYYYMM.
+     *
+     * @return array
+     *   Stats information from the update() method.
+     *
+     * @throws \Exception
+     *
+     * @see TvssApiClient::update()
+     */
+    public function updateListingsByMonth($month) {
+        $stats = ['add' => 0, 'update' => 0, 'noop' => 0];
+        $start = DateTimeImmutable::createFromFormat('Ymd', $month . '01');
+        if (!$start) {
+            throw new BadRequestHttpException('Invalid month designation');
+        }
+
+        $interval = new DateInterval('P1D');
+        $end = $start->add(new DateInterval('P1M'));
+        $period = new DatePeriod($start, $interval, $end);
+        /** @var DateTime $date */
+        foreach ($period as $date) {
+            $update_stats = $this->updateListings($date->format('Ymd'));
+            foreach ($update_stats as $key => $count) {
+                $stats[$key] += $count;
+            }
+        }
+
         return $stats;
     }
 

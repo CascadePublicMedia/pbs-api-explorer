@@ -1,0 +1,46 @@
+{#
+General datatable view for Entity instances.
+
+Availavble variables:
+ - properties: An array of keys for entity properties to add to the table.
+ - entities: An array of entity objects for the table.
+ - title: Title for the page. (optional)
+ - subtitle: Subtitle for the page. (optional)
+ - entity_route: A Symfony route to use as a link for the first field. The
+                 entity ID will be used an argument. (optional)
+ - update_route: A Symfony route to update *all* instances of the provided
+                 Entity. (optional)
+#}
+
+{% extends 'datatable.html.twig' %}
+{% import '@AdminLTE/Macros/buttons.html.twig' as btn %}
+
+{% block page_content %}
+
+    {% if is_granted('ROLE_ADMIN') %}
+        <div class="well well-sm">
+            {% block datatable_actions %}
+                <div class="btn-group btn-group-xs">
+                    <button type="button" class="btn btn-success">
+                        <i class="fas fa-sync"></i>
+                        Sync from API
+                    </button>
+                    <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown">
+                        <span class="caret"></span>
+                        <span class="sr-only">Toggle Dropdown</span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="{{ path('tvss_listings_update_month', {'month': 'last month'|date('Ym')}) }}">
+                                {{ 'last month'|date('F Y') }}</a></li>
+                        <li><a href="{{ path('tvss_listings_update_month', {'month': 'now'|date('Ym')}) }}">
+                                {{ 'now'|date('F Y') }}</a></li>
+                        <li><a href="{{ path('tvss_listings_update_month', {'month': 'next month'|date('Ym')}) }}">
+                                {{ 'next month'|date('F Y') }}</a></li>
+                    </ul>
+                </div>
+            {% endblock %}
+        </div>
+    {% endif %}
+
+    <div id="datatable">Loading...</div>
+{% endblock %}
