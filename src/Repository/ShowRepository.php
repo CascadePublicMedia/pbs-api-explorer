@@ -28,6 +28,26 @@ class ShowRepository extends RepositoryBase
             ;
     }
 
+    public function findOneByTitle($value): ?Show
+    {
+        return $this->createQueryBuilder('s')
+            ->andWhere('s.title = :val')
+            ->setParameter('val', $value)
+            ->getQuery()
+            ->getOneOrNullResult()
+            ;
+    }
+
+    public function findOneByTmsId($value): ?Show
+    {
+        return $this->createQueryBuilder('s')
+            ->andWhere('s.tmsId = :val')
+            ->setParameter('val', $value)
+            ->getQuery()
+            ->getOneOrNullResult()
+            ;
+    }
+
     // /**
     //  * @return Show[] Returns an array of Show objects
     //  */
