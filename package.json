@@ -25,7 +25,7 @@
         "production": "encore production --progress"
     },
     "dependencies": {
-        "datatables.net": "^1.10.19",
+        "datatables.net": "^1.10.22",
         "datatables.net-bs": "^1.10.19"
     }
 }
